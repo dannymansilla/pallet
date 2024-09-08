@@ -27,7 +27,49 @@ This is a full-stack auction marketplace application built with React (frontend)
 
 ## Project Structure
 
-myproject/ │ ├── backend/ # Django backend │ ├── myproject/ # Main Django project folder │ ├── myapp/ # Django application folder │ ├── Dockerfile # Docker setup for backend │ ├── requirements.txt # Python dependencies │ └── .env # Environment variables for backend │ ├── frontend/ # React frontend │ ├── public/ # Public files │ ├── src/ # Main source folder for React │ ├── Dockerfile # Docker setup for frontend │ ├── package.json # Frontend dependencies │ └── .env # Environment variables for frontend │ ├── docker-compose.yml # Docker Compose file to manage services └── README.md # Project documentation
+```
+myproject/
+│
+├── backend/                    # Django backend
+│   ├── myproject/              # Main Django project folder
+│   │   ├── __init__.py
+│   │   ├── settings.py         # Django settings (configure static, REST API, etc.)
+│   │   ├── urls.py             # Main URL configuration
+│   │   ├── wsgi.py
+│   │   └── asgi.py
+│   │
+│   ├── myapp/                  # Django application folder
+│   │   ├── __init__.py
+│   │   ├── admin.py            # Admin panel configurations
+│   │   ├── apps.py
+│   │   ├── models.py           # Database models
+│   │   ├── views.py            # Views to handle requests
+│   │   ├── urls.py             # App-specific URL routing
+│   │   ├── serializers.py      # DRF serializers for models
+│   │   └── tests.py            # Unit tests
+│   │
+│   ├── manage.py               # Django's command-line utility
+│   └── requirements.txt        # Python dependencies
+│
+├── frontend/                   # React frontend
+│   ├── public/                 # Public files (index.html, icons, etc.)
+│   ├── src/                    # Main source folder for React
+│   │   ├── components/         # Reusable React components
+│   │   ├── pages/              # Page components (Home, Product, etc.)
+│   │   ├── hooks/              # Custom hooks
+│   │   ├── context/            # Context API for state management
+│   │   ├── services/           # API service files for interacting with the backend
+│   │   ├── App.js              # Main App component
+│   │   ├── index.js            # Entry point for React
+│   │   ├── routes.js           # Application routing configuration
+│   │   └── styles/             # Global and component-specific styles
+│   │
+│   ├── package.json            # Frontend dependencies and scripts
+│   └── .env                    # Environment variables for the frontend
+│
+├── .gitignore                  # Files and directories to ignore in git
+└── docker-compose.yml          # For running Docker containers (optional)
+```
 
 ## Getting Started
 
