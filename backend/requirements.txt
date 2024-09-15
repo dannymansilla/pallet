@@ -1,0 +1,5 @@
+Django>=4.2,<5.0
+djangorestframework
+psycopg2-binary  # For PostgreSQL connection
+python-decouple
+# Add any other dependencies your project needs

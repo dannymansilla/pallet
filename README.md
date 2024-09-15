@@ -31,14 +31,14 @@ This is a full-stack auction marketplace application built with React (frontend)
 myproject/
 │
 ├── backend/                    # Django backend
-│   ├── myproject/              # Main Django project folder
+│   ├── palletproject/          # Main Django project folder
 │   │   ├── __init__.py
 │   │   ├── settings.py         # Django settings (configure static, REST API, etc.)
 │   │   ├── urls.py             # Main URL configuration
 │   │   ├── wsgi.py
 │   │   └── asgi.py
 │   │
-│   ├── myapp/                  # Django application folder
+│   ├── palletapp/              # Django application folder
 │   │   ├── __init__.py
 │   │   ├── admin.py            # Admin panel configurations
 │   │   ├── apps.py

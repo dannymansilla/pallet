@@ -9,12 +9,19 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from decouple import Config, RepositoryEnv
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+env_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..', '.env'))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# env_path = os.path.join(BASE_DIR, '.env')  # Adjust the path if your .env is elsewhere
+print("env_path DIR: " + env_path)
+# Create a config object with the specified path
+# config = Config(env_path)
+config = Config(RepositoryEnv(env_path))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -75,11 +82,17 @@ WSGI_APPLICATION = 'palletproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('POSTGRES_DB'),        # Name of the database you created
+        'USER': config('POSTGRES_USER'),      # The user you created palletuser
+        'PASSWORD': config('POSTGRES_PASSWORD'), # The password for your user palletpassword
+        'HOST': config('POSTGRES_HOST', default='localhost'),         # Local host since the database is on your laptop
+        'PORT': config('POSTGRES_PORT', default='5432'),              # Default port for PostgreSQL
     }
 }
 
+SECRET_KEY = config('DJANGO_SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
