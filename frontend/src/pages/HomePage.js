@@ -42,7 +42,7 @@ const HomePage = () => {
   return (
     <div className="home-page">
       <header className="home-header">
-        <h1>Welcome to Auction Marketplace</h1>
+        <h1>Welcome to Pallet Marketplace</h1>
         <p>Your destination for live auctions and unbeatable deals!</p>
       </header>
 

@@ -11,6 +11,7 @@ import CreateAccountPage from './pages/CreateAccountPage';
 import LoginPage from './pages/LoginPage'; 
 import ProfilePage from './pages/ProfilePage';
 import ListProductPage from './pages/ListProductPage';
+import BiddingPage from './pages/BiddingPage'; 
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/profile" element={<ProfilePage />} /> 
             <Route path="/list-product" element={<ListProductPage />} />
+            <Route path="/bid" element={<BiddingPage />} />
           </Routes>
         </main>
         <Footer/>

@@ -8,7 +8,7 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   text-align: center;
   width: 280px;
-  height: 340px; /* Increased height to accommodate additional information */
+  height: 340px;
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -27,27 +27,62 @@
   margin-bottom: 10px;
 }
 
-.auction-card h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.2em;
-  color: #333;
-  font-weight: bold;
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.auction-card-description {
-  margin: 0 0 10px 0;
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.modal-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.modal-sku, .modal-description, .modal-close-date, .modal-status {
+  margin: 10px 0;
   font-size: 0.9em;
   color: #555;
 }
-
-.auction-card-sku {
-  margin: 0 0 10px 0;
-  font-size: 0.8em;
-  color: #777;
+/* 
+.cta-button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 15px;
 }
 
-.auction-card p {
-  margin: 0;
-  font-size: 0.9em;
-  color: #777;
-}
+.cta-button:hover {
+  background-color: #0056b3;
+} */

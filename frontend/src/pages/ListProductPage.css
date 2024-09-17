@@ -30,16 +30,24 @@
   }
   
   .list-product-button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #28a745;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
+    background: linear-gradient(135deg, #4a90e2, #007aff); /* Subtle blue gradient for a modern look */
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px; /* Softer rounded corners */
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   }
   
   .list-product-button:hover {
-    background-color: #218838;
+    background: linear-gradient(135deg, #357ABD, #0056b3); /* Slightly darker gradient on hover */
+  transform: translateY(-2px); /* Lift effect on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
   }
 
   .list-product-page, .contact-page, .auctions-page, .about-page, .home-page {

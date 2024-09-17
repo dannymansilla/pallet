@@ -21,7 +21,7 @@
   margin-bottom: 20px;
 }
 
-.cta-button {
+/* .cta-button {
   padding: 10px 20px;
   border: none;
   background-color: #28a745;
@@ -33,7 +33,7 @@
 
 .cta-button:hover {
   background-color: #218838;
-}
+} */
 
 .auctions-list {
   display: flex;

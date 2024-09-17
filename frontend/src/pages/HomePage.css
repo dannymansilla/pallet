@@ -58,7 +58,7 @@
   gap: 20px;
 }
 
-.cta-button {
+/* .cta-button {
   background-color: #007bff;
   color: white;
   border: none;
@@ -70,7 +70,7 @@
 
 .cta-button:hover {
   background-color: #0056b3;
-}
+} */
 
 
   .home-page, .contact-page, .auctions-page {

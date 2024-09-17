@@ -21,3 +21,30 @@ footer {
   position: relative; /* Keeps the footer positioned normally within the flow */
   margin-top: auto; /* Pushes the footer to the bottom when content is short */
 }
+
+/* Modern button style */
+.cta-button {
+  background: linear-gradient(135deg, #4a90e2, #007aff); /* Subtle blue gradient for a modern look */
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px; /* Softer rounded corners */
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.cta-button:hover {
+  background: linear-gradient(135deg, #357ABD, #0056b3); /* Slightly darker gradient on hover */
+  transform: translateY(-2px); /* Lift effect on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.cta-button:active {
+  transform: translateY(0); /* Returns to original position on click */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Reduced shadow on click */
+}
