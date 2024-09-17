@@ -1,29 +1,57 @@
 // src/pages/AuctionsPage.js
-import React from 'react';
-import './AuctionsPage.css'; // Add the CSS file for styling
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import AuctionCard from '../components/AuctionCard'; // Import the reusable AuctionCard component
+import './AuctionsPage.css';
 
 const AuctionsPage = () => {
+  const [auctionItems, setAuctionItems] = useState([
+    {
+      id: 1,
+      name: 'Bulk Cereal',
+      startingBid: 50,
+      status: 'Active',
+      description: 'High-quality bulk cereal perfect for large-scale distribution.',
+      sku: 'CER-123456',
+      image: 'https://via.placeholder.com/150', // Placeholder image URL
+    },
+    {
+      id: 2,
+      name: 'Soft Drinks',
+      startingBid: 100,
+      status: 'Active',
+      description: 'Assorted soft drinks in bulk for retail or events.',
+      sku: 'DRK-654321',
+      image: 'https://via.placeholder.com/150',
+    },
+    {
+      id: 3,
+      name: 'Organic Snacks',
+      startingBid: 200,
+      status: 'Closed',
+      description: 'A variety of organic snacks, perfect for healthy eating.',
+      sku: 'SNK-789012',
+      image: 'https://via.placeholder.com/150',
+    },
+  ]);
+
+  const handleCardClick = (item) => {
+    alert(`More information about: ${item.name}`);
+  };
+
   return (
     <div className="auctions-page">
       <h2>Auctions</h2>
       <p>Explore our live auctions and place your bids on bulk quantities of consumer packaged goods.</p>
+
+      <Link to="/list-product" className="list-item-button">
+        <button className="cta-button">List New Item</button>
+      </Link>
+
       <div className="auctions-list">
-        {/* Placeholder auction items */}
-        <div className="auction-item">
-          <h3>Item 1</h3>
-          <p>Starting Bid: $50</p>
-          <button className="bid-button">Place Bid</button>
-        </div>
-        <div className="auction-item">
-          <h3>Item 2</h3>
-          <p>Starting Bid: $100</p>
-          <button className="bid-button">Place Bid</button>
-        </div>
-        <div className="auction-item">
-          <h3>Item 3</h3>
-          <p>Starting Bid: $200</p>
-          <button className="bid-button">Place Bid</button>
-        </div>
+        {auctionItems.map((item) => (
+          <AuctionCard key={item.id} item={item} onClick={handleCardClick} />
+        ))}
       </div>
     </div>
   );

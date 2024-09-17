@@ -1,0 +1,53 @@
+/* src/components/AuctionCard.css */
+.auction-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  width: 280px;
+  height: 340px; /* Increased height to accommodate additional information */
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+}
+
+.auction-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.auction-card img {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.auction-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  color: #333;
+  font-weight: bold;
+}
+
+.auction-card-description {
+  margin: 0 0 10px 0;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.auction-card-sku {
+  margin: 0 0 10px 0;
+  font-size: 0.8em;
+  color: #777;
+}
+
+.auction-card p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #777;
+}

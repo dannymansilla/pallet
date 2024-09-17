@@ -52,3 +52,6 @@
     background-color: #0056b3;
   }
   
+  .login-page, .contact-page, .auctions-page, .about-page, .home-page {
+    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+  }

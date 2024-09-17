@@ -4,6 +4,7 @@
     max-width: 800px;
     margin: 0 auto;
     overflow-y: auto;
+    min-height: 60vh;
   }
   
   .user-info,
@@ -34,3 +35,7 @@
     border-bottom: none;
   }
   
+  /* Example: Adjust padding/margin for main content sections */
+.profile-page, .home-page, .auctions-page {
+  padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+}

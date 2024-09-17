@@ -42,4 +42,7 @@
     background-color: #218838;
   }
 
+  .list-product-page, .contact-page, .auctions-page, .about-page, .home-page {
+    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+  }
   

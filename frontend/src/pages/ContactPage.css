@@ -3,6 +3,7 @@
     padding: 20px;
     max-width: 600px;
     margin: 0 auto;
+    overflow-y: auto;
   }
   
   .contact-page h2 {
@@ -46,5 +47,9 @@
   
   .contact-button:hover {
     background-color: #218838;
+  }
+
+  .profile-page, .contact-page, .auctions-page, .about-page, .home-page {
+    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
   }
   

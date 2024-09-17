@@ -6,6 +6,7 @@ const ListProductPage = () => {
   const [productData, setProductData] = useState({
     productName: '',
     description: '',
+    sku: '',
     quantity: '',
     startingBid: '',
     auctionEndDate: '',
@@ -35,6 +36,15 @@ const ListProductPage = () => {
             onChange={handleChange}
             required
           />
+        </div>
+        <div className="form-group">
+          <label>SKU</label>
+          <textarea
+            name="sku"
+            value={productData.sku}
+            onChange={handleChange}
+            required
+          ></textarea>
         </div>
         <div className="form-group">
           <label>Description</label>

@@ -1,13 +1,48 @@
 // src/pages/HomePage.js
-import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
-import './HomePage.css'; // Optional: Add styles for your Home Page
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import AuctionCard from '../components/AuctionCard'; // Import the reusable AuctionCard component
+import './HomePage.css';
 
 const HomePage = () => {
+  const [featuredAuctions, setFeaturedAuctions] = useState([
+    {
+      id: 1,
+      name: 'Bulk Cereal',
+      startingBid: 50,
+      status: 'Active',
+      description: 'High-quality bulk cereal perfect for large-scale distribution.',
+      sku: 'CER-123456',
+      image: 'https://via.placeholder.com/150', // Placeholder image URL
+    },
+    {
+      id: 2,
+      name: 'Soft Drinks',
+      startingBid: 100,
+      status: 'Active',
+      description: 'Assorted soft drinks in bulk for retail or events.',
+      sku: 'DRK-654321',
+      image: 'https://via.placeholder.com/150',
+    },
+    {
+      id: 3,
+      name: 'Organic Snacks',
+      startingBid: 200,
+      status: 'Closed',
+      description: 'A variety of organic snacks, perfect for healthy eating.',
+      sku: 'SNK-789012',
+      image: 'https://via.placeholder.com/150',
+    },
+  ]);
+
+  const handleCardClick = (item) => {
+    alert(`More information about: ${item.name}`);
+  };
+
   return (
     <div className="home-page">
       <header className="home-header">
-        <h1>Welcome to Pallet Market</h1>
+        <h1>Welcome to Auction Marketplace</h1>
         <p>Your destination for live auctions and unbeatable deals!</p>
       </header>
 
@@ -15,9 +50,9 @@ const HomePage = () => {
         <h2>Featured Auctions</h2>
         <p>Check out some of our most popular items currently up for bid:</p>
         <div className="auction-list">
-          <div className="auction-item">Item 1 - Starting at $50</div>
-          <div className="auction-item">Item 2 - Starting at $100</div>
-          <div className="auction-item">Item 3 - Starting at $200</div>
+          {featuredAuctions.map((item) => (
+            <AuctionCard key={item.id} item={item} onClick={handleCardClick} />
+          ))}
         </div>
       </section>
 
@@ -33,11 +68,11 @@ const HomePage = () => {
         <Link to="/auctions">
           <button className="cta-button">Browse All Auctions</button>
         </Link>
-        <Link to="/create-account"> 
+        <Link to="/create-account">
           <button className="cta-button">Create an Account</button>
         </Link>
         <Link to="/login">
-          <button className="cta-button">Log In</button> 
+          <button className="cta-button">Log In</button>
         </Link>
       </section>
     </div>

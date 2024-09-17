@@ -3,6 +3,7 @@
     padding: 20px;
     max-width: 800px;
     margin: 0 auto;
+    min-height: 60vh;
   }
   
   .about-page h2 {
@@ -16,5 +17,9 @@
     color: #555;
     line-height: 1.6;
     margin-bottom: 15px;
+  }
+
+  .profile-page, .contact-page, .auctions-page, .about-page, .home-page {
+    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
   }
   
