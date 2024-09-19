@@ -2,49 +2,26 @@
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Ensures the app container covers the full height of the viewport */
+  min-height: 85vh; /* Ensures the app container covers the full height of the viewport */
 }
 
 .content {
-  flex: 1; /* Allows the content area to grow and take up available space */
+  flex-grow: 1;
+  text-align: left;
   padding: 20px;
-  min-height: 60vh;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  flex: 1; /* Allows the content area to grow and take up available space */
+  min-height: 85vh;
   box-sizing: border-box; /* Ensures padding is included in the element's width/height calculations */
 }
 
 footer {
-  background-color: #333;
-  color: #fff;
-  padding: 10px 20px;
-  text-align: center;
-  width: 100%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative; /* Keeps the footer positioned normally within the flow */
   margin-top: auto; /* Pushes the footer to the bottom when content is short */
-}
-
-/* Modern button style */
-.cta-button {
-  background: linear-gradient(135deg, #4a90e2, #007aff); /* Subtle blue gradient for a modern look */
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px; /* Softer rounded corners */
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-}
-
-.cta-button:hover {
-  background: linear-gradient(135deg, #357ABD, #0056b3); /* Slightly darker gradient on hover */
-  transform: translateY(-2px); /* Lift effect on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
-}
-
-.cta-button:active {
-  transform: translateY(0); /* Returns to original position on click */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Reduced shadow on click */
 }

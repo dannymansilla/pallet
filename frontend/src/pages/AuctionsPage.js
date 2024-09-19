@@ -11,6 +11,7 @@ const AuctionsPage = () => {
       name: 'Bulk Cereal',
       startingBid: 50,
       status: 'Active',
+      closeDate: '2024-09-30',
       description: 'High-quality bulk cereal perfect for large-scale distribution.',
       sku: 'CER-123456',
       image: 'https://via.placeholder.com/150', // Placeholder image URL
@@ -20,6 +21,7 @@ const AuctionsPage = () => {
       name: 'Soft Drinks',
       startingBid: 100,
       status: 'Active',
+      closeDate: '2024-09-30',
       description: 'Assorted soft drinks in bulk for retail or events.',
       sku: 'DRK-654321',
       image: 'https://via.placeholder.com/150',
@@ -29,6 +31,7 @@ const AuctionsPage = () => {
       name: 'Organic Snacks',
       startingBid: 200,
       status: 'Closed',
+      closeDate: '2024-09-30',
       description: 'A variety of organic snacks, perfect for healthy eating.',
       sku: 'SNK-789012',
       image: 'https://via.placeholder.com/150',

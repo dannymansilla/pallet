@@ -1,48 +1,36 @@
-/* src/pages/AuctionsPage.css */
+/* AuctionsPage.css */
+
 .auctions-page {
-  padding: 20px;
+  padding: 60px; /* Increase padding for the entire page */
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-height: 90vh;
+  align-items: flex-start; /* Left-align the content */
+  min-height: 85vh;
 }
 
 .auctions-page h2 {
   font-size: 2.2em;
   color: #333;
-  margin-bottom: 20px;
-  text-align: center;
+  margin-bottom: 50px; /* Add more space below the heading */
+  text-align: left;
 }
 
 .list-item-button {
   display: inline-block;
-  margin-bottom: 20px;
+  margin-bottom: 40px; /* Increase margin for spacing under the button */
 }
-
-/* .cta-button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #28a745;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.cta-button:hover {
-  background-color: #218838;
-} */
 
 .auctions-list {
   display: flex;
-  gap: 20px;
+  gap: 30px; /* Increase spacing between auction cards */
   flex-wrap: wrap;
-  justify-content: center; /* Center the cards on the page */
+  justify-content: flex-start; /* Left-align the auction cards */
 }
 
-
-  .profile-page, .contact-page, .auctions-page, .about-page, .home-page {
-    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+@media (max-width: 768px) {
+  .auctions-page {
+    padding: 30px; /* Adjust padding for smaller screens */
   }
+}

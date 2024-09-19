@@ -1,43 +1,28 @@
-/* src/pages/CreateAccountPage.css */
+/* CreateAccountPage.css */
+
 .create-account-page {
+  padding: 40px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 85vh
+}
+
+.create-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.create-account-button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .create-account-page {
     padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
   }
-  
-  .create-account-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  label {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-  }
-  
-  .create-account-button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .create-account-button:hover {
-    background-color: #0056b3;
-  }
-  
+}

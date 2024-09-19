@@ -43,7 +43,7 @@ const LoginPage = () => {
             required
           />
         </div>
-        <button type="submit" className="login-button">
+        <button type="submit" className="cta-button">
           Log In
         </button>
       </form>

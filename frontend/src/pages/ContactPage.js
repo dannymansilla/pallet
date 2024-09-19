@@ -20,7 +20,7 @@ const ContactPage = () => {
           <label>Message</label>
           <textarea name="message" required></textarea>
         </div>
-        <button type="submit" className="contact-button">Send Message</button>
+        <button type="submit" className="cta-button">Send Message</button>
       </form>
     </div>
   );

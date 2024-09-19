@@ -1,56 +1,34 @@
-/* src/pages/ListProductPage.css */
-.list-product-page {
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
-  .list-product-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  label {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  input,
-  textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-  }
-  
-  .list-product-button {
-    background: linear-gradient(135deg, #4a90e2, #007aff); /* Subtle blue gradient for a modern look */
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px; /* Softer rounded corners */
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  }
-  
-  .list-product-button:hover {
-    background: linear-gradient(135deg, #357ABD, #0056b3); /* Slightly darker gradient on hover */
-  transform: translateY(-2px); /* Lift effect on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
-  }
+/* ListProductPage.css */
 
-  .list-product-page, .contact-page, .auctions-page, .about-page, .home-page {
-    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+.list-product-page {
+  padding: 40px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.list-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.list-product-button {
+  background: linear-gradient(135deg, #4a90e2, #007aff);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
+@media (max-width: 768px) {
+  .list-product-page {
+    padding: 20px;
   }
-  
+}

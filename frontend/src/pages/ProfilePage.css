@@ -1,35 +1,36 @@
-/* src/pages/ProfilePage.css */
+/* ProfilePage.css */
+
 .profile-page {
-  padding: 20px;
+  padding: 60px; /* Increase padding for the entire page */
   max-width: 800px;
   margin: 0 auto;
   overflow-y: auto;
-  min-height: 60vh
+  min-height: 85vh;
 }
 
 .user-info {
-  text-align: center;
-  margin-bottom: 20px;
-  background-color: #f1f1f1;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left; /* Align content to the left for a modern look */
+  margin-bottom: 40px; /* Add more space below the user info section */
+  background-color: #f9f9f9;
+  padding: 30px; /* Increase padding inside the user info block */
+  border-radius: 10px; /* Softer, larger border radius for a modern look */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .user-info h2 {
-  margin: 0 0 10px 0;
+  margin-bottom: 15px; /* Add more space below the heading */
   color: #333;
 }
 
 .user-info p {
-  margin: 5px 0;
-  font-size: 0.9em;
+  margin: 10px 0; /* Increase space between user details */
+  font-size: 1em;
   color: #555;
 }
 
 .profile-page h3 {
-  font-size: 1.6em;
-  margin-bottom: 10px;
+  font-size: 1.8em;
+  margin-bottom: 30px; /* Increase space below section titles */
   color: #333;
 }
 
@@ -37,23 +38,23 @@
 .bids-list {
   list-style: none;
   padding: 0;
-  margin-bottom: 20px;
+  margin-bottom: 40px; /* Add space between sections */
 }
 
 .listing-item,
 .bid-item {
-  padding: 10px 15px;
-  background-color: #f9f9f9;
+  padding: 20px; /* Increase padding inside listing/bid cards */
+  background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  border-radius: 8px; /* Softer corners for a modern look */
+  margin-bottom: 20px; /* Increase space between individual items */
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .listing-item:hover,
 .bid-item:hover {
-  background-color: #e9ecef;
+  background-color: #e9ecef; /* Keep hover effect subtle */
 }
 
 .listing-card,
@@ -63,11 +64,11 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 30px; /* Add more padding to the modal cards */
+  border-radius: 10px; /* Modern, soft corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
   width: 90%;
-  max-width: 500px;
+  max-width: 600px; /* Increase modal width slightly for more content space */
   z-index: 1000;
 }
 
@@ -83,13 +84,13 @@
 .bids-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 20px; /* Add more space above the table */
 }
 
 .bids-table th,
 .bids-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px; /* Increase padding inside table cells */
   text-align: center;
 }
 
@@ -98,9 +99,9 @@
   font-weight: bold;
 }
 
-
-  
-  /* Example: Adjust padding/margin for main content sections */
-.profile-page, .home-page, .auctions-page {
-  padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 30px;
+  }
 }

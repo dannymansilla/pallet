@@ -1,25 +1,27 @@
-/* src/pages/AboutPage.css */
-.about-page {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    min-height: 60vh;
-  }
-  
-  .about-page h2 {
-    font-size: 2.2em;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .about-page p {
-    font-size: 1.1em;
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 15px;
-  }
+/* AboutPage.css */
 
-  .profile-page, .contact-page, .auctions-page, .about-page, .home-page {
-    padding-bottom: 40px; /* Add extra padding to ensure content isn't covered by the footer */
+.about-page {
+  padding: 60px; /* Increase padding for the entire page */
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 85vh;
+}
+
+.about-page h2 {
+  font-size: 2.2em;
+  color: #333;
+  margin-bottom: 50px; /* Add more space below the heading */
+}
+
+.about-page p {
+  font-size: 1.1em;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 30px; /* Increase the spacing between paragraphs */
+}
+
+@media (max-width: 768px) {
+  .about-page {
+    padding: 30px; /* Adjust padding for smaller screens */
   }
-  
+}

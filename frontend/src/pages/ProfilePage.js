@@ -93,7 +93,7 @@ const ProfilePage = () => {
       </div>
 
       {/* Listings Section */}
-      <h3>My Listings</h3>
+      <h3>Listings</h3>
       <ul className="listings">
         {listings.map((listing) => (
           <li key={listing.id} className="listing-item" onClick={() => handleListingClick(listing)}>
@@ -139,7 +139,7 @@ const ProfilePage = () => {
       )}
 
       {/* Current Bids Section */}
-      <h3>My Bids</h3>
+      <h3>Bids</h3>
       <ul className="bids-list">
         {userBids.map((bid) => (
           <li key={bid.id} className="bid-item" onClick={() => handleBidClick(bid)}>
