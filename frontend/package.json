@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "homepage": "https://dannymansilla.github.io/pallet",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
