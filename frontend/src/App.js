@@ -15,6 +15,7 @@ import BiddingPage from './pages/BiddingPage';
 import CreateAccountPage from './pages/CreateAccountPage'; 
 import LoginPage from './pages/LoginPage';
 import ProductDetails from './pages/ProductDetails';
+import AuctionDetailsPage from './pages/AuctionDetailsPage'; 
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/list-product" element={<ListProductPage />} />
           <Route path="/bid" element={<BiddingPage />} />
           <Route path="/details" element={<ProductDetails />} />
+          <Route path="/auctions/:id" element={<AuctionDetailsPage />} />
           
           {/* Add other routes as needed */}
         </Routes>

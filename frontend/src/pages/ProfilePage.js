@@ -12,6 +12,7 @@ import {
   Badge,
   Button
 } from '@chakra-ui/react';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const user = {
   name: 'John Doe',
@@ -148,7 +149,14 @@ const ProfilePage = () => {
                 <Text fontSize="sm" color="gray.500" mb={4}>
                   Closing Date: {listing.closingDate}
                 </Text>
-                <Button colorScheme="teal" size="sm" as="a" href={`/listings/${listing.id}`} width="100%" variant="outline">
+                <Button
+                  as={Link} // Use Link component for navigation
+                  to={`/auctions/${listing.id}`} // Link to auction details page
+                  colorScheme="teal"
+                  size="sm"
+                  width="100%"
+                  variant="outline"
+                >
                   View Listing
                 </Button>
               </Box>

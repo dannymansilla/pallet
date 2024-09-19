@@ -1,6 +1,7 @@
 // src/pages/AuctionsPage.js
 import React from 'react';
 import { Box, Flex, Heading, Text, SimpleGrid, Image, Button } from '@chakra-ui/react';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const auctions = [
   {
@@ -56,10 +57,10 @@ const AuctionsPage = () => {
                 Closing Date: {auction.closeDate}
               </Text>
               <Button
+                as={Link} // Use Link component for navigation
+                to={`/auctions/${auction.id}`} // Dynamic link to auction details page
                 colorScheme="teal"
                 size="sm"
-                as="a"
-                href={`/auctions/${auction.id}`}
                 width="100%"
                 variant="outline"
               >
