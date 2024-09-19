@@ -6,7 +6,7 @@ import {
   Heading,
   Text,
   Image,
-  Stack,
+  // Stack,
   Divider,
   SimpleGrid,
   Badge,
