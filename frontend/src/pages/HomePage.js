@@ -1,7 +1,8 @@
 // src/pages/HomePage.js
 import React from 'react';
-import { Box, Flex, Heading, Text, Button, Stack } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, Button, Stack, Image } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
+import cpg_photo from '../images/ecommerce-diagram.png';
 
 const HomePage = () => {
   return (
@@ -35,10 +36,12 @@ const HomePage = () => {
           </Stack>
         </Box>
         <Box>
-          <img
-            src="https://via.placeholder.com/400"
-            alt="Pallets"
-            style={{ borderRadius: '8px', width: '100%', maxWidth: '400px' }}
+          <Image
+            src={cpg_photo} // Relative path to the image in the public folder
+            alt="Pallet of CPG Goods"
+            borderRadius="8px"
+            width="100%"
+            maxW="400px"
           />
         </Box>
       </Flex>

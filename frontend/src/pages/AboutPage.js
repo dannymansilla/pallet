@@ -1,8 +1,8 @@
 // src/pages/AboutUs.js
 import React from 'react';
 import { Box, Flex, Heading, Text, Image, Stack } from '@chakra-ui/react';
-import founder1 from '../jake_profile.jpg';
-import founder2 from '../danny_profile.jpg';
+import founder1 from '../images/jake_profile.jpg';
+import founder2 from '../images/danny_profile.jpg';
 
 const founders = [
   {
