@@ -1,6 +1,7 @@
 // src/pages/HomePage.js
 import React from 'react';
 import { Box, Flex, Heading, Text, Button, Link, Stack } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 
 const HomePage = () => {
   return (
@@ -25,10 +26,10 @@ const HomePage = () => {
             Discover and bid on pallets of consumer packaged goods in bulk. Our marketplace connects suppliers with buyers for seamless transactions.
           </Text>
           <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} mt={4}>
-            <Button as={Link} href="/auctions" colorScheme="teal" size="lg">
+            <Button as={RouterLink} to="/auctions" colorScheme="teal" size="lg">
               View Auctions
             </Button>
-            <Button as={Link} href="/contact" variant="outline" colorScheme="teal" size="lg">
+            <Button as={RouterLink} to="/contact" variant="outline" colorScheme="teal" size="lg">
               Contact Us
             </Button>
           </Stack>
