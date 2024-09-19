@@ -50,7 +50,7 @@ const HomePage = () => {
         <Text fontSize="md" color="gray.600" mb={4} maxW="800px" textAlign="center">
           Browse available pallets, place your bids, and win items in bulk. Once you win, connect directly with the supplier to arrange shipping.
         </Text>
-        <Button as={Link} href="/details" colorScheme="teal" size="md">
+        <Button as={RouterLink} to="/details" colorScheme="teal" size="md">
           Learn More
         </Button>
       </Flex>

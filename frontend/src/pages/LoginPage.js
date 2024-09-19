@@ -1,6 +1,7 @@
 // src/pages/LoginPage.js
 import React from 'react';
 import { Box, Flex, Heading, Input, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
+import { Link } from 'react-router-dom'; 
 
 const LoginPage = () => {
   const toast = useToast();
@@ -35,7 +36,7 @@ const LoginPage = () => {
           <Button type="submit" colorScheme="teal" size="lg" w="100%" mb={4}>
             Log In
           </Button>
-          <Button as="a" href="/create-account" colorScheme="gray" variant="link" size="sm" w="100%">
+          <Button as={Link} to="/create-account" colorScheme="gray" variant="link" size="sm" w="100%">
             Create an Account
           </Button>
         </Box>
