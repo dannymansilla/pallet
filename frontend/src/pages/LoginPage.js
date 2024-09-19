@@ -1,53 +1,46 @@
 // src/pages/LoginPage.js
-import React, { useState } from 'react';
-import './LoginPage.css'; // Add styles for the login page
+import React from 'react';
+import { Box, Flex, Heading, Input, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const toast = useToast();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    // Handle form submission logic, e.g., API call to log in
-    console.log('Logging in with:', formData);
+    // Add login logic here
+    toast({
+      title: 'Login Successful!',
+      description: 'You are now logged in.',
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    });
   };
 
   return (
-    <div className="login-page">
-      <h2>Log In</h2>
-      <form className="login-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="cta-button">
+    <Box bg="gray.50" p={8} minH="80vh">
+      <Flex direction="column" align="center" maxW="400px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
+        <Heading as="h1" size="xl" color="brand.600" mb={6}>
           Log In
-        </button>
-      </form>
-    </div>
+        </Heading>
+        <Box as="form" onSubmit={handleLogin} w="100%">
+          <FormControl id="email" mb={4}>
+            <FormLabel>Email</FormLabel>
+            <Input type="email" placeholder="Your Email" required />
+          </FormControl>
+          <FormControl id="password" mb={6}>
+            <FormLabel>Password</FormLabel>
+            <Input type="password" placeholder="Your Password" required />
+          </FormControl>
+          <Button type="submit" colorScheme="teal" size="lg" w="100%" mb={4}>
+            Log In
+          </Button>
+          <Button as="a" href="/create-account" colorScheme="gray" variant="link" size="sm" w="100%">
+            Create an Account
+          </Button>
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 

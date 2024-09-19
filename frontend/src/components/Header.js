@@ -1,26 +1,47 @@
+// src/components/Header.js
 import React from 'react';
-import './Header.css';
-import logo from '../pallet_logo.png'; // Make sure to update this path to the actual location of your logo
+import { Box, Flex, Heading, Button, Link, Spacer } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 
 const Header = () => {
   return (
-    <header className="header">
-      <div className="header-container">
-        <a href="/" className="logo">
-          <img src={logo} alt="Pallet Market Logo" className="logo-image" />
-          <span className="site-name">Pallet Market</span>
-        </a>
-        <nav className="nav">
-          <ul className="nav-list">
-            <li className="nav-item"><a href="/" className="nav-link">Home</a></li>
-            <li className="nav-item"><a href="/auctions" className="nav-link">Auctions</a></li>
-            <li className="nav-item"><a href="/about" className="nav-link">About</a></li>
-            <li className="nav-item"><a href="/contact" className="nav-link">Contact</a></li>
-            <li className="nav-item profile-link"><a href="/profile" className="nav-link"><i className="fa fa-user"></i> Profile</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+    <Box bg="gray.50" p={4} boxShadow="sm"> {/* Updated background color to match main content */}
+      <Flex maxW="1200px" mx="auto" align="center">
+        <Heading as="h1" size="lg" color="brand.600" letterSpacing="wider">
+          Pallet Marketplace
+        </Heading>
+        <Spacer />
+        <Flex align="center">
+          <Link as={RouterLink} to="/" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+            Home
+          </Link>
+          <Link as={RouterLink} to="/details" color="gray.600" mx={2}>
+            Product
+          </Link>
+          <Link as={RouterLink} to="/auctions" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+            Auctions
+          </Link>
+          <Link as={RouterLink} to="/about" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+            About
+          </Link>
+          <Link as={RouterLink} to="/contact" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+            Contact
+          </Link>
+          <Link as={RouterLink} to="/profile" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+            Profile
+          </Link>
+          <Button
+            as={RouterLink}
+            to="/login"
+            colorScheme="teal" // Complementary color for the login button
+            variant="solid"
+            ml={4}
+          >
+            Login
+          </Button>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 

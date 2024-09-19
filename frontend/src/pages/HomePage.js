@@ -1,84 +1,59 @@
 // src/pages/HomePage.js
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import AuctionCard from '../components/AuctionCard'; // Import the reusable AuctionCard component
-import './HomePage.css';
+import React from 'react';
+import { Box, Flex, Heading, Text, Button, Link, Stack } from '@chakra-ui/react';
 
 const HomePage = () => {
-  const [featuredAuctions, setFeaturedAuctions] = useState([
-    {
-      id: 1,
-      name: 'Bulk Cereal',
-      startingBid: 50,
-      status: 'Active',
-      closeDate: '2024-09-30',
-      description: 'High-quality bulk cereal perfect for large-scale distribution.',
-      sku: 'CER-123456',
-      image: 'https://via.placeholder.com/150', // Placeholder image URL
-    },
-    {
-      id: 2,
-      name: 'Soft Drinks',
-      startingBid: 100,
-      status: 'Active',
-      closeDate: '2024-09-30',
-      description: 'Assorted soft drinks in bulk for retail or events.',
-      sku: 'DRK-654321',
-      image: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 3,
-      name: 'Organic Snacks',
-      startingBid: 200,
-      status: 'Closed',
-      closeDate: '2024-09-30',
-      description: 'A variety of organic snacks, perfect for healthy eating.',
-      sku: 'SNK-789012',
-      image: 'https://via.placeholder.com/150',
-    },
-  ]);
-
-  const handleCardClick = (item) => {
-    alert(`More information about: ${item.name}`);
-  };
-
   return (
-    <div className="home-page">
-      <header className="home-header">
-        <h1>Welcome to Pallet Marketplace</h1>
-        <p>Your destination for live auctions and unbeatable deals!</p>
-      </header>
-
-      <section className="featured-auctions">
-        <h2>Featured Auctions</h2>
-        <p>Check out some of our most popular items currently up for bid:</p>
-        <div className="auction-list">
-          {featuredAuctions.map((item) => (
-            <AuctionCard key={item.id} item={item} onClick={handleCardClick} />
-          ))}
-        </div>
-      </section>
-
-      <section className="how-it-works">
-        <h2>How It Works</h2>
-        <p>
-          Sign up, browse auctions, place your bids, and win exciting products at amazing prices. Our marketplace makes
-          it easy to participate in live auctions from the comfort of your home.
-        </p>
-      </section>
-
-      <section className="cta-section">
-        <Link to="/auctions">
-          <button className="cta-button">Browse All Auctions</button>
-        </Link>
-        <Link to="/create-account">
-          <button className="cta-button">Create an Account</button>
-        </Link>
-        <Link to="/login">
-          <button className="cta-button">Log In</button>
-        </Link>
-      </section>
-    </div>
+    <Box bg="gray.50" p={8} minH="80vh"> {/* Updated to ensure consistent background color */}
+      <Flex
+        direction={{ base: 'column', md: 'row' }}
+        align="center"
+        justify="space-between"
+        maxW="1200px"
+        mx="auto"
+        p={6}
+        bg="white"
+        borderRadius="md"
+        boxShadow="md"
+        mb={8}
+      >
+        <Box maxW="600px">
+          <Heading as="h1" size="xl" color="brand.600" mb={4}>
+            Welcome to Pallet Marketplace
+          </Heading>
+          <Text fontSize="lg" color="gray.600" mb={4}>
+            Discover and bid on pallets of consumer packaged goods in bulk. Our marketplace connects suppliers with buyers for seamless transactions.
+          </Text>
+          <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} mt={4}>
+            <Button as={Link} href="/auctions" colorScheme="teal" size="lg">
+              View Auctions
+            </Button>
+            <Button as={Link} href="/contact" variant="outline" colorScheme="teal" size="lg">
+              Contact Us
+            </Button>
+          </Stack>
+        </Box>
+        <Box>
+          <img
+            src="https://via.placeholder.com/400"
+            alt="Pallets"
+            style={{ borderRadius: '8px', width: '100%', maxWidth: '400px' }}
+          />
+        </Box>
+      </Flex>
+      
+      <Flex direction="column" align="center" p={4} bg="gray.100" borderRadius="md" boxShadow="md">
+        <Heading as="h2" size="lg" color="brand.600" mb={4}>
+          How It Works
+        </Heading>
+        <Text fontSize="md" color="gray.600" mb={4} maxW="800px" textAlign="center">
+          Browse available pallets, place your bids, and win items in bulk. Once you win, connect directly with the supplier to arrange shipping.
+        </Text>
+        <Button as={Link} href="/details" colorScheme="teal" size="md">
+          Learn More
+        </Button>
+      </Flex>
+    </Box>
   );
 };
 

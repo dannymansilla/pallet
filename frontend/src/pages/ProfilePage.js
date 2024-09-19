@@ -1,167 +1,162 @@
 // src/pages/ProfilePage.js
-import React, { useState } from 'react';
-import './ProfilePage.css';
+import React from 'react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Image,
+  Stack,
+  Divider,
+  SimpleGrid,
+  Badge,
+  Button
+} from '@chakra-ui/react';
+
+const user = {
+  name: 'John Doe',
+  email: 'john.doe@example.com',
+  profileImage: 'https://via.placeholder.com/150',
+  company: {
+    name: 'Acme Corp',
+    address: '123 Business St, Suite 456',
+    phone: '123-456-7890'
+  }
+};
+
+const currentBids = [
+  {
+    id: 1,
+    item: 'Pallet of Paper Towels',
+    bidAmount: '$500',
+    quantity: '500 units',
+    status: 'Leading'
+  },
+  {
+    id: 2,
+    item: 'Bulk Pack of Bottled Water',
+    bidAmount: '$300',
+    quantity: '1000 units',
+    status: 'Outbid'
+  },
+];
+
+const listings = [
+  {
+    id: 1,
+    title: 'Pallet of Canned Goods',
+    currentBids: 5,
+    status: 'Open',
+    closingDate: '2024-09-30'
+  },
+  {
+    id: 2,
+    title: 'Bulk Pack of Beverages',
+    currentBids: 10,
+    status: 'Closed',
+    closingDate: '2024-10-05'
+  },
+];
 
 const ProfilePage = () => {
-  // Sample user and company data
-  const user = {
-    name: 'John Doe',
-    company: {
-      name: 'ABC Foods Inc.',
-      location: 'New York, NY',
-      industry: 'Food Distribution',
-    },
-  };
-
-  // Sample listings and current bids data
-  const [listings, setListings] = useState([
-    {
-      id: 1,
-      name: 'Bulk Cereal',
-      description: 'High-quality bulk cereal perfect for large-scale distribution.',
-      sku: 'CER-123456',
-      closeDate: '2024-09-30',
-      status: 'Active',
-      bids: [
-        { company: 'ABC Foods', price: 75, quantity: 100, location: 'New York, NY' },
-        { company: 'Global Grocers', price: 70, quantity: 150, location: 'Chicago, IL' },
-        { company: 'Healthy Eats', price: 65, quantity: 200, location: 'Los Angeles, CA' },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Soft Drinks',
-      description: 'Assorted soft drinks in bulk for retail or events.',
-      sku: 'DRK-654321',
-      closeDate: '2024-10-05',
-      status: 'Active',
-      bids: [
-        { company: 'Beverage World', price: 85, quantity: 50, location: 'Miami, FL' },
-        { company: 'Drink Distributors', price: 80, quantity: 80, location: 'Houston, TX' },
-      ],
-    },
-  ]);
-
-  // Sample current bids by the user
-  const [userBids, setUserBids] = useState([
-    {
-      id: 1,
-      itemName: 'Bulk Cereal',
-      bidPrice: 70,
-      bidQuantity: 120,
-      description: 'High-quality bulk cereal perfect for large-scale distribution.',
-      sku: 'CER-123456',
-      closeDate: '2024-09-30',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      itemName: 'Soft Drinks',
-      bidPrice: 82,
-      bidQuantity: 60,
-      description: 'Assorted soft drinks in bulk for retail or events.',
-      sku: 'DRK-654321',
-      closeDate: '2024-10-05',
-      status: 'Active',
-    },
-  ]);
-
-  const [selectedListing, setSelectedListing] = useState(null);
-  const [selectedBid, setSelectedBid] = useState(null);
-
-  const handleListingClick = (listing) => {
-    setSelectedListing(listing);
-  };
-
-  const handleBidClick = (bid) => {
-    setSelectedBid(bid);
-  };
-
-  const handleCloseCard = () => {
-    setSelectedListing(null);
-    setSelectedBid(null);
-  };
-
   return (
-    <div className="profile-page">
-      {/* User and Company Info */}
-      <div className="user-info">
-        <h2>{user.name}</h2>
-        <p><strong>Company:</strong> {user.company.name}</p>
-        <p><strong>Location:</strong> {user.company.location}</p>
-        <p><strong>Industry:</strong> {user.company.industry}</p>
-      </div>
+    <Box bg="gray.50" p={8} minH="80vh">
+      <Flex direction="column" align="center" maxW="1200px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
+        <Flex direction={{ base: 'column', md: 'row' }} align="center" mb={8}>
+          <Image
+            src={user.profileImage}
+            alt={user.name}
+            borderRadius="full"
+            boxSize="150px"
+            objectFit="cover"
+            mr={{ base: 0, md: 6 }}
+            mb={{ base: 4, md: 0 }}
+          />
+          <Box textAlign={{ base: 'center', md: 'left' }}>
+            <Heading as="h1" size="xl" color="brand.600" mb={2}>
+              {user.name}
+            </Heading>
+            <Text fontSize="lg" color="gray.600" mb={1}>
+              {user.email}
+            </Text>
+            <Text fontSize="md" color="gray.500">
+              {user.company.name}
+            </Text>
+          </Box>
+        </Flex>
 
-      {/* Listings Section */}
-      <h3>Listings</h3>
-      <ul className="listings">
-        {listings.map((listing) => (
-          <li key={listing.id} className="listing-item" onClick={() => handleListingClick(listing)}>
-            {listing.name} (SKU: {listing.sku})
-          </li>
-        ))}
-      </ul>
+        <Divider mb={8} />
 
-      {/* Listing Details Card */}
-      {selectedListing && (
-        <div className="listing-card">
-          <span className="close-button" onClick={handleCloseCard}>&times;</span>
-          <h3>{selectedListing.name}</h3>
-          <p><strong>Description:</strong> {selectedListing.description}</p>
-          <p><strong>SKU:</strong> {selectedListing.sku}</p>
-          <p><strong>Auction Close Date:</strong> {selectedListing.closeDate}</p>
-          <p><strong>Status:</strong> {selectedListing.status}</p>
+        <Box w="100%" mb={8}>
+          <Heading as="h2" size="lg" color="brand.600" mb={4}>
+            Active Bids
+          </Heading>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+            {currentBids.map((bid) => (
+              <Box
+                key={bid.id}
+                p={5}
+                bg="gray.100"
+                borderRadius="md"
+                boxShadow="sm"
+                _hover={{ boxShadow: 'md' }}
+                transition="box-shadow 0.2s ease-in-out"
+              >
+                <Heading as="h3" size="md" color="brand.600" mb={2}>
+                  {bid.item}
+                </Heading>
+                <Text fontSize="md" color="gray.700" mb={2}>
+                  Bid Amount: {bid.bidAmount}
+                </Text>
+                <Text fontSize="sm" color="gray.500" mb={2}>
+                  Quantity: {bid.quantity}
+                </Text>
+                <Badge colorScheme={bid.status === 'Leading' ? 'green' : 'red'}>
+                  {bid.status}
+                </Badge>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Box>
 
-          <h4>Current Bids</h4>
-          <table className="bids-table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedListing.bids
-                .sort((a, b) => b.price - a.price) // Sort bids from highest to lowest price
-                .map((bid, index) => (
-                  <tr key={index}>
-                    <td>{bid.company}</td>
-                    <td>${bid.price}</td>
-                    <td>{bid.quantity}</td>
-                    <td>{bid.location}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        <Divider mb={8} />
 
-      {/* Current Bids Section */}
-      <h3>Bids</h3>
-      <ul className="bids-list">
-        {userBids.map((bid) => (
-          <li key={bid.id} className="bid-item" onClick={() => handleBidClick(bid)}>
-            {bid.itemName} (SKU: {bid.sku})
-          </li>
-        ))}
-      </ul>
-
-      {/* Bid Details Card */}
-      {selectedBid && (
-        <div className="bid-card">
-          <span className="close-button" onClick={handleCloseCard}>&times;</span>
-          <h3>{selectedBid.itemName}</h3>
-          <p><strong>Description:</strong> {selectedBid.description}</p>
-          <p><strong>SKU:</strong> {selectedBid.sku}</p>
-          <p><strong>Auction Close Date:</strong> {selectedBid.closeDate}</p>
-          <p><strong>Status:</strong> {selectedBid.status}</p>
-          <p><strong>Your Bid Price:</strong> ${selectedBid.bidPrice}</p>
-          <p><strong>Your Bid Quantity:</strong> {selectedBid.bidQuantity}</p>
-        </div>
-      )}
-    </div>
+        <Box w="100%">
+          <Heading as="h2" size="lg" color="brand.600" mb={4}>
+            Your Listings
+          </Heading>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+            {listings.map((listing) => (
+              <Box
+                key={listing.id}
+                p={5}
+                bg="gray.100"
+                borderRadius="md"
+                boxShadow="sm"
+                _hover={{ boxShadow: 'md' }}
+                transition="box-shadow 0.2s ease-in-out"
+              >
+                <Heading as="h3" size="md" color="brand.600" mb={2}>
+                  {listing.title}
+                </Heading>
+                <Text fontSize="md" color="gray.700" mb={2}>
+                  Current Bids: {listing.currentBids}
+                </Text>
+                <Text fontSize="sm" color="gray.500" mb={2}>
+                  Status: {listing.status}
+                </Text>
+                <Text fontSize="sm" color="gray.500" mb={4}>
+                  Closing Date: {listing.closingDate}
+                </Text>
+                <Button colorScheme="teal" size="sm" as="a" href={`/listings/${listing.id}`} width="100%" variant="outline">
+                  View Listing
+                </Button>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 

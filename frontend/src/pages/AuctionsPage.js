@@ -1,62 +1,75 @@
 // src/pages/AuctionsPage.js
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import AuctionCard from '../components/AuctionCard'; // Import the reusable AuctionCard component
-import './AuctionsPage.css';
+import React from 'react';
+import { Box, Flex, Heading, Text, SimpleGrid, Image, Button } from '@chakra-ui/react';
+
+const auctions = [
+  {
+    id: 1,
+    title: 'Pallet of Canned Goods',
+    description: 'A pallet of assorted canned goods. Best before: 2023.',
+    image: 'https://via.placeholder.com/150',
+    sku: 'CAN123',
+    closeDate: '2024-09-30',
+    status: 'Open',
+  },
+  {
+    id: 2,
+    title: 'Bulk Pack of Beverages',
+    description: 'A large batch of various soft drinks. Best before: 2024.',
+    image: 'https://via.placeholder.com/150',
+    sku: 'BEV456',
+    closeDate: '2024-10-05',
+    status: 'Open',
+  },
+  // Add more auction items here
+];
 
 const AuctionsPage = () => {
-  const [auctionItems, setAuctionItems] = useState([
-    {
-      id: 1,
-      name: 'Bulk Cereal',
-      startingBid: 50,
-      status: 'Active',
-      closeDate: '2024-09-30',
-      description: 'High-quality bulk cereal perfect for large-scale distribution.',
-      sku: 'CER-123456',
-      image: 'https://via.placeholder.com/150', // Placeholder image URL
-    },
-    {
-      id: 2,
-      name: 'Soft Drinks',
-      startingBid: 100,
-      status: 'Active',
-      closeDate: '2024-09-30',
-      description: 'Assorted soft drinks in bulk for retail or events.',
-      sku: 'DRK-654321',
-      image: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 3,
-      name: 'Organic Snacks',
-      startingBid: 200,
-      status: 'Closed',
-      closeDate: '2024-09-30',
-      description: 'A variety of organic snacks, perfect for healthy eating.',
-      sku: 'SNK-789012',
-      image: 'https://via.placeholder.com/150',
-    },
-  ]);
-
-  const handleCardClick = (item) => {
-    alert(`More information about: ${item.name}`);
-  };
-
   return (
-    <div className="auctions-page">
-      <h2>Auctions</h2>
-      <p>Explore our live auctions and place your bids on bulk quantities of consumer packaged goods.</p>
-
-      <Link to="/list-product" className="list-item-button">
-        <button className="cta-button">List New Item</button>
-      </Link>
-
-      <div className="auctions-list">
-        {auctionItems.map((item) => (
-          <AuctionCard key={item.id} item={item} onClick={handleCardClick} />
-        ))}
-      </div>
-    </div>
+    <Box bg="gray.50" p={8} minH="80vh">
+      <Flex direction="column" align="center" maxW="1200px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
+        <Heading as="h1" size="xl" color="brand.600" mb={6}>
+          Current Auctions
+        </Heading>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8} w="100%">
+          {auctions.map((auction) => (
+            <Box
+              key={auction.id}
+              p={5}
+              bg="gray.100"
+              borderRadius="md"
+              boxShadow="sm"
+              _hover={{ boxShadow: 'md' }}
+              transition="box-shadow 0.2s ease-in-out"
+            >
+              <Image src={auction.image} alt={auction.title} borderRadius="md" mb={4} />
+              <Heading as="h3" size="md" color="brand.600" mb={2}>
+                {auction.title}
+              </Heading>
+              <Text fontSize="sm" color="gray.600" mb={2}>
+                SKU: {auction.sku}
+              </Text>
+              <Text fontSize="md" color="gray.700" mb={4}>
+                {auction.description}
+              </Text>
+              <Text fontSize="sm" color="gray.500" mb={4}>
+                Closing Date: {auction.closeDate}
+              </Text>
+              <Button
+                colorScheme="teal"
+                size="sm"
+                as="a"
+                href={`/auctions/${auction.id}`}
+                width="100%"
+                variant="outline"
+              >
+                View Auction
+              </Button>
+            </Box>
+          ))}
+        </SimpleGrid>
+      </Flex>
+    </Box>
   );
 };
 

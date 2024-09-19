@@ -1,86 +1,78 @@
 // src/pages/CreateAccountPage.js
-import React, { useState } from 'react';
-import './CreateAccountPage.css'; // Optional: Add styles for the page
+import React from 'react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Input,
+  Button,
+  FormControl,
+  FormLabel,
+  useToast,
+  Grid,
+  GridItem
+} from '@chakra-ui/react';
 
 const CreateAccountPage = () => {
-  const [formData, setFormData] = useState({
-    companyName: '',
-    email: '',
-    contactName: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const toast = useToast();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleCreateAccount = (e) => {
     e.preventDefault();
-    // Handle form submission logic, e.g., API call
-    console.log('Account created:', formData);
+    // Add account creation logic here
+    toast({
+      title: 'Account Created!',
+      description: 'Your account has been created successfully.',
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    });
   };
 
   return (
-    <div className="create-account-page">
-      <h2>Create Account</h2>
-      <form className="create-account-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Company Name</label>
-          <input
-            type="text"
-            name="companyName"
-            value={formData.companyName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Contact Name</label>
-          <input
-            type="text"
-            name="contactName"
-            value={formData.contactName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="create-account-button">
-          Create Account
-        </button>
-      </form>
-    </div>
+    <Box bg="gray.50" p={8} minH="80vh">
+      <Flex direction="column" align="center" maxW="600px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
+        <Heading as="h1" size="xl" color="brand.600" mb={6}>
+          Create an Account
+        </Heading>
+        <Box as="form" onSubmit={handleCreateAccount} w="100%">
+          <Heading as="h2" size="md" color="gray.700" mb={4}>
+            User Details
+          </Heading>
+          <FormControl id="user-name" mb={4}>
+            <FormLabel>Name</FormLabel>
+            <Input type="text" placeholder="Your Name" required />
+          </FormControl>
+          <FormControl id="user-email" mb={4}>
+            <FormLabel>Email</FormLabel>
+            <Input type="email" placeholder="Your Email" required />
+          </FormControl>
+          <FormControl id="user-password" mb={4}>
+            <FormLabel>Password</FormLabel>
+            <Input type="password" placeholder="Create a Password" required />
+          </FormControl>
+          
+          <Heading as="h2" size="md" color="gray.700" mb={4} mt={8}>
+            Company Details
+          </Heading>
+          <FormControl id="company-name" mb={4}>
+            <FormLabel>Company Name</FormLabel>
+            <Input type="text" placeholder="Company Name" required />
+          </FormControl>
+          <FormControl id="company-address" mb={4}>
+            <FormLabel>Company Address</FormLabel>
+            <Input type="text" placeholder="Company Address" required />
+          </FormControl>
+          <FormControl id="company-phone" mb={6}>
+            <FormLabel>Company Phone</FormLabel>
+            <Input type="tel" placeholder="Company Phone Number" required />
+          </FormControl>
+          
+          <Button type="submit" colorScheme="teal" size="lg" w="100%" mb={4}>
+            Create Account
+          </Button>
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 
