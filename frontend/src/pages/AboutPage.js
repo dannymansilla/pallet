@@ -22,9 +22,9 @@ const founders = [
 const AboutPage = () => {
   return (
     
-    <Box bg="gray.50" p={8} minH="80vh">
+    <Box bg="brand.background_color" p={8} minH="80vh">
       <Flex direction="column" align="center" maxW="1000px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
-        <Heading as="h1" size="xl" color="brand.600" mb={8}>
+        <Heading as="h1" size="xl" color="black" mb={8}>
           Meet the Team
         </Heading>
         <Stack spacing={8} w="100%">
@@ -33,7 +33,7 @@ const AboutPage = () => {
               key={index}
               direction={{ base: 'column', md: 'row' }}
               align="center"
-              bg="gray.100"
+              bg="brand.background_color"
               p={6}
               borderRadius="md"
               boxShadow="sm"
@@ -49,7 +49,7 @@ const AboutPage = () => {
                 mb={{ base: 4, md: 0 }}
               />
               <Box>
-                <Heading as="h2" size="md" color="brand.600" mb={2}>
+                <Heading as="h2" size="md" color="black" mb={2}>
                   {founder.name}
                 </Heading>
                 <Text fontSize="lg" color="gray.700" mb={2}>

@@ -19,7 +19,7 @@ const LoginPage = () => {
   };
 
   return (
-    <Box bg="gray.50" p={8} minH="80vh">
+    <Box bg="brand.background_color" p={8} minH="80vh">
       <Flex direction="column" align="center" maxW="400px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
         <Heading as="h1" size="xl" color="brand.600" mb={6}>
           Log In
@@ -33,10 +33,10 @@ const LoginPage = () => {
             <FormLabel>Password</FormLabel>
             <Input type="password" placeholder="Your Password" required />
           </FormControl>
-          <Button type="submit" colorScheme="teal" size="lg" w="100%" mb={4}>
+          <Button type="submit" variant='solid' size="lg" w="100%" mb={4}>
             Log In
           </Button>
-          <Button as={Link} to="/create-account" colorScheme="gray" variant="link" size="sm" w="100%">
+          <Button as={Link} to="/create-account" variant="ghost" size="sm" w="100%">
             Create an Account
           </Button>
         </Box>

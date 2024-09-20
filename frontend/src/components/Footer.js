@@ -5,7 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <Box bg="gray.50" p={4} boxShadow="sm">
+    <Box bg="brand.background_color" p={4} boxShadow="sm">
       <Flex
         maxW="1200px"
         mx="auto"
@@ -17,13 +17,13 @@ const Footer = () => {
           © {new Date().getFullYear()} Pallet Marketplace. All rights reserved.
         </Text>
         <Flex>
-          <Link as={RouterLink} to="/privacy" mx={2} color="gray.400" fontSize="sm" _hover={{ color: 'brand.600' }}>
+          <Link as={RouterLink} to="/privacy" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Privacy Policy
           </Link>
-          <Link as={RouterLink} to="/terms" mx={2} color="gray.400" fontSize="sm" _hover={{ color: 'brand.600' }}>
+          <Link as={RouterLink} to="/terms" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Terms of Service
           </Link>
-          <Link as={RouterLink} to="/contact" mx={2} color="gray.400" fontSize="sm" _hover={{ color: 'brand.600' }}>
+          <Link as={RouterLink} to="/contact" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Contact Us
           </Link>
         </Flex>

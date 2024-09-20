@@ -5,7 +5,7 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 
 const ProductDetails = () => {
   return (
-    <Box bg="gray.50" p={8} minH="80vh">
+    <Box bg="brand.background_color" p={8} minH="80vh">
       <Flex
         direction="column"
         align="center"
@@ -17,13 +17,13 @@ const ProductDetails = () => {
         boxShadow="md"
         mb={8}
       >
-        <Heading as="h1" size="xl" color="brand.600" mb={4}>
+        <Heading as="h1" size="xl" color="black" mb={4}>
           About Pallet Marketplace
         </Heading>
         <Text fontSize="lg" color="gray.600" mb={6} textAlign="center">
           Pallet Marketplace is a blind auction-style marketplace for purchasing large quantities of consumer packaged goods (CPGs).
         </Text>
-        <Heading as="h2" size="md" color="brand.600" mb={4}>
+        <Heading as="h2" size="md" color="black" mb={4}>
           How It Works
         </Heading>
         <List spacing={3} mb={6}>
@@ -44,7 +44,7 @@ const ProductDetails = () => {
             Buyers and sellers connect to arrange payment and shipping.
           </ListItem>
         </List>
-        <Button colorScheme="teal" size="lg" as="a" href="/auctions">
+        <Button variant="solid" size="lg" as="a" href="/auctions">
           Browse Auctions
         </Button>
       </Flex>

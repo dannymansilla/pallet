@@ -6,7 +6,7 @@ import logo from '../images/logo.png';
 
 const Header = () => {
   return (
-    <Box bg="gray.50" p={4} boxShadow="sm"> {/* Updated background color to match main content */}
+    <Box bg="brand.background_color" p={4}> {/* Updated background color to match main content */}
       <Flex maxW="1200px" mx="auto" align="center">
         <Image
             src={logo} 
@@ -14,34 +14,27 @@ const Header = () => {
             boxSize="40px" // Adjust size as needed
             mr={2} // Margin-right for spacing
           />
-          <Heading as={RouterLink} to="/" size="lg" color="brand.600" letterSpacing="wider">
-            Pallet Marketplace
+          <Heading as={RouterLink} to="/" size="lg" color="black" letterSpacing="wider">
+            Pallet
           </Heading>
         <Spacer />
         <Flex align="center">
-          <Link as={RouterLink} to="/" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            Home
-          </Link>
-          <Link as={RouterLink} to="/details" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          <Link as={RouterLink} to="/details" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             Product
           </Link>
-          <Link as={RouterLink} to="/auctions" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          {/* <Link as={RouterLink} to="/auctions" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             Auctions
-          </Link>
-          <Link as={RouterLink} to="/about" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          </Link> */}
+          <Link as={RouterLink} to="/about" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             About
           </Link>
-          {/* <Link as={RouterLink} to="/contact" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            Contact
-          </Link> */}
-          {/* <Link as={RouterLink} to="/profile" color="gray.600" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          {/* <Link as={RouterLink} to="/profile" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             Profile
           </Link> */}
           <Button
             as={RouterLink}
             to="/login"
-            colorScheme="teal" // Complementary color for the login button
-            variant="solid"
+            variant="outline"
             ml={4}
           >
             Login
