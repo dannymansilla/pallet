@@ -8,14 +8,14 @@ const founders = [
   {
     name: 'Jake Esse',
     title: 'Co-Founder & CEO',
-    image: founder1, // Replace with actual image URL
-    description: 'Founder 1 is a seasoned entrepreneur with a passion for innovation in the marketplace industry. With over 10 years of experience, they have led multiple successful startups.'
+    image: founder1, 
+    description: 'Jake Esse works in Corporate Development for Henkel, a global consumer packaged goods company. Jake graduated from Dartmouth College in 2016 and began his career in derivatives trading at Morgan Stanley before spending time in growth equity, starting a tech company (non-exit) and working in management consulting.'
   },
   {
     name: 'Daniel Mansilla',
     title: 'Co-Founder & CTO',
-    image: founder2, // Replace with actual image URL
-    description: 'Founder 2 is a tech visionary with a background in software development and AI. They have built and scaled numerous technology platforms, leading the tech strategy at Pallet Marketplace.'
+    image: founder2, 
+    description: 'Daniel Mansilla is a technology expert with deep experience building large-scale software applications for industry leaders in manufacturing, aerospace, and defense. His technical proficiency as a full-stack software engineering leader additionally spans IT operations, infrastructure management, and systems design. Altogether, Daniel provides a comprehensive point of view toward building new products that meet critical business needs.'
   }
 ];
 
