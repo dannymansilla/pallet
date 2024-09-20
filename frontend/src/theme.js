@@ -2,6 +2,10 @@
 import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
+  fonts: {
+    heading: `'Sora', sans-serif`,
+    body: `'Sora', sans-serif`,
+  },
   colors: {
     brand: {
       background_color: "white",
@@ -16,7 +20,8 @@ const theme = extendTheme({
     Button: {
       baseStyle: {
         borderRadius: 'md', // Rounded corners
-        fontWeight: 'bold', // Bold text
+        fontFamily: `'Sora', sans-serif`,
+        fontWeight: 'bold'
       },
       variants: {
         solid: {

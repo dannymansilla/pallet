@@ -23,7 +23,7 @@ const HomePage = () => {
           <Heading as="h1" size="xl" color="black" mb={4}>
             Buy and sell excess CPG inventory
           </Heading>
-          <Text fontSize="lg" color="black" mb={4}>
+          <Text fontSize="lg" color="black" mb={4} fontFamily="'Sofadi One', sans-serif">
           Our B2B auction platform allows sellers to automate the sale of excess consumer packaged goods inventory and buyers to bid on a variety of products from well-known brands across categories.
           </Text>
           <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} mt={4}>

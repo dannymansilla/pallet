@@ -27,7 +27,7 @@ const auctions = [
 
 const AuctionsPage = () => {
   return (
-    <Box bg="gray.50" p={8} minH="80vh">
+    <Box bg="brand.background_color" p={8} minH="80vh">
       <Flex direction="column" align="center" maxW="1200px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
         <Heading as="h1" size="xl" color="brand.600" mb={6}>
           Current Auctions
@@ -37,7 +37,7 @@ const AuctionsPage = () => {
             <Box
               key={auction.id}
               p={5}
-              bg="gray.100"
+              bg="brand.background_color"
               borderRadius="md"
               boxShadow="sm"
               _hover={{ boxShadow: 'md' }}
@@ -58,7 +58,7 @@ const AuctionsPage = () => {
               </Text>
               <Button
                 as={Link} // Use Link component for navigation
-                to={`/auctions/${auction.id}`} // Dynamic link to auction details page
+                to={`/bid/${auction.id}`} // Dynamic link to auction details page
                 colorScheme="teal"
                 size="sm"
                 width="100%"
