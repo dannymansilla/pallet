@@ -8,7 +8,7 @@ import {
   Heading,
   Text,
   Image,
-  Stack,
+  // Stack,
   Divider,
   Button,
   Badge,
