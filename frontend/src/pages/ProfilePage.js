@@ -1,5 +1,6 @@
 // src/pages/ProfilePage.js
 import React from 'react';
+import person_image from '../images/person_outline.jpeg';
 import {
   Box,
   Flex,
@@ -55,13 +56,6 @@ const listings = [
     currentBids: 10,
     status: 'Closed',
     closingDate: '2024-10-05'
-  },
-  {
-    id: 3,
-    title: 'Pallet of Canned Goods',
-    currentBids: 5,
-    status: 'Open',
-    closingDate: '2024-09-30'
   }
 ];
 
@@ -71,7 +65,7 @@ const ProfilePage = () => {
       <Flex direction="column" align="center" maxW="1200px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
         <Flex direction={{ base: 'column', md: 'row' }} align="center" mb={8}>
           <Image
-            src={user.profileImage}
+            src={person_image}
             alt={user.name}
             borderRadius="full"
             boxSize="150px"
