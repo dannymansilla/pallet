@@ -3,8 +3,10 @@ import React from 'react';
 import { Box, Flex, Heading, Button, Image, Link, Spacer } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import logo from '../images/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
+  const { isAuthenticated, logout } = useAuth();
   return (
     <Box bg="brand.background_color" p={4}> {/* Updated background color to match main content */}
       <Flex maxW="1200px" mx="auto" align="center">
@@ -28,9 +30,16 @@ const Header = () => {
           <Link as={RouterLink} to="/about" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             About
           </Link>
-          {/* <Link as={RouterLink} to="/profile" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          {isAuthenticated ? (
+          <>
+            <Link as={RouterLink} to="/profile" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             Profile
-          </Link> */}
+            </Link>
+            <Button onClick={logout} variant="outline" ml={4}>
+              Logout
+            </Button>
+          </>
+        ) : (
           <Button
             as={RouterLink}
             to="/login"
@@ -39,6 +48,7 @@ const Header = () => {
           >
             Login
           </Button>
+        )}
         </Flex>
       </Flex>
     </Box>

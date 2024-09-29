@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+from datetime import timedelta
 from decouple import Config, RepositoryEnv
 import os
 from pathlib import Path
@@ -32,8 +33,14 @@ SECRET_KEY = 'django-insecure-_ui9yh=3)e(@-yy6syz+atfs+pz@k@^dgd#!vh%4dw7y_eg+v5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'localhost',          # Allow requests from localhost
+    '127.0.0.1',          # Allow requests from the loopback IP
+    'frontend',
+    'backend',            # The name of the service in Docker Compose
+    'backend:8000',       # If you need to include the port
+    '*',                  # Allow all hosts (use cautiously)
+]
 
 # Application definition
 
@@ -44,9 +51,28 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React app
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,6 +81,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Your frontend running locally
+    'http://yourfrontenddomain.com',  # Your deployed frontend domain
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+LOGIN_REDIRECT_URL = '/'   # Redirects users to the homepage after login
+LOGOUT_REDIRECT_URL = '/'  # Redirects users to the homepage after logout
+
+
 
 ROOT_URLCONF = 'palletproject.urls'
 
@@ -112,6 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

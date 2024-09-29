@@ -1,77 +1,87 @@
-// src/pages/CreateAccountPage.js
-import React from 'react';
-import {
-  Box,
-  Flex,
-  Heading,
-  Input,
-  Button,
-  FormControl,
-  FormLabel,
-  useToast,
-  // Grid,
-  // GridItem
-} from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Box, Button, Input, FormControl, FormLabel, Heading, Stack } from '@chakra-ui/react';
+import { useAuth } from '../context/AuthContext';
 
 const CreateAccountPage = () => {
-  const toast = useToast();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  // const [companyName, setCompanyName] = useState('');
+  // const [companyAddress, setCompanyAddress] = useState('');
+  // const [companyPhone, setCompanyPhone] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();  // Updated navigate method
 
-  const handleCreateAccount = (e) => {
-    e.preventDefault();
-    // Add account creation logic here
-    toast({
-      title: 'Account Created!',
-      description: 'Your account has been created successfully.',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
+  const { checkLoginStatus } = useAuth();
+
+  // Function to handle registration
+  const handleRegister = async () => {
+    try {
+      // Make API request to register user
+      const response = await axios.post('/api/register/', {
+        username: name,  // Using name as the username for Django User model
+        email,
+        password
+      });
+      console.log("Registration successful", response.data);
+
+      // Extract the tokens from the response
+      const { access, refresh } = response.data;
+
+      // Store the tokens in localStorage (or sessionStorage for temporary sessions)
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+      checkLoginStatus();
+      // Redirect to the home page after successful registration and login
+      navigate('/');
+    } catch (err) {
+      setError('Registration failed. Please check the information and try again.');
+      console.log(err.response);
+    }
   };
 
   return (
-    <Box bg="gray.50" p={8} minH="80vh">
-      <Flex direction="column" align="center" maxW="600px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
-        <Heading as="h1" size="xl" color="brand.600" mb={6}>
+    <Box bg="brand.background_color" p={8} minH="80vh">
+      <Box maxW="600px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
+        <Heading as="h1" size="xl" mb={6}>
           Create an Account
         </Heading>
-        <Box as="form" onSubmit={handleCreateAccount} w="100%">
-          <Heading as="h2" size="md" color="gray.700" mb={4}>
-            User Details
-          </Heading>
-          <FormControl id="user-name" mb={4}>
-            <FormLabel>Name</FormLabel>
-            <Input type="text" placeholder="Your Name" required />
-          </FormControl>
-          <FormControl id="user-email" mb={4}>
-            <FormLabel>Email</FormLabel>
-            <Input type="email" placeholder="Your Email" required />
-          </FormControl>
-          <FormControl id="user-password" mb={4}>
-            <FormLabel>Password</FormLabel>
-            <Input type="password" placeholder="Create a Password" required />
-          </FormControl>
-          
-          <Heading as="h2" size="md" color="gray.700" mb={4} mt={8}>
-            Company Details
-          </Heading>
-          <FormControl id="company-name" mb={4}>
-            <FormLabel>Company Name</FormLabel>
-            <Input type="text" placeholder="Company Name" required />
-          </FormControl>
-          <FormControl id="company-address" mb={4}>
-            <FormLabel>Company Address</FormLabel>
-            <Input type="text" placeholder="Company Address" required />
-          </FormControl>
-          <FormControl id="company-phone" mb={6}>
-            <FormLabel>Company Phone</FormLabel>
-            <Input type="tel" placeholder="Company Phone Number" required />
-          </FormControl>
-          
-          <Button type="submit" colorScheme="teal" size="lg" w="100%" mb={4}>
+        {error && <Box color="red.500" mb={4}>{error}</Box>}
+        <FormControl id="name" mb={4}>
+          <FormLabel>Name</FormLabel>
+          <Input placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} />
+        </FormControl>
+        <FormControl id="email" mb={4}>
+          <FormLabel>Email</FormLabel>
+          <Input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </FormControl>
+        <FormControl id="password" mb={4}>
+          <FormLabel>Password</FormLabel>
+          <Input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </FormControl>
+        {/* <FormControl id="companyName" mb={4}>
+          <FormLabel>Company Name</FormLabel>
+          <Input placeholder="Enter your company name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+        </FormControl>
+        <FormControl id="companyAddress" mb={4}>
+          <FormLabel>Company Address</FormLabel>
+          <Textarea placeholder="Enter your company address" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
+        </FormControl>
+        <FormControl id="companyPhone" mb={4}>
+          <FormLabel>Company Phone</FormLabel>
+          <Input placeholder="Enter your company phone" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
+        </FormControl> */}
+        <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} mt={6}>
+          <Button colorScheme="blue" onClick={handleRegister}>
             Create Account
           </Button>
-        </Box>
-      </Flex>
+           {/* <Button variant="outline" onClick={() => history.push('/login')}>
+            Cancel
+          </Button> */}
+        </Stack>
+      </Box>
     </Box>
   );
 };

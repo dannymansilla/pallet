@@ -20,7 +20,6 @@ const user = {
   profileImage: 'https://via.placeholder.com/150',
   company: {
     name: 'Acme Corp',
-    address: '123 Business St, Suite 456',
     phone: '123-456-7890'
   }
 };

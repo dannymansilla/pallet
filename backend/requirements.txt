@@ -1,5 +1,7 @@
 Django>=4.2,<5.0
 djangorestframework
+djangorestframework-simplejwt
 psycopg2-binary  # For PostgreSQL connection
 python-decouple
+django-cors-headers
 # Add any other dependencies your project needs

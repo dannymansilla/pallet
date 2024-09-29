@@ -1,5 +1,4 @@
 // src/App.js
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme'; // Ensure you have your custom theme file
@@ -17,19 +16,23 @@ import LoginPage from './pages/LoginPage';
 import ProductDetails from './pages/ProductDetails';
 import Layout from './components/Layout';
 import AuctionDetailsPage from './pages/AuctionDetailsPage'; 
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
+      <AuthProvider>
       <Router>
       <Layout>
-        <Header />
+        <Header isAuthenticated/>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auctions" element={<AuctionsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          {/* <Route path="/profile" element={<ProfilePage />} /> */}
+          <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/list-product" element={<ListProductPage />} />
@@ -41,6 +44,7 @@ function App() {
         <Footer />
         </Layout>
       </Router>
+      </AuthProvider>
     </ChakraProvider>
   );
 }
