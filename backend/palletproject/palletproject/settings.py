@@ -24,6 +24,14 @@ print("env_path DIR: " + env_path)
 # config = Config(env_path)
 config = Config(RepositoryEnv(env_path))
 
+print("Database Config:")
+print(f"DB NAME: {config('POSTGRES_DB', default='NOT_SET')}")
+print(f"DB USER: {config('POSTGRES_USER', default='NOT_SET')}")
+print(f"DB HOST: {config('POSTGRES_HOST', default='NOT_SET')}")
+print(f"DB PASSWORD: {config('POSTGRES_PASSWORD', default='NOT_SET')}")
+print(f"DB PORT: {config('POSTGRES_PORT', default='NOT_SET')}")
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -54,11 +62,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'palletapp',
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React app
+    "http://frontend:3000",
+    "http://127.0.0.1:3000",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -131,6 +144,8 @@ DATABASES = {
 
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
+
+AUTH_USER_MODEL = 'palletapp.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

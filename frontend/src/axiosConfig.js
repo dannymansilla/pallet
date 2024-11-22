@@ -1,12 +1,15 @@
-// src/axiosConfig.js
 import axios from 'axios';
-import { refreshToken } from './utils/auth';
+import { useAuth } from './context/AuthContext';
 
-// Set up Axios default base URL
-axios.defaults.baseURL = 'http://localhost:8000'; // Update to your backend URL
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:8000'
+});
+// const axiosInstance = axios.create({
+//   baseURL: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'
+// });
 
 // Axios interceptor to set Authorization header for every request, except for routes that do not require a token
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   config => {
     const accessToken = localStorage.getItem('access_token');
 
@@ -16,6 +19,10 @@ axios.interceptors.request.use(
         config.headers['Authorization'] = `Bearer ${accessToken}`;
       }
     }
+    if (config.url.includes('/api/companies/') && config.method === 'get') {
+      // Skip adding the Authorization header for these routes
+      delete config.headers['Authorization'];
+    }
 
     return config;
   },
@@ -24,33 +31,4 @@ axios.interceptors.request.use(
   }
 );
 
-// Axios interceptor for handling token expiration
-axios.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config;
-
-    // Check if the error is a 401 Unauthorized response and if it's not a retry
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      // Attempt to refresh the token
-      const success = await refreshToken();
-
-      if (success) {
-        // Retry the original request with the new token
-        const newAccessToken = localStorage.getItem('access_token');
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-        return axios(originalRequest);
-      } else {
-        // If token refresh fails, log the user out and redirect to the login page
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        // Redirect to login page if necessary
-        // window.location.href = '/login'; // Uncomment if you want automatic redirection
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
+export default axiosInstance;

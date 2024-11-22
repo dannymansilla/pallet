@@ -9,7 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Include the app-level URLs
-    path('api/', include('palletapp.urls')),  # Replace 'myapp' with the name of your app
+    path('api/', include('palletapp.urls')),  # Correctly includes the URLs from the palletapp
 
     # JWT token authentication views (login and refresh)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # For login (generate tokens)

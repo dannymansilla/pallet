@@ -31,7 +31,6 @@ function App() {
           <Route path="/auctions" element={<AuctionsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          {/* <Route path="/profile" element={<ProfilePage />} /> */}
           <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/login" element={<LoginPage />} />

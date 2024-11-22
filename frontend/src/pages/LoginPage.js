@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Box, Flex, Heading, Input, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // Using AuthContext for login
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -10,27 +10,15 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
+  const { login } = useAuth();  // Get login function from context
 
   // Function to handle login
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("HELLO");
-
     try {
-      // Make API request to login
-      const response = await axios.post('/api/token/', {
-        username: email,  // Since Django uses `username` by default, mapping email to username
-        password,
-      });
-      console.log(response.data);
-
-      // Extract tokens from response
-      const { access, refresh } = response.data;
-
-      // Store the tokens in localStorage
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
-
+      // Use the login function from AuthContext
+      await login(email, password);
+      
       // Show success toast and redirect to the home page
       toast({
         title: 'Login Successful!',
@@ -44,7 +32,6 @@ const LoginPage = () => {
       navigate('/');
     } catch (err) {
       setError('Invalid email or password. Please try again.');
-      console.error(err.response);
 
       // Show error toast
       toast({
