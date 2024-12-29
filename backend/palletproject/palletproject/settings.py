@@ -41,6 +41,8 @@ SECRET_KEY = 'django-insecure-_ui9yh=3)e(@-yy6syz+atfs+pz@k@^dgd#!vh%4dw7y_eg+v5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+PROMETHEUS_EXPORT_MIGRATIONS = False
+
 ALLOWED_HOSTS = [
     'localhost',          # Allow requests from localhost
     '127.0.0.1',          # Allow requests from the loopback IP
@@ -63,6 +65,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'palletapp',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -74,13 +77,16 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 

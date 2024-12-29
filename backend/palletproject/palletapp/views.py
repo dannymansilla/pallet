@@ -1,135 +1,231 @@
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .models import Company, Product, Listing, Auction, Bid
+from .serializers import CompanySerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer
+from django.contrib.auth import get_user_model
+from .serializers import UserSerializer
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from .models import User, Listing, Bid, Company
-from rest_framework import status
-from django.contrib.auth.hashers import make_password
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.views.decorators.csrf import csrf_exempt
-from .serializers import UserProfileSerializer, ListingSerializer, BidSerializer, CompanySerializer
+from django.contrib.auth.models import User
+from rest_framework import status
+from rest_framework.generics import CreateAPIView
+from .permissions import HasAcceptedTerms
 
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([AllowAny]) 
-def register_user(request):
-    data = request.data
-    try:
-        # Extract company if provided
-        company_id = data.get('company')
-        company = Company.objects.get(id=company_id) if company_id else None
+User = get_user_model()
 
-        # Create new user
-        user = User.objects.create(
-            name=data['name'],
-            email=data['email'],
-            password=make_password(data['password']),  # Hash the password
-            company=company  # Link the user with the company
-        )
-        # Generate tokens for the newly created user
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }, status=status.HTTP_201_CREATED)
-    except Company.DoesNotExist:
-        return Response({'detail': 'Company not found.'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
-def companies(request):
-    if request.method == 'GET':
-        # Fetch all companies
-        companies = Company.objects.all()
-        serializer = CompanySerializer(companies, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    elif request.method == 'POST':
-        # Create a new company
-        data = request.data
-        serializer = CompanySerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        # Admins can view all users; others can only view users in their company
+        if self.request.user.role == 'admin':
+            return User.objects.all()
+        elif self.request.user.company:
+            return User.objects.filter(company=self.request.user.company)
+        raise PermissionDenied("You do not have access to these records.")
     
-    elif request.method in ['PUT', 'PATCH']:
-        # Update an existing company
-        company_id = request.data.get('id')
+    def get_permissions(self):
+        print(f"Request User: {self.request.user}, Is Staff: {self.request.user.is_staff}")
+        return super().get_permissions()
+
+    def perform_create(self, serializer):
+        # Only admins can create users
+        if self.request.user.role != 'admin':
+            raise PermissionDenied("Only admins can create users.")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        # Ensure non-admin users cannot modify roles or companies
+        if self.request.user.role != 'admin' and ('role' in serializer.validated_data or 'company' in serializer.validated_data):
+            raise PermissionDenied("You cannot modify roles or company associations.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Restrict deletion to admins
+        if self.request.user.role != 'admin':
+            raise PermissionDenied("Only admins can delete users.")
+        instance.delete()
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def set_admin(self, request, pk=None):
+        """
+        API to assign a user as an admin for a company.
+        """
+        user = self.get_object()  # Fetch the user by `pk`
+        company_id = request.data.get('company_id')
+
+        if not company_id:
+            raise ValidationError("`company_id` is required.")
+
+        serializer = self.get_serializer(user)
+        admin_user = serializer.set_admin(company_id)
+
+        return Response({
+            "message": f"User {admin_user.username} is now an admin for company {admin_user.company.name}."
+        })
+
+# Custom Permissions
+class IsSeller(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == "seller"
+
+class IsBuyer(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == "buyer"
+
+# ViewSets
+class CompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def approve_company(self, request, pk=None):
+        """
+        Approve a company by setting `is_approved` to True.
+        """
+        company = self.get_object()
+        if company.is_approved:
+            raise ValidationError("Company is already approved.")
+
+        # Mark as approved
+        company.is_approved = True
+        company.save()
+        # Notify the admin user
+        # admin_user = company.users.filter(role="admin").first()
+        # if admin_user:
+        #     send_notification(
+        #         admin_user,
+        #         f"Your company {company.name} has been approved!",
+        #         notification_type="email"
+        #     )
+        # return Response({"status": f"Company {company.name} approved and admin notified."})
+        return Response({"status": "Company approved successfully."})
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def accept_terms(self, request, pk=None):
+        """Endpoint for accepting Terms of Service."""
+        company = self.get_object()
+        if company.terms_accepted:
+            return Response({"detail": "Terms already accepted."}, status=status.HTTP_400_BAD_REQUEST)
+
+        company.terms_accepted = timezone.now()
+        company.save()
+        return Response({"detail": "Terms of Service accepted."}, status=status.HTTP_200_OK)
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated, IsSeller]
+
+class ListingViewSet(viewsets.ModelViewSet):
+    queryset = Listing.objects.all()
+    serializer_class = ListingSerializer
+    permission_classes = [IsAuthenticated, IsSeller, HasAcceptedTerms]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def get_queryset(self):
+        return self.queryset.filter(created_by=self.request.user)
+
+class AuctionViewSet(viewsets.ModelViewSet):
+    queryset = Auction.objects.all()
+    serializer_class = AuctionSerializer
+    permission_classes = [IsAuthenticated, IsSeller]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def get_queryset(self):
+        return self.queryset.filter(created_by=self.request.user)
+    
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated, IsSeller])
+    def start_auction(self, request, pk=None):
+        auction = self.get_object()
+        if auction.status != "pending":
+            raise ValidationError("Only pending auctions can be started.")
+        auction.status = "open"
+        auction.save()
+        return Response({"status": "Auction started."})
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated, IsSeller])
+    def close_auction(self, request, pk=None):
+        auction = self.get_object()
+        if auction.status != "open":
+            raise ValidationError("Only open auctions can be closed.")
+        auction.status = "closed"
+        auction.save()
+        return Response({"status": "Auction closed."})
+
+class BidViewSet(viewsets.ModelViewSet):
+    queryset = Bid.objects.all()
+    serializer_class = BidSerializer
+    permission_classes = [IsAuthenticated, IsBuyer, HasAcceptedTerms]
+
+    def perform_create(self, serializer):
+        # Associate the bid with the authenticated user's company
+        serializer.save(buyer=self.request.user.company)
+
+    def get_queryset(self):
+        """
+        Returns bids associated with the authenticated user's company by default.
+        Supports filtering by auction via the 'auction_id' query parameter.
+        """
+        user_company = self.request.user.company
+        auction_id = self.request.query_params.get("auction_id")
+
+        # Filter bids by the user's company
+        queryset = self.queryset.filter(buyer=user_company)
+
+        # If auction_id is provided, filter further by the auction
+        if auction_id:
+            queryset = queryset.filter(auction__id=auction_id)
+
+        return queryset
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
         try:
-            company = Company.objects.get(id=company_id)
-            serializer = CompanySerializer(company, data=request.data, partial=(request.method == 'PATCH'))
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Company.DoesNotExist:
-            return Response({"detail": "Company not found."}, status=status.HTTP_404_NOT_FOUND)
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Successfully logged out."}, status=200)
+        except Exception as e:
+            return Response({"error": "Invalid token."}, status=400)
         
-    elif request.method == 'DELETE':
-        # Delete a company
-        company_id = request.data.get('id')
-        try:
-            company = Company.objects.get(id=company_id)
-            company.delete()
-            return Response({"detail": "Company deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-        except Company.DoesNotExist:
-            return Response({"detail": "Company not found."}, status=status.HTTP_404_NOT_FOUND)
+class PasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+
+        if not user.check_password(old_password):
+            return Response({"error": "Old password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+    
+class RegisterView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def profile(request):
-    user = request.user
-    serializer = UserProfileSerializer(user)
-    return Response(serializer.data)
+class TermsOfServiceView(APIView):
+    permission_classes = [AllowAny]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def current_bids(request):
-    user = request.user
-    bids = Bid.objects.filter(user=user)
-    serializer = BidSerializer(bids, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_listings(request):
-    user = request.user
-    listings = Listing.objects.filter(user=user)
-    serializer = ListingSerializer(listings, many=True)
-    return Response(serializer.data)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_listing(request):
-    data = request.data
-    user = request.user  # Get the authenticated user
-    serializer = ListingSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save(user=user)  # Save listing with the user as the owner
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['PUT', 'PATCH'])
-@permission_classes([IsAuthenticated])
-def update_listing(request, listing_id):
-    try:
-        listing = Listing.objects.get(id=listing_id, user=request.user)
-        serializer = ListingSerializer(listing, data=request.data, partial=(request.method == 'PATCH'))
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except Listing.DoesNotExist:
-        return Response({"detail": "Listing not found or you do not have permission to edit it."}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_listing(request, listing_id):
-    try:
-        listing = Listing.objects.get(id=listing_id, user=request.user)
-        listing.delete()
-        return Response({"detail": "Listing deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-    except Listing.DoesNotExist:
-        return Response({"detail": "Listing not found or you do not have permission to delete it."}, status=status.HTTP_404_NOT_FOUND)
+    def get(self, request):
+        tos_content = "Generic Terms of Service Placeholder..."
+        return Response({"terms_of_service": tos_content})

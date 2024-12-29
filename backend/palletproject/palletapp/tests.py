@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
-from .models import User, Listing, Bid, Company
+from .models import User, Listing, Bid, Company, Notification
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -65,3 +65,19 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[0]['title'], "Test Listing 1")
+
+class NotificationTests(TestCase):
+    def setUp(self):
+        # Create a user and company
+        self.user = User.objects.create_user(username="testuser", password="testpass", role="admin")
+        self.company = Company.objects.create(name="Test Company", contact_email="test@example.com")
+
+    def test_company_approval_notification(self):
+        # Simulate approval
+        self.company.is_approved = True
+        self.company.save()
+
+        # Assert notification
+        notification = Notification.objects.filter(recipient=self.user).first()
+        self.assertIsNotNone(notification)
+        self.assertEqual(notification.message, f"Your company {self.company.name} has been approved!")

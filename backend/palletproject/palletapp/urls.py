@@ -1,22 +1,17 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import CompanyViewSet, UserViewSet, ProductViewSet, ListingViewSet, AuctionViewSet, BidViewSet
 
+# Create a router and register our viewsets
+router = DefaultRouter()
+router.register(r'users', UserViewSet) 
+router.register(r'companies', CompanyViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'listings', ListingViewSet)
+router.register(r'auctions', AuctionViewSet)
+router.register(r'bids', BidViewSet)
+
+# Include the router URLs
 urlpatterns = [
-    # Route for user registration (creating an account)
-    path('register/', views.register_user, name='register'),
-
-    # Route for creating a new company
-    path('companies/', views.companies, name='companies'),
-
-    # Route for fetching user profile
-    path('profile/', views.profile, name='profile'),
-
-    # Route for fetching the user's current bids
-    path('current-bids/', views.current_bids, name='current-bids'),
-
-    # Route for fetching the user's listings
-    path('user-listings/', views.user_listings, name='user-listings'),
-    path('listings/', views.create_listing, name='create-listing'),
-    path('listings/<int:listing_id>/', views.update_listing, name='update-listing'),
-    path('listings/<int:listing_id>/delete/', views.delete_listing, name='delete-listing'),
+    path('', include(router.urls)),
 ]

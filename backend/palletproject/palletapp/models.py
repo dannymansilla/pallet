@@ -1,81 +1,138 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.utils import timezone
+from django.conf import settings 
+from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
-class MyUserManager(BaseUserManager):
-    def create_user(self, email, name, password=None):
-        if not email:
-            raise ValueError("Users must have an email address")
-        if not name:
-            raise ValueError("Users must have a name")
-
-        user = self.model(
-            email=self.normalize_email(email),
-            name=name,
-        )
-        user.set_password(password)  # Automatically hashes the password
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, name, password=None):
-        user = self.create_user(
-            email=email,
-            name=name,
-            password=password,
-        )
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
-
-
+# User and Company Models
 class Company(models.Model):
-    company_name = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20)
-
-    def __str__(self):
-        return self.company_name
-
-class Role(models.Model):
-    role_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.role_name
-
-class User(AbstractBaseUser):
-    email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
-    password_hash = models.CharField(max_length=255)  # Stores the hashed password
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
-    
-    objects = MyUserManager()
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    legal_entity_info = models.CharField(max_length=255, blank=True, null=True)
+    contact_email = models.EmailField()
+    contact_phone = models.CharField(max_length=20, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
+    terms_accepted = models.DateTimeField(blank=True, null=True)  # Timestamp for ToS acceptance
 
     def __str__(self):
-        return self.email
+        return self.name
 
+class User(AbstractUser):
+    ROLE_CHOICES = [
+        ("seller", "Seller"),
+        ("buyer", "Buyer"),
+        ("admin", "Admin"),
+    ]
 
-class Listing(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='listings')
-    title = models.CharField(max_length=255)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="users", blank=True, null=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+
+# Product Model
+class Product(models.Model):
+    name = models.CharField(max_length=255)
     description = models.TextField()
-    status = models.CharField(max_length=50, choices=[('Open', 'Open'), ('Closed', 'Closed')], default='Open')
-    closing_date = models.DateTimeField()
-    current_bids = models.IntegerField(default=0)  # Tracks the number of bids
+    brand = models.CharField(max_length=255)
+    gtin = models.CharField(max_length=14, unique=True)
+    length = models.FloatField()
+    width = models.FloatField()
+    height = models.FloatField()
+    weight = models.FloatField()
+    units_per_case = models.PositiveIntegerField()
+    cases_per_pallet = models.PositiveIntegerField()
+    certifications = models.JSONField(blank=True, null=True)
+    expiration_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return self.title
+        return self.name
 
+# Listing Model
+class Listing(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="listings")
+    auction_start_date = models.DateTimeField()
+    auction_end_date = models.DateTimeField()
+    quantity_available = models.PositiveIntegerField()
+    minimum_selling_price = models.DecimalField(max_digits=10, decimal_places=2)
+    warehouse_location = models.TextField()
+    shipping_instructions = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="listings",
+    )
+
+    def __str__(self):
+        return f"Listing for {self.product.name}"
+
+# Auction and Bid Models
+class Auction(models.Model):
+    name = models.CharField(max_length=255)
+    listings = models.ManyToManyField(Listing, related_name="auctions")
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=[("open", "Open"), ("closed", "Closed"), ("pending", "Pending Approval")])
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="auctions",
+    )
+
+    def __str__(self):
+        return self.name
 
 class Bid(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bids')
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='bids')
-    bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.IntegerField()
-    status = models.CharField(max_length=50, choices=[('OPEN', 'Open'), ('CLOSED', 'Closed')], default='OPEN')
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="bids")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
+    buyer = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bids")
+    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_winning_bid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Bid by {self.user.name} on {self.listing.title}"
+        return f"Bid by {self.buyer.name} on {self.listing}"
+
+# Truckload Optimization and Logistics Models
+class Truckload(models.Model):
+    buyer = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="truckloads")
+    listings = models.ManyToManyField(Listing, related_name="truckloads")
+    total_weight = models.FloatField()
+    total_volume = models.FloatField()
+    total_value = models.DecimalField(max_digits=15, decimal_places=2)
+    shipping_details = models.TextField()
+    status = models.CharField(max_length=20, choices=[("pending", "Pending Approval"), ("approved", "Approved"), ("shipped", "Shipped")])
+
+    def __str__(self):
+        return f"Truckload for {self.buyer.name}"
+
+# Notifications and Workflow Models
+class Notification(models.Model):
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=[("email", "Email"), ("alert", "Platform Alert"), ("sms", "SMS")])
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification to {self.recipient.username}"
+
+class ApprovalWorkflow(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    item = GenericForeignKey("content_type", "object_id")
+    approver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="approvals")
+    status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")])
+    notes = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+# Billing and Invoicing Models
+class Invoice(models.Model):
+    seller = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="invoices")
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=[("paid", "Paid"), ("unpaid", "Unpaid")])
+    invoice_date = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateTimeField()
+
+    def __str__(self):
+        return f"Invoice for {self.seller.name}"
