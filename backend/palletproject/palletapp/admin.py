@@ -1,29 +1,33 @@
 from django.contrib import admin
 from .models import Company, User, Listing, Bid
 
+
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'contact_email', 'is_approved')
+    list_display = ('id', 'name', 'contact_email', 'is_approved', 'roles')
     search_fields = ('name', 'contact_email')
-    list_filter = ('is_approved',)
+    list_filter = ('is_approved', 'roles')
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'email', 'role', 'company')
+    list_display = ('id', 'username', 'email', 'is_admin', 'company')
     search_fields = ('username', 'email', 'company__name')
-    list_filter = ('role', 'company')
+    list_filter = ('is_admin', 'company')
 
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'auction_start_date', 'auction_end_date', 'quantity_available', 'minimum_selling_price', 'warehouse_location', 'is_active')
-    search_fields = ('product__name', 'warehouse_location')
+    list_display = ('id', 'product', 'auction_start_date', 'auction_end_date', 
+                    'quantity_available', 'minimum_selling_price', 
+                    'warehouse_location', 'is_active', 'created_by')
+    search_fields = ('product__name', 'warehouse_location', 'created_by__username')
     list_filter = ('is_active', 'auction_start_date', 'auction_end_date')
 
 
 @admin.register(Bid)
 class BidAdmin(admin.ModelAdmin):
-    list_display = ('id', 'auction', 'listing', 'buyer', 'price_per_unit', 'quantity', 'timestamp', 'is_winning_bid')
-    search_fields = ('listing__product__name', 'buyer__name')
+    list_display = ('id', 'auction', 'listing', 'buyer', 'price_per_unit', 
+                    'quantity', 'timestamp', 'is_winning_bid')
+    search_fields = ('listing__product__name', 'buyer__name', 'auction__id')
     list_filter = ('timestamp', 'auction', 'is_winning_bid')

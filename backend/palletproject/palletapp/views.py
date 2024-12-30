@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Company, Product, Listing, Auction, Bid
-from .serializers import CompanySerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer
+from .serializers import CompanySerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.exceptions import PermissionDenied
@@ -14,6 +14,8 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from .permissions import HasAcceptedTerms
+from django.utils import timezone
+
 
 User = get_user_model()
 
@@ -23,32 +25,46 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Admins can view all users; others can only view users in their company
-        if self.request.user.role == 'admin':
-            return User.objects.all()
+        """
+        Restrict queryset based on user's role and company.
+        Admins can view all users; regular users can only view users in their company.
+        """
+        if self.request.user.is_admin:
+            return User.objects.filter(company=self.request.user.company)
         elif self.request.user.company:
             return User.objects.filter(company=self.request.user.company)
         raise PermissionDenied("You do not have access to these records.")
-    
+
     def get_permissions(self):
-        print(f"Request User: {self.request.user}, Is Staff: {self.request.user.is_staff}")
+        """
+        Print debug information for permissions and return default permissions.
+        """
+        print(f"Request User: {self.request.user}, Is Admin: {self.request.user.is_admin}")
         return super().get_permissions()
 
     def perform_create(self, serializer):
-        # Only admins can create users
-        if self.request.user.role != 'admin':
+        """
+        Ensure only admins can create users and associate them with the admin's company.
+        """
+        if not self.request.user.is_admin:
             raise PermissionDenied("Only admins can create users.")
-        serializer.save()
+        serializer.save(company=self.request.user.company)
 
     def perform_update(self, serializer):
-        # Ensure non-admin users cannot modify roles or companies
-        if self.request.user.role != 'admin' and ('role' in serializer.validated_data or 'company' in serializer.validated_data):
-            raise PermissionDenied("You cannot modify roles or company associations.")
+        """
+        Ensure non-admin users cannot modify roles or companies.
+        """
+        if not self.request.user.is_admin and (
+            "is_admin" in serializer.validated_data or "company" in serializer.validated_data
+        ):
+            raise PermissionDenied("You cannot modify admin status or company associations.")
         serializer.save()
 
     def perform_destroy(self, instance):
-        # Restrict deletion to admins
-        if self.request.user.role != 'admin':
+        """
+        Restrict deletion of users to company admins.
+        """
+        if not self.request.user.is_admin:
             raise PermissionDenied("Only admins can delete users.")
         instance.delete()
 
@@ -58,26 +74,50 @@ class UserViewSet(viewsets.ModelViewSet):
         API to assign a user as an admin for a company.
         """
         user = self.get_object()  # Fetch the user by `pk`
-        company_id = request.data.get('company_id')
+        company_id = request.data.get("company_id")
 
         if not company_id:
             raise ValidationError("`company_id` is required.")
 
+        if not self.request.user.is_admin:
+            raise PermissionDenied("Only admins can assign admin roles.")
+
         serializer = self.get_serializer(user)
         admin_user = serializer.set_admin(company_id)
 
-        return Response({
-            "message": f"User {admin_user.username} is now an admin for company {admin_user.company.name}."
-        })
+        return Response(
+            {
+                "message": f"User {admin_user.username} is now an admin for company {admin_user.company.name}."
+            },
+            status=status.HTTP_200_OK,
+        )
 
 # Custom Permissions
 class IsSeller(permissions.BasePermission):
+    """
+    Allows access only to users whose companies have a 'seller' or 'both' role.
+    """
+
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "seller"
+        user = request.user
+        if not user.is_authenticated:
+            return False
+        if not hasattr(user, 'company') or not user.company:
+            return False
+        return user.company.roles in ["seller", "both"]
 
 class IsBuyer(permissions.BasePermission):
+    """
+    Allows access only to users whose companies have a 'buyer' or 'both' role.
+    """
+
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "buyer"
+        user = request.user
+        if not user.is_authenticated:
+            return False
+        if not hasattr(user, 'company') or not user.company:
+            return False
+        return user.company.roles in ["buyer", "both"]
 
 # ViewSets
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -85,39 +125,83 @@ class CompanyViewSet(viewsets.ModelViewSet):
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=["post"], permission_classes=[AllowAny])
+    def register(self, request):
+        """
+        Handles combined Company and Admin User registration.
+        """
+        serializer = CompanyRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            result = serializer.save()
+            return Response(
+                {
+                    "message": "Company and admin user registered successfully.",
+                    "company": CompanySerializer(result["company"]).data,
+                    "admin_user": UserSerializer(result["admin_user"]).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def approve_company(self, request, pk=None):
         """
         Approve a company by setting `is_approved` to True.
+        Only superusers or staff can approve companies.
         """
+        # Ensure only superusers or staff can approve companies
+        if not request.user.is_staff:
+            raise PermissionDenied("You do not have permission to approve companies.")
+
         company = self.get_object()
+
         if company.is_approved:
             raise ValidationError("Company is already approved.")
 
-        # Mark as approved
+        # Approve the company
         company.is_approved = True
         company.save()
-        # Notify the admin user
-        # admin_user = company.users.filter(role="admin").first()
-        # if admin_user:
-        #     send_notification(
-        #         admin_user,
-        #         f"Your company {company.name} has been approved!",
-        #         notification_type="email"
-        #     )
-        # return Response({"status": f"Company {company.name} approved and admin notified."})
-        return Response({"status": "Company approved successfully."})
-    
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
-    def accept_terms(self, request, pk=None):
-        """Endpoint for accepting Terms of Service."""
-        company = self.get_object()
-        if company.terms_accepted:
-            return Response({"detail": "Terms already accepted."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Notify the admin user
+        admin_user = company.users.filter(is_admin=True).first()
+        if admin_user:
+            # Uncomment the following lines if notification logic is implemented
+            # send_notification(
+            #     admin_user,
+            #     f"Your company {company.name} has been approved!",
+            #     notification_type="email",
+            # )
+            pass
+
+        return Response(
+            {"status": f"Company {company.name} approved successfully."},
+            status=status.HTTP_200_OK,
+        )
+    
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def accept_terms(self, request):
+        """Accept Terms of Service for the company of the logged-in user."""
+        # Get the company associated with the logged-in user
+        user = request.user
+        if not hasattr(user, "company") or not user.company:
+            return Response(
+                {"detail": "User is not associated with any company."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        company = user.company
+
+        if company.terms_accepted:
+            return Response(
+                {"detail": "Terms already accepted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Mark terms as accepted
         company.terms_accepted = timezone.now()
         company.save()
-        return Response({"detail": "Terms of Service accepted."}, status=status.HTTP_200_OK)
+
+        return Response({"message": "Terms accepted successfully."}, status=status.HTTP_200_OK)
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()

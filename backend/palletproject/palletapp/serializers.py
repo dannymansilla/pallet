@@ -18,42 +18,86 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'role', 'company', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'is_admin', 'company', 'first_name', 'last_name']
         read_only_fields = ['id']
 
     def create(self, validated_data):
-        # Ensure password is properly hashed
+        """
+        Create a new user, ensuring the password is hashed correctly
+        and assigning the user to a company if provided.
+        """
         password = validated_data.pop('password', None)
-        user = super().create(validated_data)
+        company = validated_data.pop('company', None)  # Ensure company association
+        user = User(**validated_data)
         if password:
             user.set_password(password)
-            user.save()
+        if company:
+            user.company = company
+        user.save()
         return user
 
     def update(self, instance, validated_data):
-        # Handle password updates securely
+        """
+        Update an existing user securely, ensuring password updates
+        are handled appropriately.
+        """
         password = validated_data.pop('password', None)
-        user = super().update(instance, validated_data)
+        company = validated_data.pop('company', None)  # Allow updating company association
+        instance = super().update(instance, validated_data)
         if password:
-            user.set_password(password)
-            user.save()
-        return user
-    
+            instance.set_password(password)
+        if company:
+            instance.company = company
+        instance.save()
+        return instance
+
     def set_admin(self, company_id):
         """
         Assign the user as an admin for the specified company.
         """
-        # Validate the company exists
+        # Validate that the company exists
         try:
             company = Company.objects.get(id=company_id)
         except Company.DoesNotExist:
             raise serializers.ValidationError("Company does not exist.")
 
-        # Check the user's current role and update
-        self.instance.role = 'admin'
+        # Assign admin status and associate with the company
+        self.instance.is_admin = True
         self.instance.company = company
         self.instance.save()
         return self.instance
+
+    
+class CompanyRegistrationSerializer(serializers.Serializer):
+    company_name = serializers.CharField(max_length=255)
+    address = serializers.CharField(max_length=500, required=False)
+    contact_email = serializers.EmailField()
+    contact_phone = serializers.CharField(max_length=20, required=False)
+
+    admin_email = serializers.EmailField()
+    admin_password = serializers.CharField(write_only=True)
+    admin_username = serializers.CharField(max_length=150)
+    roles = serializers.ChoiceField(choices=Company.ROLES)
+
+    def create(self, validated_data):
+        company = Company.objects.create(
+            name=validated_data["company_name"],
+            address=validated_data.get("address"),
+            contact_email=validated_data["contact_email"],
+            contact_phone=validated_data.get("contact_phone"),
+            roles=validated_data["roles"],
+        )
+
+        admin_user = User.objects.create_user(
+            username=validated_data["admin_username"],
+            email=validated_data["admin_email"],
+            password=validated_data["admin_password"],
+            is_admin=True,  # Mark as admin
+            company=company,
+        )
+
+        return {"company": company, "admin_user": admin_user}
+
 
 
 class CompanySerializer(serializers.ModelSerializer):
