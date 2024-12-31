@@ -1,21 +1,19 @@
-// src/components/Form/CheckboxField.js
-
-import { FormControl, FormLabel, Checkbox, FormErrorMessage } from "@chakra-ui/react";
+import { Checkbox, FormControl, FormErrorMessage } from "@chakra-ui/react";
 
 const CheckboxField = ({
   label,
+  name,
   isChecked,
   onChange,
-  isRequired = false,
   error = null,
   ...rest
 }) => {
   return (
-    <FormControl isRequired={isRequired} isInvalid={!!error} {...rest}>
-      <FormLabel>{label}</FormLabel>
+    <FormControl isInvalid={!!error} {...rest}>
       <Checkbox
-        isChecked={isChecked}
-        onChange={onChange}
+        name={name} // Pass 'name' to the checkbox
+        isChecked={isChecked} // Use 'isChecked' to control the checkbox state
+        onChange={onChange} // Pass 'onChange' to handle state updates
       >
         {label}
       </Checkbox>

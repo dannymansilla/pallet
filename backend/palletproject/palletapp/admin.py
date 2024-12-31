@@ -4,9 +4,9 @@ from .models import Company, User, Listing, Bid
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'contact_email', 'is_approved', 'roles')
+    list_display = ('id', 'name', 'contact_email', 'status', 'roles')
     search_fields = ('name', 'contact_email')
-    list_filter = ('is_approved', 'roles')
+    list_filter = ('status', 'roles')
 
 
 @admin.register(User)

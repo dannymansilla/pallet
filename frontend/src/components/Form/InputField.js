@@ -1,11 +1,10 @@
-// src/components/Form/InputField.js
-
 import { FormControl, FormLabel, Input, FormErrorMessage } from "@chakra-ui/react";
 
 const InputField = ({
   label,
   placeholder,
   type = "text",
+  name, // Explicitly destructuring 'name'
   value,
   onChange,
   isRequired = false,
@@ -18,8 +17,9 @@ const InputField = ({
       <Input
         placeholder={placeholder}
         type={type}
+        name={name} // Pass 'name' to the input
         value={value}
-        onChange={onChange}
+        onChange={onChange} // Pass 'onChange' to the input
       />
       {error && <FormErrorMessage>{error}</FormErrorMessage>}
     </FormControl>

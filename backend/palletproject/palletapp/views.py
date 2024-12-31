@@ -143,10 +143,10 @@ class CompanyViewSet(viewsets.ModelViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=["post"], permission_classes=[IsAdminUser])
     def approve_company(self, request, pk=None):
         """
-        Approve a company by setting `is_approved` to True.
+        Approve a company by setting `status` to "approved".
         Only superusers or staff can approve companies.
         """
         # Ensure only superusers or staff can approve companies
@@ -155,28 +155,50 @@ class CompanyViewSet(viewsets.ModelViewSet):
 
         company = self.get_object()
 
-        if company.is_approved:
-            raise ValidationError("Company is already approved.")
+        if company.status == "approved":
+            return Response({"error": "Company is already approved."}, status=400)
 
         # Approve the company
-        company.is_approved = True
+        company.status = "approved"
         company.save()
 
         # Notify the admin user
         admin_user = company.users.filter(is_admin=True).first()
         if admin_user:
-            # Uncomment the following lines if notification logic is implemented
-            # send_notification(
-            #     admin_user,
-            #     f"Your company {company.name} has been approved!",
-            #     notification_type="email",
-            # )
+            # Placeholder for notification logic
             pass
 
         return Response(
-            {"status": f"Company {company.name} approved successfully."},
-            status=status.HTTP_200_OK,
+            {"message": f"Company {company.name} approved successfully."},
+            status=200,
         )
+    
+    @action(detail=True, methods=["post"], permission_classes=[IsAdminUser])
+    def reject_company(self, request, pk=None):
+        """
+        Reject a company by setting `status` to "rejected".
+        Only superusers or staff can reject companies.
+        """
+        company = self.get_object()
+
+        if company.status == "rejected":
+            return Response({"error": "Company is already rejected."}, status=400)
+
+        # Reject the company
+        company.status = "rejected"
+        company.save()
+
+        # Notify the admin user (optional)
+        admin_user = company.users.filter(is_admin=True).first()
+        if admin_user:
+            # Placeholder for notification logic
+            pass
+
+        return Response(
+            {"message": f"Company {company.name} rejected successfully."},
+            status=200,
+        )
+
     
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def accept_terms(self, request):

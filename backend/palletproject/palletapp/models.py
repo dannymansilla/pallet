@@ -6,12 +6,17 @@ from django.contrib.contenttypes.models import ContentType
 
 # User and Company Models
 class Company(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
     name = models.CharField(max_length=255)
     legal_entity_info = models.CharField(max_length=255, blank=True, null=True)
     contact_email = models.EmailField()
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    is_approved = models.BooleanField(default=False)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
     terms_accepted = models.DateTimeField(blank=True, null=True)
     ROLES = [
         ("buyer", "Buyer"),

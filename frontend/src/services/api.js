@@ -66,9 +66,28 @@ export const registerCompany = async (data) => {
     admin_email: data.adminEmail,
     admin_password: data.adminPassword,
     admin_username: data.adminUsername,
-    admin_role: data.adminRole,
+    roles: data.companyRole,
   });
   return response.data;
 };
+
+// Approve a company
+export const approveCompany = (companyId) =>
+  API.post(`/companies/${companyId}/approve_company/`);
+
+// Reject a company
+export const rejectCompany = (companyId) =>
+  API.post(`/companies/${companyId}/reject_company/`);
+
+// Fetch pending companies
+export const getPendingCompanies = () =>
+  API.get("/companies/", {
+    params: { is_approved: false }, // Assuming backend supports filtering by this parameter
+  });
+
+// Fetch all companies
+export const getAllCompanies = () => API.get("/companies/");
+
+
 
 export {API};

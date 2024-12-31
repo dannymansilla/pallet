@@ -20,6 +20,7 @@ import PrivateRoute from './components/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
 import CompanyRegistration from "./pages/Onboarding/CompanyRegistration";
 import AcceptTerms from "./pages/Onboarding/AcceptTerms";
+import AdminPage from './pages/AdminPage'; 
 
 function App() {
   return (
@@ -34,6 +35,8 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
+          {/* <Route path="/admin" element={<PrivateRoute Component={AdminPage} />} /> */}
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/list-product" element={<ListProductPage />} />

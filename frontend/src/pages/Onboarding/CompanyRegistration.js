@@ -21,7 +21,7 @@ const CompanyRegistration = () => {
     adminEmail: "",
     adminPassword: "",
     adminUsername: "",
-    adminRole: "buyer", // Default to buyer
+    companyRole: "buyer", // Default to buyer
     termsAccepted: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +39,7 @@ const CompanyRegistration = () => {
   const handleRoleChange = (value) => {
     setFormData((prev) => ({
       ...prev,
-      adminRole: value,
+      companyRole: value,
     }));
   };
 
@@ -113,6 +113,14 @@ const CompanyRegistration = () => {
           isRequired
         />
         <InputField
+          label="Contact Phone"
+          placeholder="Enter company contact phone"
+          name="contactPhone"
+          value={formData.contactPhone}
+          onChange={handleChange}
+          isRequired
+        />
+        <InputField
           label="Admin Email"
           placeholder="Enter admin email"
           type="email"
@@ -140,8 +148,8 @@ const CompanyRegistration = () => {
         />
         <RadioGroup
           onChange={handleRoleChange}
-          value={formData.adminRole}
-          name="adminRole"
+          value={formData.companyRole}
+          name="companyRole"
         >
           <Stack direction="row" spacing={4}>
             <Radio value="buyer">Buyer</Radio>
