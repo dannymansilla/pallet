@@ -29,11 +29,15 @@ class Company(models.Model):
         return self.name
 
 class User(AbstractUser):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="users", blank=True, null=True)
-    is_admin = models.BooleanField(default=False)  # Indicates if the user is a company admin
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="users", blank=True, null=True
+    )
+    is_admin = models.BooleanField(default=False)  # Company admin
+    is_superuser = models.BooleanField(default=False)  # Platform admin/superuser
 
     def __str__(self):
-        return f"{self.username} ({'Admin' if self.is_admin else 'User'})"
+        role = "Superuser" if self.is_superuser else "Admin" if self.is_admin else "User"
+        return f"{self.username} ({role})"
 
 
 # Product Model
@@ -79,15 +83,24 @@ class Auction(models.Model):
     listings = models.ManyToManyField(Listing, related_name="auctions")
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    status = models.CharField(max_length=20, choices=[("open", "Open"), ("closed", "Closed"), ("pending", "Pending Approval")])
+    status = models.CharField(
+        max_length=20, 
+        choices=[("open", "Open"), ("closed", "Closed"), ("pending", "Pending Approval")]
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="auctions",
+    )
+    company = models.ForeignKey(
+        Company,
         on_delete=models.CASCADE,
         related_name="auctions",
     )
 
     def __str__(self):
         return self.name
+
 
 class Bid(models.Model):
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="bids")

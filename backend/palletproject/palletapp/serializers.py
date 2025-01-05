@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Company, Product, Listing, Auction, Bid
 from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -98,7 +99,37 @@ class CompanyRegistrationSerializer(serializers.Serializer):
 
         return {"company": company, "admin_user": admin_user}
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
 
+        # Add custom claims
+        token['username'] = user.username
+        token['email'] = user.email
+        token['is_superuser'] = user.is_superuser
+        token['company'] = {
+            "status": user.company.status,
+            "roles": user.company.roles
+        } if hasattr(user, 'company') else None
+
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Attach user details to the response
+        data['user'] = {
+            "id": self.user.id,
+            "username": self.user.username,
+            "email": self.user.email,
+            "is_superuser": self.user.is_superuser,
+            "company": {
+                "status": self.user.company.status,
+                "roles": self.user.company.roles
+            } if hasattr(self.user, 'company') else None
+        }
+        return data
 
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:

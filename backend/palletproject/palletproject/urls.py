@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
-from palletapp.views import LogoutView, PasswordChangeView, RegisterView  # Import custom views
+from palletapp.views import LogoutView, PasswordChangeView, RegisterView, CustomTokenObtainPairView  # Import custom views
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 
 
@@ -10,7 +10,7 @@ urlpatterns = [
     path('api/', include('palletapp.urls')),  # Include app-level URLs
 
     # JWT Authentication Endpoints
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/logout/', LogoutView.as_view(), name='logout'),

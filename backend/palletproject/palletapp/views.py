@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
 from .models import Company, Product, Listing, Auction, Bid
-from .serializers import CompanySerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
+from .serializers import CompanySerializer, CustomTokenObtainPairSerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.exceptions import PermissionDenied
@@ -15,6 +15,8 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from .permissions import HasAcceptedTerms
 from django.utils import timezone
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.db.models import Sum, Count, Q, Max
 
 
 User = get_user_model()
@@ -92,6 +94,9 @@ class UserViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
 # Custom Permissions
 class IsSeller(permissions.BasePermission):
     """
@@ -118,6 +123,155 @@ class IsBuyer(permissions.BasePermission):
         if not hasattr(user, 'company') or not user.company:
             return False
         return user.company.roles in ["buyer", "both"]
+    
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        company = user.company
+
+        # Prepare the response
+        profile_data = {
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "is_admin": user.is_admin,
+                "is_superuser": user.is_superuser,
+            },
+            "company": {
+                "name": company.name if company else None,
+                "status": company.status if company else None,
+                "roles": company.roles if company else None,
+            } if company else None,
+        }
+        return Response(profile_data)
+
+# Custom permission to check if the user is a platform admin
+class IsSuperUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser  # Use the is_superuser field
+    
+class ActiveAuctionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Debugging log to confirm the view is hit
+        print(f"Active auctions endpoint called")
+
+        # Fetch active auctions with status "open"
+        auctions = Auction.objects.filter(status="open")
+        print(f"Query result: {auctions}")
+
+        # Format the response
+        data = [
+            {
+                "id": auction.id,
+                "name": auction.name,
+                "listings": [listing.id for listing in auction.listings.all()],
+                "start_date": auction.start_date,
+                "end_date": auction.end_date,
+                "status": auction.status,
+                "created_by": auction.created_by.id,
+            }
+            for auction in auctions
+        ]
+
+        print(f"Response data: {data}")
+
+        return Response(data)
+
+class CurrentBidsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        bids = Bid.objects.filter(user=user, auction__status="open")  # Modify as needed
+        data = [
+            {
+                "auction_id": bid.auction.id,
+                "product_name": bid.auction.product.name,
+                "bid_amount": bid.amount,
+                "end_time": bid.auction.end_time,
+            }
+            for bid in bids
+        ]
+        return Response(data)
+    
+class ActiveListingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # Assuming `user.company` exists and is related to `Listing`
+        if not hasattr(user, "company") or not user.company:
+            return Response(
+                {"detail": "User does not belong to a company."},
+                status=400
+            )
+        
+        # Fetch active listings for the company
+        listings = Listing.objects.filter(
+            company=user.company, status="active"
+        ).select_related("product")
+
+        data = [
+            {
+                "id": listing.id,
+                "name": listing.product.name,
+                "bids_received": listing.bids.count(),
+                "highest_bid": listing.bids.aggregate(Max("amount"))["amount__max"] or 0,
+                "time_remaining": listing.end_time,
+            }
+            for listing in listings
+        ]
+
+        return Response(data)
+
+class AuctionPerformanceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if not hasattr(user, "company") or not user.company:
+            return Response(
+                {"detail": "User does not belong to a company."},
+                status=400
+            )
+        
+        company = user.company
+
+        # Calculate total sales
+        total_sales = (
+            Auction.objects.filter(company=company, status="completed")
+            .aggregate(Sum("total_price"))["total_price__sum"] or 0
+        )
+
+        # Calculate most active buyers
+        most_active_buyers = (
+            Bid.objects.filter(auction__company=company)
+            .values("user__username")
+            .annotate(total_bids=Count("id"))
+            .order_by("-total_bids")[:5]
+        )
+
+        # Calculate auction completion rate
+        total_auctions = Auction.objects.filter(company=company).count()
+        completed_auctions = Auction.objects.filter(
+            company=company, status="completed"
+        ).count()
+        completion_rate = (
+            (completed_auctions / total_auctions) * 100 if total_auctions > 0 else 0
+        )
+
+        data = {
+            "total_sales": total_sales,
+            "most_active_buyers": list(most_active_buyers),
+            "completion_rate": round(completion_rate, 2),
+        }
+
+        return Response(data)
 
 # ViewSets
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -143,16 +297,12 @@ class CompanyViewSet(viewsets.ModelViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=["post"], permission_classes=[IsAdminUser])
+    @action(detail=True, methods=["post"], permission_classes=[IsSuperUser])
     def approve_company(self, request, pk=None):
         """
         Approve a company by setting `status` to "approved".
-        Only superusers or staff can approve companies.
+        Only superusers can approve companies.
         """
-        # Ensure only superusers or staff can approve companies
-        if not request.user.is_staff:
-            raise PermissionDenied("You do not have permission to approve companies.")
-
         company = self.get_object()
 
         if company.status == "approved":
@@ -165,7 +315,8 @@ class CompanyViewSet(viewsets.ModelViewSet):
         # Notify the admin user
         admin_user = company.users.filter(is_admin=True).first()
         if admin_user:
-            # Placeholder for notification logic
+            # Example: Notify admin user about approval
+            # send_notification(admin_user, "Your company has been approved.", "email")
             pass
 
         return Response(
@@ -173,11 +324,11 @@ class CompanyViewSet(viewsets.ModelViewSet):
             status=200,
         )
     
-    @action(detail=True, methods=["post"], permission_classes=[IsAdminUser])
+    @action(detail=True, methods=["post"], permission_classes=[IsSuperUser])
     def reject_company(self, request, pk=None):
         """
         Reject a company by setting `status` to "rejected".
-        Only superusers or staff can reject companies.
+        Only superusers can reject companies.
         """
         company = self.get_object()
 
@@ -188,10 +339,11 @@ class CompanyViewSet(viewsets.ModelViewSet):
         company.status = "rejected"
         company.save()
 
-        # Notify the admin user (optional)
+        # Notify the admin user
         admin_user = company.users.filter(is_admin=True).first()
         if admin_user:
-            # Placeholder for notification logic
+            # Example: Notify admin user about rejection
+            # send_notification(admin_user, "Your company has been rejected.", "email")
             pass
 
         return Response(
@@ -199,11 +351,11 @@ class CompanyViewSet(viewsets.ModelViewSet):
             status=200,
         )
 
-    
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def accept_terms(self, request):
-        """Accept Terms of Service for the company of the logged-in user."""
-        # Get the company associated with the logged-in user
+        """
+        Accept Terms of Service for the company of the logged-in user.
+        """
         user = request.user
         if not hasattr(user, "company") or not user.company:
             return Response(
