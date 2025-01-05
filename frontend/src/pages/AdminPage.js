@@ -11,14 +11,25 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { getAllCompanies, approveCompany, rejectCompany } from "../services/api";
+import { useAuth } from "../context/AuthContext"; // Access user role from AuthContext
+import { useNavigate } from "react-router-dom";
 
 const AdminPage = () => {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
+  const { user } = useAuth(); // Access user data from context
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Redirect if the user is not a superuser
+    if (!user?.is_superuser) {
+      navigate("/unauthorized"); // Redirect to an unauthorized page
+      return;
+    }
+
+    // Fetch companies if user is a superuser
     const fetchCompanies = async () => {
       try {
         const response = await getAllCompanies(); // Fetch all companies with status
@@ -31,7 +42,7 @@ const AdminPage = () => {
     };
 
     fetchCompanies();
-  }, []);
+  }, [user, navigate]);
 
   const handleApprove = async (companyId) => {
     try {
@@ -125,7 +136,15 @@ const AdminPage = () => {
                   <Text fontWeight="bold">{company.name}</Text>
                   <Text fontSize="sm">Email: {company.contact_email}</Text>
                   <Text fontSize="sm">Role: {company.roles}</Text>
-                  <Badge colorScheme={company.status === "pending" ? "yellow" : company.status === "approved" ? "green" : "red"}>
+                  <Badge
+                    colorScheme={
+                      company.status === "pending"
+                        ? "yellow"
+                        : company.status === "approved"
+                        ? "green"
+                        : "red"
+                    }
+                  >
                     {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
                   </Badge>
                 </Box>

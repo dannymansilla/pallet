@@ -32,16 +32,24 @@ API.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
         const { data } = await API.post(endpoints.refresh, { refresh: refreshToken });
         localStorage.setItem("token", data.access);
+
+        // Update AuthContext token directly if available
+        if (logoutHandler) logoutHandler.setToken(data.access);
+
+        // Retry the failed request
         error.config.headers.Authorization = `Bearer ${data.access}`;
         return API.request(error.config);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
-        if (logoutHandler) logoutHandler(); // Call the linked logout handler
+
+        // Logout the user if token refresh fails
+        if (logoutHandler) logoutHandler.logout();
       }
     }
     return Promise.reject(error);
   }
 );
+
 
 // Set the logout handler globally
 export const setLogoutHandler = (handler) => {
@@ -49,8 +57,29 @@ export const setLogoutHandler = (handler) => {
 };
 
 // Authentication Services
-export const loginUser = (credentials) => API.post(endpoints.login, credentials);
-export const logoutUser = () => API.post(endpoints.logout);
+export const loginUser = async (credentials) => {
+  const response = await API.post(endpoints.login, credentials);
+  const { user, access, refresh } = response.data;
+  localStorage.setItem("token", access);
+  localStorage.setItem("refreshToken", refresh);
+  localStorage.setItem("user", JSON.stringify(user));
+  return response;
+};
+
+export const getProfile = () => API.get(endpoints.profile);
+
+export const logoutUser = () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  return API.post(endpoints.logout, { refresh: refreshToken });
+};
+
+// Dashboards
+export const getActiveAuctions = () => API.get("/auctions/active/");
+export const getCurrentBids = () => API.get("/bids/current/");
+export const getActiveListings = () => API.get("/listings/active/");
+export const getAuctionPerformance = () => API.get("/auctions/performance/");
+
+
 
 // Onboarding Services
 export const acceptTerms = () => API.post("/companies/accept_terms/");

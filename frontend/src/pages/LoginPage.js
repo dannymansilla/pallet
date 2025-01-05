@@ -22,15 +22,28 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       await login({ username, password });
-      navigate("/admin");
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user.is_superuser) {
+        navigate("/admin");
+      }
+      else if (user.company.status === "pending") {
+        navigate("/profile");
+      } else if (user.company.roles === "buyer") {
+        navigate("/buyer-dashboard");
+      } else if (user.company.roles === "seller") {
+        navigate("/seller-dashboard");
+      } else if (user.company.roles === "both") {
+        navigate("/unified-dashboard");
+      }
       toast({
         title: "Login successful!",
-        description: "Redirecting to the admin dashboard...",
+        description: "Redirecting...",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
     } catch (err) {
+      console.error("Login failed:", err);
       toast({
         title: "Login failed",
         description: error || "Invalid credentials.",
@@ -40,6 +53,8 @@ const LoginPage = () => {
       });
     }
   };
+  
+  
 
   return (
     <Box

@@ -21,12 +21,16 @@ import { AuthProvider } from './context/AuthContext';
 import CompanyRegistration from "./pages/Onboarding/CompanyRegistration";
 import AcceptTerms from "./pages/Onboarding/AcceptTerms";
 import AdminPage from './pages/AdminPage'; 
+import SellerDashboard from "./pages/SellerDashboard";
+import BuyerDashboard from "./pages/BuyerDashboard";
+import UnifiedDashboard from "./pages/UnifiedDashboard";
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <AuthProvider>
+      
       <Router>
+      <AuthProvider>
       <Layout>
         <Header isAuthenticated/>
         <Routes>
@@ -36,6 +40,10 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
           {/* <Route path="/admin" element={<PrivateRoute Component={AdminPage} />} /> */}
+          <Route path="/buyer-dashboard" element={<PrivateRoute Component={BuyerDashboard} />} />
+          <Route path="/seller-dashboard" element={<PrivateRoute Component={SellerDashboard} />} />
+          <Route path="/unified-dashboard" element={<PrivateRoute Component={UnifiedDashboard} />} />
+          
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -49,8 +57,9 @@ function App() {
         </Routes>
         <Footer />
         </Layout>
+        </AuthProvider>
       </Router>
-      </AuthProvider>
+      
     </ChakraProvider>
   );
 }

@@ -1,49 +1,55 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { loginUser, logoutUser, setLogoutHandler, API } from "../services/api"; // Fixed import
-import endpoints from "../services/endpoints"; // Import the endpoints for token refresh
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { loginUser, logoutUser, setLogoutHandler, API } from "../services/api";
+import endpoints from "../services/endpoints";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // Link the logout function to the API's global logout handler
-    setLogoutHandler(logout);
-  }, []);
+  const navigate = useNavigate();
 
-  // Login Method
-  const login = async (credentials) => {
-    setIsLoading(true);
-    try {
-      const response = await loginUser(credentials);
-      const { access, refresh } = response.data;
-      setToken(access);
-      localStorage.setItem("token", access);
-      localStorage.setItem("refreshToken", refresh);
-      setUser(response.data.user); // Assuming user details are included in the response
-      setError(null);
-    } catch (err) {
-      setError(err.message || "Login failed");
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Logout Method
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await logoutUser();
       setToken(null);
       setUser(null);
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  }, [navigate]); // Add 'navigate' as a dependency
+
+  useEffect(() => {
+    setLogoutHandler(logout);
+  }, [logout]); // Dependency array updated
+
+  // Login Method
+  const login = async (credentials) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await loginUser(credentials);
+      const { user, access, refresh } = response.data;
+      setToken(access);
+      setUser(user);
+      localStorage.setItem("token", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("user", JSON.stringify(user));
+    } catch (err) {
+      setError(err.message || "Login failed");
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,12 +62,23 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", data.access);
     } catch (err) {
       console.error("Token refresh failed:", err);
-      logout(); // Ensure user is logged out on refresh failure
+      logout();
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, error, login, logout, refresh }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isLoading,
+        error,
+        isSuperuser: user?.is_superuser || false, // Expose superuser role
+        login,
+        logout,
+        refresh,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
