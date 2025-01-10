@@ -1,3 +1,4 @@
+from datetime import timezone
 from django.db import models
 from django.conf import settings 
 from django.contrib.auth.models import AbstractUser
@@ -18,6 +19,9 @@ class Company(models.Model):
     address = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
     terms_accepted = models.DateTimeField(blank=True, null=True)
+    network = models.ManyToManyField(
+        "self", symmetrical=False, related_name="approved_network", blank=True
+    )
     ROLES = [
         ("buyer", "Buyer"),
         ("seller", "Seller"),
@@ -43,6 +47,7 @@ class User(AbstractUser):
 # Product Model
 class Product(models.Model):
     name = models.CharField(max_length=255)
+    category = models.CharField(max_length=100, blank=True)
     description = models.TextField()
     brand = models.CharField(max_length=255)
     gtin = models.CharField(max_length=14, unique=True)
@@ -57,12 +62,45 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class AuctionCycle(models.Model):
+    start_date = models.DateField()  # Start of the month
+    end_date = models.DateField()  # End of the month
+    listing_end_date = models.DateField()  # End of listing period (5th business day)
+    open_start_date = models.DateField()  # Start of open period (e.g., 2nd Monday)
+    open_end_date = models.DateField()  # End of open period
+    closing_end_date = models.DateField()  # End of closing period (last 5 business days)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("listing", "Listing Period"),
+            ("open", "Open Period"),
+            ("closing", "Closing Period"),
+            ("closed", "Closed"),
+        ],
+        default="listing",
+    )
+
+    def update_status(self):
+        today = timezone.now().date()
+        if today <= self.listing_end_date:
+            self.status = "listing"
+        elif self.open_start_date <= today <= self.open_end_date:
+            self.status = "open"
+        elif self.open_end_date < today <= self.closing_end_date:
+            self.status = "closing"
+        else:
+            self.status = "closed"
+        self.save()
+
+    def __str__(self):
+        return f"Auction Cycle {self.start_date} to {self.end_date}"
 
 # Listing Model
 class Listing(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="listings")
-    auction_start_date = models.DateTimeField()
-    auction_end_date = models.DateTimeField()
+    category = models.CharField(max_length=100, blank=True)
     quantity_available = models.PositiveIntegerField()
     minimum_selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     warehouse_location = models.TextField()
@@ -72,6 +110,9 @@ class Listing(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="listings",
+    )
+    auction_cycle = models.ForeignKey(
+        AuctionCycle, on_delete=models.CASCADE, related_name="listings", null=True, blank=True
     )
 
     def __str__(self):
@@ -100,6 +141,7 @@ class Auction(models.Model):
 
     def __str__(self):
         return self.name
+
 
 
 class Bid(models.Model):

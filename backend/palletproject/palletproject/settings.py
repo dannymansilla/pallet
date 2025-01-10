@@ -13,6 +13,8 @@ from datetime import timedelta
 from decouple import Config, RepositoryEnv
 import os
 from pathlib import Path
+from celery.schedules import crontab
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,6 +134,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'palletproject.wsgi.application'
+
+CELERY_BEAT_SCHEDULE = {
+    "update_auction_cycles_daily": {
+        "task": "palletapp.tasks.update_auction_cycles",
+        "schedule": crontab(hour=0, minute=0),  # Runs daily at midnight
+    },
+}
 
 
 # Database

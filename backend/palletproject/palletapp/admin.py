@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, User, Listing, Bid
+from .models import AuctionCycle, Company, User, Listing, Bid
 
 
 @admin.register(Company)
@@ -18,11 +18,19 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'auction_start_date', 'auction_end_date', 
-                    'quantity_available', 'minimum_selling_price', 
-                    'warehouse_location', 'is_active', 'created_by')
+    list_display = (
+        'id', 
+        'product', 
+        'quantity_available', 
+        'minimum_selling_price', 
+        'warehouse_location', 
+        'is_active', 
+        'created_by',
+        'auction_cycle'  # Display associated auction cycle
+    )
     search_fields = ('product__name', 'warehouse_location', 'created_by__username')
-    list_filter = ('is_active', 'auction_start_date', 'auction_end_date')
+    list_filter = ('is_active', 'auction_cycle')  # Filter by auction cycle
+
 
 
 @admin.register(Bid)
@@ -31,3 +39,8 @@ class BidAdmin(admin.ModelAdmin):
                     'quantity', 'timestamp', 'is_winning_bid')
     search_fields = ('listing__product__name', 'buyer__name', 'auction__id')
     list_filter = ('timestamp', 'auction', 'is_winning_bid')
+
+@admin.register(AuctionCycle)
+class AuctionCycleAdmin(admin.ModelAdmin):
+    list_display = ("id", "start_date", "end_date", "status")
+    list_filter = ("status", "start_date", "end_date")

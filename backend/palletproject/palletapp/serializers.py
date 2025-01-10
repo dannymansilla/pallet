@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Company, Product, Listing, Auction, Bid
+from .models import AuctionCycle, Company, Product, Listing, Auction, Bid
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -132,6 +132,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 class CompanySerializer(serializers.ModelSerializer):
+    network = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Company.objects.all(), required=False
+    )
     class Meta:
         model = Company
         fields = '__all__'
@@ -146,29 +149,52 @@ class ListingSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), source="product", write_only=True
-    )  # Allow setting product by ID
+    )
+    auction_cycle = serializers.SerializerMethodField()  # Use SerializerMethodField
 
     class Meta:
         model = Listing
         fields = [
             "id",
             "product",
-            "product_id",  # For writing
-            "auction_start_date",
-            "auction_end_date",
+            "product_id",
             "quantity_available",
             "minimum_selling_price",
             "warehouse_location",
             "shipping_instructions",
             "is_active",
             "created_by",
+            "auction_cycle",  # Include auction cycle with details
         ]
-        read_only_fields = ["id", "created_by", "product"]  # 'created_by' and 'product' are read-only
+        read_only_fields = ["id", "created_by", "product", "auction_cycle"]
+
+    def get_auction_cycle(self, obj):
+        if obj.auction_cycle:
+            return {
+                "id": obj.auction_cycle.id,
+                "start_date": obj.auction_cycle.start_date,
+                "end_date": obj.auction_cycle.end_date,
+                "status": obj.auction_cycle.status,
+            }
+        return None
+
+    def validate(self, data):
+        if data["quantity_available"] <= 0:
+            raise serializers.ValidationError(
+                {"quantity_available": "Quantity must be greater than 0."}
+            )
+        return data
+
+
+class AuctionCycleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuctionCycle
+        fields = "__all__"
 
 class AuctionSerializer(serializers.ModelSerializer):
     listings = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Listing.objects.all()
-    )  # Allow setting listings by ID
+    )
 
     class Meta:
         model = Auction
@@ -181,7 +207,7 @@ class AuctionSerializer(serializers.ModelSerializer):
             "status",
             "created_by",
         ]
-        read_only_fields = ["id", "created_by"]  # Exclude 'created_by' from user input
+        read_only_fields = ["id", "created_by", "status"]
 
 class BidSerializer(serializers.ModelSerializer):
     listing_id = serializers.PrimaryKeyRelatedField(

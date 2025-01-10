@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
-from .models import Company, Product, Listing, Auction, Bid
-from .serializers import CompanySerializer, CustomTokenObtainPairSerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
+from .models import AuctionCycle, Company, Product, Listing, Auction, Bid
+from .serializers import AuctionCycleSerializer, CompanySerializer, CustomTokenObtainPairSerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.exceptions import PermissionDenied
@@ -13,10 +13,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from .permissions import HasAcceptedTerms
+from .permissions import HasAcceptedTerms, IsInSellerNetwork
 from django.utils import timezone
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.db.models import Sum, Count, Q, Max
+from django.db.models import Sum, Count, Q, Max, F
 
 
 User = get_user_model()
@@ -187,47 +187,67 @@ class CurrentBidsView(APIView):
 
     def get(self, request):
         user = request.user
-        bids = Bid.objects.filter(user=user, auction__status="open")  # Modify as needed
-        data = [
-            {
-                "auction_id": bid.auction.id,
-                "product_name": bid.auction.product.name,
-                "bid_amount": bid.amount,
-                "end_time": bid.auction.end_time,
-            }
-            for bid in bids
-        ]
-        return Response(data)
-    
-class ActiveListingsView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        # Assuming `user.company` exists and is related to `Listing`
+        # Ensure user belongs to a company
         if not hasattr(user, "company") or not user.company:
             return Response(
                 {"detail": "User does not belong to a company."},
                 status=400
             )
         
-        # Fetch active listings for the company
+        # Filter bids by the user's company
+        bids = Bid.objects.filter(buyer=user.company, auction__status="open").select_related("auction", "listing")
+
+        # Construct the response
+        data = [
+            {
+                "auction_id": bid.auction.id,
+                "product_name": bid.listing.product.name,
+                "bid_amount": bid.price_per_unit,
+                "end_time": bid.auction.end_date,
+            }
+            for bid in bids
+        ]
+        return Response(data)
+
+
+    
+class ActiveListingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        
+        # Check if the user belongs to a company
+        if not hasattr(user, "company") or not user.company:
+            return Response(
+                {"detail": "User does not belong to a company."},
+                status=400
+            )
+
+        # Fetch active listings for the user's company
         listings = Listing.objects.filter(
-            company=user.company, status="active"
+            created_by__company=user.company,  # Adjust filtering to reference the user's company via created_by
+            is_active=True,  # Ensure only active listings are fetched
+            auction_cycle__status="open"  # Ensure listings are part of the current open auction cycle
         ).select_related("product")
 
+        # Serialize the data to include relevant fields
         data = [
             {
                 "id": listing.id,
                 "name": listing.product.name,
+                "quantity_available": listing.quantity_available,
+                "minimum_selling_price": listing.minimum_selling_price,
                 "bids_received": listing.bids.count(),
                 "highest_bid": listing.bids.aggregate(Max("amount"))["amount__max"] or 0,
-                "time_remaining": listing.end_time,
+                "time_remaining": listing.auction_cycle.end_date,  # Use auction cycle's end date for time remaining
             }
             for listing in listings
         ]
 
         return Response(data)
+
 
 class AuctionPerformanceView(APIView):
     permission_classes = [IsAuthenticated]
@@ -237,21 +257,22 @@ class AuctionPerformanceView(APIView):
         if not hasattr(user, "company") or not user.company:
             return Response(
                 {"detail": "User does not belong to a company."},
-                status=400
+                status=400,
             )
-        
+
         company = user.company
 
         # Calculate total sales
         total_sales = (
             Auction.objects.filter(company=company, status="completed")
-            .aggregate(Sum("total_price"))["total_price__sum"] or 0
+            .aggregate(total_revenue=Sum(F("listings__bids__price_per_unit") * F("listings__bids__quantity")))["total_revenue"]
+            or 0
         )
 
         # Calculate most active buyers
         most_active_buyers = (
             Bid.objects.filter(auction__company=company)
-            .values("user__username")
+            .values("buyer__name")  # Reference the company name
             .annotate(total_bids=Count("id"))
             .order_by("-total_bids")[:5]
         )
@@ -272,6 +293,7 @@ class AuctionPerformanceView(APIView):
         }
 
         return Response(data)
+
 
 # ViewSets
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -323,6 +345,22 @@ class CompanyViewSet(viewsets.ModelViewSet):
             {"message": f"Company {company.name} approved successfully."},
             status=200,
         )
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def search(self, request):
+        """Search for companies by name or other criteria."""
+        query = request.query_params.get("q", "")
+        if not query:
+            return Response({"error": "Query parameter 'q' is required."}, status=400)
+
+        # Search logic (adjust fields as per your model)
+        companies = self.queryset.filter(
+            Q(name__icontains=query) |
+            Q(contact_email__icontains=query)
+        )
+
+        serializer = self.get_serializer(companies, many=True)
+        return Response(serializer.data, status=200)
     
     @action(detail=True, methods=["post"], permission_classes=[IsSuperUser])
     def reject_company(self, request, pk=None):
@@ -376,11 +414,113 @@ class CompanyViewSet(viewsets.ModelViewSet):
         company.save()
 
         return Response({"message": "Terms accepted successfully."}, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def add_to_network(self, request):
+        buyer_company_id = request.data.get("company_id")
+        seller_company = request.user.company
+
+        if not seller_company:
+            return Response(
+                {"detail": "You are not associated with any company."},
+                status=400,
+            )
+
+        try:
+            buyer_company = Company.objects.get(pk=buyer_company_id)
+        except Company.DoesNotExist:
+            return Response({"detail": "Buyer company not found."}, status=404)
+
+        if buyer_company in seller_company.network.all():
+            return Response(
+                {"detail": "Company is already in your network."},
+                status=400,
+            )
+
+        seller_company.network.add(buyer_company)
+        return Response({"message": "Buyer added to your network."}, status=200)
+
+
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def remove_from_network(self, request):
+        buyer_company_id = request.data.get("company_id")
+        seller_company = request.user.company
+
+        if not seller_company:
+            return Response(
+                {"detail": "You are not associated with any company."},
+                status=400,
+            )
+
+        try:
+            buyer_company = Company.objects.get(pk=buyer_company_id)
+        except Company.DoesNotExist:
+            return Response({"detail": "Buyer company not found."}, status=404)
+
+        if buyer_company not in seller_company.network.all():
+            return Response(
+                {"detail": "Company is not in your network."},
+                status=400,
+            )
+
+        seller_company.network.remove(buyer_company)
+        return Response({"message": "Buyer removed from your network."}, status=200)
+
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def fetch_network(self, request):
+        """Fetches the current network of the logged-in user's company."""
+        seller_company = request.user.company
+
+        if not seller_company:
+            return Response(
+                {"detail": "You are not associated with any company."},
+                status=400,
+            )
+
+        # Fetch all companies in the network
+        network = seller_company.network.all()
+        network_data = CompanySerializer(network, many=True).data
+
+        return Response(network_data, status=200)
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated, IsSeller]
+
+    @action(detail=False, methods=["get"])
+    def search(self, request):
+        """
+        Search for products by name, GTIN, or brand.
+        """
+        query = request.query_params.get("q", "")
+        if not query:
+            return Response({"error": "Query parameter 'q' is required."}, status=400)
+
+        # Updated query logic
+        products = Product.objects.filter(
+            Q(name__icontains=query) | 
+            Q(gtin__icontains=query) |
+            Q(brand__icontains=query)
+        )
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+
+class AuctionCycleViewSet(viewsets.ModelViewSet):
+    queryset = AuctionCycle.objects.all()
+    serializer_class = AuctionCycleSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Filters auction cycles based on their status.
+        """
+        status_filter = self.request.query_params.get("status")
+        if status_filter:
+            return self.queryset.filter(status=status_filter)
+        return self.queryset
+
 
 class ListingViewSet(viewsets.ModelViewSet):
     queryset = Listing.objects.all()
@@ -388,21 +528,65 @@ class ListingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsSeller, HasAcceptedTerms]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        # Get the next available auction cycle by start date
+        next_cycle = AuctionCycle.objects.filter(start_date__gte=timezone.now().date()).order_by('start_date').first()
+        if not next_cycle:
+            raise serializers.ValidationError("No upcoming auction cycle available. Please create one.")
+        # Save the listing and associate it with the next auction cycle
+        serializer.save(created_by=self.request.user, auction_cycle=next_cycle)
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def active(self, request):
+        """Fetch listings in active auction cycles."""
+        active_cycles = AuctionCycle.objects.filter(
+            status__in=["listing", "open", "closing"]
+        )
+        listings = self.queryset.filter(auction_cycle__in=active_cycles, created_by=request.user)
+        serializer = ListingSerializer(listings, many=True)
+        return Response(serializer.data)
+
 
     def get_queryset(self):
         return self.queryset.filter(created_by=self.request.user)
+    
+class QueuedListingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get the next available auction cycle
+        next_cycle = AuctionCycle.objects.filter(start_date__gte=timezone.now().date()).order_by("start_date").first()
+        if not next_cycle:
+            return Response({"detail": "No upcoming auction cycle found."}, status=404)
+
+        # Fetch listings for the next auction cycle
+        listings = Listing.objects.filter(auction_cycle=next_cycle)
+        serializer = ListingSerializer(listings, many=True)
+
+        return Response(serializer.data)
+
 
 class AuctionViewSet(viewsets.ModelViewSet):
-    queryset = Auction.objects.all()
-    serializer_class = AuctionSerializer
+    queryset = AuctionCycle.objects.all()
+    serializer_class = AuctionCycleSerializer
     permission_classes = [IsAuthenticated, IsSeller]
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
     def get_queryset(self):
-        return self.queryset.filter(created_by=self.request.user)
+        # Show only active or upcoming auction cycles
+        return self.queryset.filter(status__in=["listing", "open", "closing"])
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def search(self, request):
+        query = request.query_params.get("q", "")
+        category = request.query_params.get("category", "")
+        
+        auctions = self.queryset.filter(
+            Q(listing__product__name__icontains=query) |
+            Q(description__icontains=query),
+            listing__category__icontains=category
+        )
+        serializer = self.get_serializer(auctions, many=True)
+        return Response(serializer.data)
+
     
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated, IsSeller])
     def start_auction(self, request, pk=None):
@@ -425,7 +609,7 @@ class AuctionViewSet(viewsets.ModelViewSet):
 class BidViewSet(viewsets.ModelViewSet):
     queryset = Bid.objects.all()
     serializer_class = BidSerializer
-    permission_classes = [IsAuthenticated, IsBuyer, HasAcceptedTerms]
+    permission_classes = [IsAuthenticated, IsBuyer, HasAcceptedTerms, IsInSellerNetwork]
 
     def perform_create(self, serializer):
         # Associate the bid with the authenticated user's company

@@ -10,3 +10,9 @@ class HasAcceptedTerms(BasePermission):
         if not request.user.company or not request.user.company.terms_accepted:
             return False  # User must belong to a company that has accepted ToS
         return True
+    
+class IsInSellerNetwork(BasePermission):
+    def has_permission(self, request, view):
+        bid = view.get_object()
+        seller_company = bid.listing.created_by.company
+        return request.user.company in seller_company.network.all()
