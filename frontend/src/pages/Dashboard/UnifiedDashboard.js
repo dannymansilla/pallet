@@ -6,6 +6,7 @@ import {
   TabList,
   TabPanels,
   Tab,
+  Text,
   TabPanel,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -27,6 +28,7 @@ const UnifiedDashboard = () => {
         <TabList>
           <Tab>Buyer View</Tab>
           <Tab>Seller View</Tab>
+          <Tab>Auctions</Tab>
         </TabList>
 
         <TabPanels>
@@ -36,6 +38,13 @@ const UnifiedDashboard = () => {
           <TabPanel>
             <SellerDashboard />
           </TabPanel>
+          <TabPanel>
+            {/* Placeholder for Auctions Dashboard */}
+            <Box>
+              <Text>Auctions Dashboard Coming Soon!</Text>
+            </Box>
+          </TabPanel>
+          
         </TabPanels>
       </Tabs>
     </Box>

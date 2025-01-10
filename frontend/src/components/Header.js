@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const isSellerOrBoth = user?.company?.roles === 'seller' || user?.company?.roles === 'both';
   return (
     <Box bg="brand.background_color" p={4}> {/* Updated background color to match main content */}
       <Flex maxW="1200px" mx="auto" align="center">
@@ -30,6 +31,18 @@ const Header = () => {
           <Link as={RouterLink} to="/about" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
             About
           </Link>
+          {isSellerOrBoth && (
+            <Link
+              as={RouterLink}
+              to="/auctions"
+              color="black"
+              mx={2}
+              fontSize="lg"
+              _hover={{ textDecoration: 'underline' }}
+            >
+              Auctions
+            </Link>
+          )}
           {user ? (
           <>
             <Link as={RouterLink} to="/profile" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>

@@ -29,16 +29,16 @@ const theme = extendTheme({
           color: 'white', // White text
           _hover: {
             color: 'white', // White text
-            bg: 'brand.burntSienna', // Olive hover effect
+            bg: 'black', // Olive hover effect
           },
         },
         outline: {
           borderColor: 'black', // Gray border for outline button
           color: 'black', // Olive text
           _hover: {
-            borderColor: 'white',
+            borderColor: 'black',
             color: 'white',
-            bg: 'brand.burntSienna', // Subtle background change on hover
+            bg: 'black', // Subtle background change on hover
           },
         },
         ghost: {
@@ -46,7 +46,7 @@ const theme = extendTheme({
           _hover: {
             borderColor: 'black',
             bg: 'white',
-            color: 'brand.burntSienna', // Black text on hover
+            color: 'black', // Black text on hover
           },
         },
       },

@@ -56,6 +56,22 @@ export const setLogoutHandler = (handler) => {
   logoutHandler = handler;
 };
 
+// Fetch the current network
+export const fetchNetwork = () => API.get("/companies/fetch_network/");
+
+// Add a company to the network
+export const addToNetwork = (companyId) =>
+  API.post("/companies/add_to_network/", { company_id: companyId });
+
+// Remove a company from the network
+export const removeFromNetwork = (companyId) =>
+  API.post("/companies/remove_from_network/", { company_id: companyId });
+
+// Search for companies (assuming the endpoint exists or can be added in the backend)
+export const searchCompanies = (query) =>
+  API.get(`/companies/search/?q=${query}`);
+
+
 // Authentication Services
 export const loginUser = async (credentials) => {
   const response = await API.post(endpoints.login, credentials);
@@ -78,6 +94,14 @@ export const getActiveAuctions = () => API.get("/auctions/active/");
 export const getCurrentBids = () => API.get("/bids/current/");
 export const getActiveListings = () => API.get("/listings/active/");
 export const getAuctionPerformance = () => API.get("/auctions/performance/");
+// listings
+export const getCurrentListings = () => API.get("/listings/active/");
+export const getQueuedListings = () => API.get("/listings/queued/");
+export const deleteListing = (listingId) =>
+  API.delete(`/listings/${listingId}/`);
+export const updateListing = (listingId, updatedData) =>
+  API.patch(`/listings/${listingId}/`, updatedData);
+
 
 
 
@@ -116,6 +140,14 @@ export const getPendingCompanies = () =>
 
 // Fetch all companies
 export const getAllCompanies = () => API.get("/companies/");
+
+export const searchProducts = (query) => {
+  return API.get(`/products/search/?q=${query}`);
+};
+
+export const createListing = (listingData) => {
+  return API.post("/listings/", listingData);
+};
 
 
 
