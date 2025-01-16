@@ -164,13 +164,13 @@ const ManageListingsPage = () => {
               onClick={() => openModal(listing)}
               _hover={{ cursor: "pointer", bg: "gray.100" }}
             >
-              <Td>{listing.product?.name || "N/A"}</Td>
+              <Td>{listing.product?.name || listing.name || "N/A"}</Td>
               <Td>{listing.quantity_available}</Td>
               <Td>${listing.minimum_selling_price}</Td>
               <Td>
                 {listing.auction_cycle
                   ? `${listing.auction_cycle.start_date} - ${listing.auction_cycle.end_date}`
-                  : "N/A"}
+                  : `current cycle: ${listing.time_remaining} days remaining`}
               </Td>
             </Tr>
           ))

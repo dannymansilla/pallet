@@ -4,51 +4,56 @@ import {
   Heading,
   Text,
   Spinner,
-  VStack,
-  HStack,
-  Button,
   Divider,
-  Flex,
+  VStack,
+  SimpleGrid,
+  Button,
   Badge,
+  HStack,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { getActiveAuctions, getCurrentBids } from "../../services/api";
+import { getAvailableListings, getCurrentBids } from "../../services/api";
+import ListingCard from "../../components/ListingCard";
 
 const BuyerDashboard = () => {
-  const [auctions, setAuctions] = useState([]);
-  const [bids, setBids] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const [suggestedListings, setSuggestedListings] = useState([]);
+  const [currentBids, setCurrentBids] = useState([]);
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [loadingBids, setLoadingBids] = useState(true);
   const bgColor = useColorModeValue("white", "gray.800");
-  const cardBg = useColorModeValue("white", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
 
+  // Fetch suggested auctions
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSuggestedListings = async () => {
       try {
-        const [auctionsResponse, bidsResponse] = await Promise.all([
-          getActiveAuctions(),
-          getCurrentBids(),
-        ]);
-        setAuctions(auctionsResponse.data);
-        setBids(bidsResponse.data);
+        const response = await getAvailableListings({ limit: 3 });
+        setSuggestedListings(response.data);
       } catch (err) {
-        console.error("Error fetching buyer data:", err);
+        console.error("Error fetching suggested listings:", err);
       } finally {
-        setLoading(false);
+        setLoadingListings(false);
       }
     };
 
-    fetchData();
+    fetchSuggestedListings();
   }, []);
 
-  if (loading) {
-    return (
-      <Flex justify="center" align="center" minH="100vh" bg={bgColor}>
-        <Spinner size="xl" />
-      </Flex>
-    );
-  }
+  // Fetch current bids
+  useEffect(() => {
+    const fetchCurrentBids = async () => {
+      try {
+        const response = await getCurrentBids();
+        setCurrentBids(response.data);
+      } catch (err) {
+        console.error("Error fetching current bids:", err);
+      } finally {
+        setLoadingBids(false);
+      }
+    };
+
+    fetchCurrentBids();
+  }, []);
 
   return (
     <Box bg={bgColor} minH="100vh" p={6}>
@@ -56,77 +61,49 @@ const BuyerDashboard = () => {
         Buyer Dashboard
       </Heading>
 
-      <Divider mb={6} />
+      <Divider mt={8} mb={6} />
 
-      {/* Active Auctions Section */}
+      {/* Suggested Auctions Section */}
       <Heading as="h3" size="lg" mb={4} color={textColor}>
-        Active Auctions
+        Featured Listings
       </Heading>
-      <VStack spacing={4}>
-        {auctions.length > 0 ? (
-          auctions.map((auction) => (
-            <Box
-              key={auction.id}
-              bg={cardBg}
-              p={4}
-              shadow="md"
-              borderRadius="lg"
-              w="100%"
-            >
-              <HStack justify="space-between" mb={2}>
-                <Text fontWeight="bold" color={textColor}>
-                  {auction.product_name}
-                </Text>
-                <Badge colorScheme="green">
-                  Ends: {new Date(auction.end_time).toLocaleString()}
-                </Badge>
-              </HStack>
-              <Text color={textColor} mb={2}>
-                {auction.description}
-              </Text>
-              <Text fontWeight="medium" color={textColor}>
-                Starting Price: ${auction.starting_price}
-              </Text>
-              <Button colorScheme="blue" mt={4} w="full">
-                Place Bid
-              </Button>
-            </Box>
-          ))
-        ) : (
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            bg={cardBg}
-            p={8}
-            shadow="md"
-            borderRadius="lg"
-            w="100%"
-            textAlign="center"
-          >
-            <Text fontSize="lg" fontWeight="bold" mb={4} color={textColor}>
-              No Active Auctions
-            </Text>
-            <Text mb={4} color={textColor}>
-              Auctions you can bid on will appear here. Check back later for updates or browse available categories.
-            </Text>
-            <Button colorScheme="blue">Browse Auctions</Button>
-          </Flex>
-        )}
-      </VStack>
+      {loadingListings ? (
+        <Spinner size="xl" />
+      ) : suggestedListings.length > 0 ? (
+        <SimpleGrid columns={[1, 2, 3]} spacing={6}>
+          {suggestedListings.map((listing) => (
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              onViewDetails={(id) => (window.location.href = `/auction/details/${id}`)}
+            />
+          ))}
+        </SimpleGrid>
+      ) : (
+        <VStack spacing={4} align="center" textAlign="center">
+          <Text fontSize="lg" fontWeight="bold" color={textColor}>
+            Suggested auctions you can bid on will appear here. Check back later for updates or browse available categories.
+          </Text>
+          <Button colorScheme="blue" onClick={() => (window.location.href = "/auction/search")}>
+            Browse Auctions
+          </Button>
+        </VStack>
+      )}
 
       <Divider mt={8} mb={6} />
 
       {/* Current Bids Section */}
-      <Heading as="h3" size="lg" mb={4} color={textColor}>
+      <Heading as="h3" size="lg" mb={4} mt={8} color={textColor}>
         Current Bids
       </Heading>
-      <VStack spacing={4}>
-        {bids.length > 0 ? (
-          bids.map((bid) => (
+      {loadingBids ? (
+        <Spinner size="xl" />
+      ) : currentBids.length > 0 ? (
+        <VStack spacing={4} w="full">
+          {currentBids.map((bid) => (
             <Box
-              key={bid.auction_id}
-              bg={cardBg}
+              key={bid.id}
+              bg={bgColor}
               p={4}
               shadow="md"
               borderRadius="lg"
@@ -134,20 +111,27 @@ const BuyerDashboard = () => {
             >
               <HStack justify="space-between" mb={2}>
                 <Text fontWeight="bold" color={textColor}>
-                  {bid.product_name}
+                  {bid.listing.product_name}
                 </Text>
                 <Badge colorScheme="blue">
-                  Ends: {new Date(bid.end_time).toLocaleString()}
+                  {bid.listing.auction_end_date
+                    ? `Ends: ${new Date(bid.listing.auction_end_date).toLocaleString()}`
+                    : "No End Date"}
                 </Badge>
               </HStack>
               <Text fontWeight="medium" color={textColor}>
-                Your Bid: ${bid.bid_amount}
+                Your Bid: ${bid.price_per_unit}
+              </Text>
+              <Text color={textColor}>
+                Quantity: {bid.quantity}
               </Text>
             </Box>
-          ))
-        ) : (
+          ))}
+        </VStack>
+      ) : (
+        <VStack spacing={4} align="center" textAlign="center">
           <Box
-            bg={cardBg}
+            bg={"white"}
             p={4}
             shadow="md"
             borderRadius="lg"
@@ -157,13 +141,16 @@ const BuyerDashboard = () => {
             <Text fontSize="lg" fontWeight="bold" color={textColor}>
               No Active Bids
             </Text>
-            <Text mb={4} color={textColor}>
+            <Text color={textColor}>
               Your active bids will appear here once you place a bid.
             </Text>
-            <Button colorScheme="blue">Explore Auctions</Button>
+            <Button colorScheme="blue" onClick={() => (window.location.href = "/auction/search")}>
+              Explore Auctions
+            </Button>
           </Box>
-        )}
-      </VStack>
+        </VStack>
+      )}
+
     </Box>
   );
 };

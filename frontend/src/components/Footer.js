@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <Box bg="brand.background_color" p={4} boxShadow="sm">
       <Flex
-        maxW="1200px"
+        maxW="1600px"
         mx="auto"
         justify={{ base: 'center', md: 'space-between' }}
         align="center"

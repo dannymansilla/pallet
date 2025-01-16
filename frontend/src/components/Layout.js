@@ -6,7 +6,7 @@ const Layout = ({ children }) => {
   return (
     <Flex direction="column" minH="100vh">
       {/* Header */}
-      <Box as="header">
+      <Box as="header" w="100%">
         {/* Your header content here */}
       </Box>
 

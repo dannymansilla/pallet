@@ -58,7 +58,7 @@ const ProductSelectionPage = () => {
   };
 
   return (
-    <Box p={6} bg={useColorModeValue("gray.50", "gray.800")} minH="100vh">
+    <Box p={6} bg={useColorModeValue("white", "gray.800")} minH="100vh">
       <Heading mb={6}>Select a Product</Heading>
       <Box mb={6}>
         <Input

@@ -90,10 +90,10 @@ export const logoutUser = () => {
 };
 
 // Dashboards
-export const getActiveAuctions = () => API.get("/auctions/active/");
+export const getActiveAuctions = () => API.get("/auction/active/");
 export const getCurrentBids = () => API.get("/bids/current/");
 export const getActiveListings = () => API.get("/listings/active/");
-export const getAuctionPerformance = () => API.get("/auctions/performance/");
+export const getAuctionPerformance = () => API.get("/auction/performance/");
 // listings
 export const getCurrentListings = () => API.get("/listings/active/");
 export const getQueuedListings = () => API.get("/listings/queued/");
@@ -102,7 +102,25 @@ export const deleteListing = (listingId) =>
 export const updateListing = (listingId, updatedData) =>
   API.patch(`/listings/${listingId}/`, updatedData);
 
+export const getAvailableListings = (filters = {}) => {
+  const params = new URLSearchParams(filters).toString();
+  return API.get(`/listings/available_for_bidding/?${params}`);
+};
 
+// Fetch details of a specific listing by its ID
+export const getListingDetails = (listingId) => {
+  return API.get(`/listings/${listingId}/`);
+};
+
+
+// Place a bid
+export const placeBid = (bidData) => {
+  return API.post("/bids/", bidData);
+};
+
+export const getListingBids = (listingId) => {
+  return API.get(`/listings/${listingId}/bids/`);
+};
 
 
 // Onboarding Services

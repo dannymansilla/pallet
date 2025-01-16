@@ -17,11 +17,19 @@ import {
   Tbody,
   Tr,
   Th,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
   Td,
   Badge,
   useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { getActiveListings, getQueuedListings, getAuctionPerformance } from "../../services/api";
+import { getActiveListings, getQueuedListings, getAuctionPerformance, getListingBids } from "../../services/api";
 import { Link as RouterLink } from "react-router-dom";
 
 const SellerDashboard = () => {
@@ -29,11 +37,30 @@ const SellerDashboard = () => {
   const [queuedListings, setQueuedListings] = useState([]);
   const [performance, setPerformance] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [bids, setBids] = useState([]); // For storing bids
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Modal control
+  const [loadingBids, setLoadingBids] = useState(false);
   const [errors, setErrors] = useState([]); // To track errors
 
   const bgColor = useColorModeValue("white", "gray.800");
   const cardBg = useColorModeValue("white", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
+
+  const handleViewBids = async (listing) => {
+    setLoadingBids(true);
+    setSelectedListing(listing); // Store the selected listing
+    try {
+      const response = await getListingBids(listing.id); // Fetch bids
+      setBids(response.data); // Update bids state
+      onOpen(); // Open modal
+    } catch (err) {
+      console.error("Error fetching bids:", err);
+      setErrors((prev) => [...prev, "Failed to fetch bids for the listing."]);
+    } finally {
+      setLoadingBids(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,7 +146,7 @@ const SellerDashboard = () => {
       <Heading as="h3" size="lg" mb={4} color={textColor}>
         Active Listings
       </Heading>
-      <Box bg={cardBg} p={4} shadow="md" borderRadius="lg">
+      <Box bg={bgColor} p={4} shadow="md" borderRadius="lg">
         {activeListings.length > 0 ? (
           <Table variant="simple">
             <Thead>
@@ -139,15 +166,16 @@ const SellerDashboard = () => {
                   <Td>${listing.highest_bid || 0}</Td>
                   <Td>
                     <Badge colorScheme="green">
-                      {new Date(listing.time_remaining).toLocaleString()}
+                      {listing.time_remaining} days
                     </Badge>
                   </Td>
                   <Td>
-                    <Button size="sm" colorScheme="blue" mr={2}>
-                      Edit
-                    </Button>
-                    <Button size="sm" colorScheme="red">
-                      Close
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      onClick={() => handleViewBids(listing)}
+                    >
+                      View Bids
                     </Button>
                   </Td>
                 </Tr>
@@ -158,6 +186,55 @@ const SellerDashboard = () => {
           <Text>No active listings found. Create your first listing!</Text>
         )}
       </Box>
+
+      {/* Modal for Viewing Bids */}
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Bids for {selectedListing?.name}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody maxHeight="500px" overflowY="auto">
+            {loadingBids ? (
+              <Spinner />
+            ) : bids.length > 0 ? (
+              <Table variant="simple" size="sm">
+                <Thead>
+                  <Tr>
+                    <Th>Buyer</Th>
+                    <Th>Bid Price</Th>
+                    <Th>Quantity</Th>
+                    <Th>Timestamp</Th>
+                    <Th>Status</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {bids.map((bid) => (
+                    <Tr key={bid.id}>
+                      <Td>{bid.buyer.name}</Td>
+                      <Td>${bid.price_per_unit}</Td>
+                      <Td>{bid.quantity}</Td>
+                      <Td>{new Date(bid.timestamp).toLocaleString()}</Td>
+                      <Td>
+                        <Badge colorScheme={bid.is_winning_bid ? "green" : "red"}>
+                          {bid.is_winning_bid ? "Winning" : "Outbid"}
+                        </Badge>
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            ) : (
+              <Text>No bids available for this listing.</Text>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose} colorScheme="blue">
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
 
       <Divider mt={8} mb={6} />
 

@@ -1,58 +1,99 @@
-// src/components/Header.js
-import React from 'react';
-import { Box, Flex, Heading, Button, Image, Link, Spacer, useRangeSliderStyles } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
+import React from "react";
+import { Box, Flex, Heading, Link, Image, Button, Spacer, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 import logo from '../images/logo.png';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const isSellerOrBoth = user?.company?.roles === 'seller' || user?.company?.roles === 'both';
+
   return (
-    <Box bg="brand.background_color" p={4}> {/* Updated background color to match main content */}
-      <Flex maxW="1200px" mx="auto" align="center">
+    <Box bg="white" color="black" w="100%" p={4} borderBottom="1px solid" borderColor="gray.200">
+      <Flex maxW="1400px" mx="auto" align="center">
+        {/* Logo */}
         <Image
             src={logo} 
             alt="Pallet Marketplace Logo"
             boxSize="40px" // Adjust size as needed
             mr={2} // Margin-right for spacing
           />
-          <Heading as={RouterLink} to="/" size="lg" color="black" letterSpacing="wider">
-            Pallet
-          </Heading>
+        <Heading as={RouterLink} to="/" size="lg" letterSpacing="wider">
+          Pallet
+        </Heading>
         <Spacer />
+
+        {/* General Links */}
         <Flex align="center">
-          <Link as={RouterLink} to="/details" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          <Link as={RouterLink} to="/details" mx={2} fontSize="lg" _hover={{ textDecoration: "underline" }}>
             Product
           </Link>
-          {/* <Link as={RouterLink} to="/auctions" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            Auctions
-          </Link> */}
-          <Link as={RouterLink} to="/about" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            About
+          <Link as={RouterLink} to="/team" mx={2} fontSize="lg" _hover={{ textDecoration: "underline" }}>
+            Team
           </Link>
-          {isSellerOrBoth && (
-            <Link
-              as={RouterLink}
-              to="/auctions"
-              color="black"
-              mx={2}
-              fontSize="lg"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              Auctions
-            </Link>
-          )}
+
+          {/* Conditional Links for Authenticated Users */}
           {user ? (
-          <>
-            <Link as={RouterLink} to="/profile" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            Profile
-            </Link>
-            <Button onClick={logout} variant="outline" ml={4}>Logout</Button>
-          </>
-        ) : (
-          <Button as={RouterLink} to="/login" variant="outline" ml={4}>Login</Button>
-        )}
+            <>
+              {(user.company.roles.includes("buyer") || user.company.roles.includes("both")) && (
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    mx={2}
+                    variant="outline"
+                    borderColor="black"
+                    color="black"
+                    _hover={{ bg: "gray.100" }}
+                    _active={{ bg: "gray.200" }}
+                    borderRadius="md"
+                  >
+                    Buyer Actions
+                  </MenuButton>
+                  <MenuList bg="white" color="black" borderColor="gray.200" zIndex="dropdown">
+                    <MenuItem as={RouterLink} to="/buyer-dashboard">Dashboard</MenuItem>
+                    <MenuItem as={RouterLink} to="/auction">Auctions</MenuItem>
+                    <MenuItem as={RouterLink} to="/current-bids">Current Bids</MenuItem>
+                  </MenuList>
+                </Menu>
+              )}
+              {(user.company.roles.includes("seller") || user.company.roles.includes("both")) && (
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    mx={2}
+                    variant="outline"
+                    borderColor="black"
+                    color="black"
+                    _hover={{ bg: "gray.100" }}
+                    _active={{ bg: "gray.200" }}
+                    borderRadius="md"
+                  >
+                    Seller Actions
+                  </MenuButton>
+                  <MenuList bg="white" color="black" borderColor="gray.200" zIndex="dropdown">
+                    <MenuItem as={RouterLink} to="/seller-dashboard">Dashboard</MenuItem>
+                    <MenuItem as={RouterLink} to="/products/select">Create Listing</MenuItem>
+                    <MenuItem as={RouterLink} to="/seller/manage-listings">Manage Listings</MenuItem>
+                    <MenuItem as={RouterLink} to="/seller/network">Manage Network</MenuItem>
+                  </MenuList>
+                </Menu>
+              )}
+              <Button onClick={logout} ml={4} bg="black" color="white" _hover={{ bg: "gray.800" }}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button
+              as={RouterLink}
+              to="/login"
+              ml={4}
+              bg="black"
+              color="white"
+              _hover={{ bg: "gray.800" }}
+              borderRadius="md"
+            >
+              Login
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Box>
