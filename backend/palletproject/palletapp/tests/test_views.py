@@ -1,8 +1,8 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from ..models import Company, Product, Listing, Auction, Bid
-from ..serializers import CompanySerializer, ProductSerializer, ListingSerializer, AuctionSerializer, BidSerializer
+from ..models import Company, Product, Listing, Bid
+from ..serializers import CompanySerializer, ProductSerializer, ListingSerializer, BidSerializer
 
 User = get_user_model()
 
@@ -20,7 +20,6 @@ class APITestCaseSetup(APITestCase):
             quantity=100,
             price_per_unit=10.0
         )
-        self.auction = Auction.objects.create(listing=self.listing, end_date='2024-12-31')
         self.bid = Bid.objects.create(
             auction=self.auction,
             user=self.user,
@@ -68,21 +67,6 @@ class TestProductViewSet(APITestCaseSetup):
         self.assertEqual(Product.objects.count(), 2)
 
 # Repeat similar test cases for Listing, Auction, and Bid ViewSets
-
-class TestAuctionViewSet(APITestCaseSetup):
-    def test_list_auctions(self):
-        response = self.client.get('/api/auctions/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_create_auction_missing_data(self):
-        data = {'listing': ''}  # Missing required fields
-        response = self.client.post('/api/auctions/', data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_auction(self):
-        data = {'listing': self.listing.id, 'end_date': '2025-01-01'}
-        response = self.client.post('/api/auctions/', data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 class TestBidViewSet(APITestCaseSetup):
     def test_create_bid_invalid_quantity(self):

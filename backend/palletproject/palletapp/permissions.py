@@ -11,8 +11,26 @@ class HasAcceptedTerms(BasePermission):
             return False  # User must belong to a company that has accepted ToS
         return True
     
+from rest_framework.permissions import BasePermission
+from palletapp.models import Listing
+
 class IsInSellerNetwork(BasePermission):
     def has_permission(self, request, view):
-        bid = view.get_object()
-        seller_company = bid.listing.created_by.company
-        return request.user.company in seller_company.network.all()
+        if request.method == "POST":
+            # Check the seller network for bid creation
+            listing_id = request.data.get("listing_id")
+            if not listing_id:
+                return False  # Require a listing_id to create a bid
+
+            try:
+                listing = Listing.objects.get(id=listing_id)
+            except Listing.DoesNotExist:
+                return False  # Listing must exist
+
+            seller = listing.created_by.company
+            buyer = request.user.company
+            return buyer in seller.network.all()
+
+        # For other request methods, fallback to the default behavior
+        return True
+

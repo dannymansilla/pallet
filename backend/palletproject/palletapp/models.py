@@ -118,34 +118,9 @@ class Listing(models.Model):
     def __str__(self):
         return f"Listing for {self.product.name}"
 
-# Auction and Bid Models
-class Auction(models.Model):
-    name = models.CharField(max_length=255)
-    listings = models.ManyToManyField(Listing, related_name="auctions")
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    status = models.CharField(
-        max_length=20, 
-        choices=[("open", "Open"), ("closed", "Closed"), ("pending", "Pending Approval")]
-    )
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="auctions",
-    )
-    company = models.ForeignKey(
-        Company,
-        on_delete=models.CASCADE,
-        related_name="auctions",
-    )
-
-    def __str__(self):
-        return self.name
-
 
 
 class Bid(models.Model):
-    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="bids")
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     buyer = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bids")
     price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)

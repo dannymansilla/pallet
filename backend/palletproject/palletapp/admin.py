@@ -35,10 +35,10 @@ class ListingAdmin(admin.ModelAdmin):
 
 @admin.register(Bid)
 class BidAdmin(admin.ModelAdmin):
-    list_display = ('id', 'auction', 'listing', 'buyer', 'price_per_unit', 
+    list_display = ('id', 'listing', 'buyer', 'price_per_unit', 
                     'quantity', 'timestamp', 'is_winning_bid')
     search_fields = ('listing__product__name', 'buyer__name', 'auction__id')
-    list_filter = ('timestamp', 'auction', 'is_winning_bid')
+    list_filter = ('timestamp', 'is_winning_bid')
 
 @admin.register(AuctionCycle)
 class AuctionCycleAdmin(admin.ModelAdmin):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AuctionCycle, Company, Product, Listing, Auction, Bid
+from .models import AuctionCycle, Company, Product, Listing, Bid
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -150,6 +150,9 @@ class ListingSerializer(serializers.ModelSerializer):
     product_id = serializers.PrimaryKeyRelatedField(
         queryset=Product.objects.all(), source="product", write_only=True
     )
+    auction_cycle_id = serializers.PrimaryKeyRelatedField(
+        queryset=AuctionCycle.objects.all(), source="auction_cycle", write_only=True, required=False
+    )
     auction_cycle = serializers.SerializerMethodField()  # Use SerializerMethodField
 
     class Meta:
@@ -158,17 +161,21 @@ class ListingSerializer(serializers.ModelSerializer):
             "id",
             "product",
             "product_id",
+            "auction_cycle_id",  # Add this for write operations
             "quantity_available",
             "minimum_selling_price",
             "warehouse_location",
             "shipping_instructions",
             "is_active",
             "created_by",
-            "auction_cycle",  # Include auction cycle with details
+            "auction_cycle",  # Keep this for read operations
         ]
         read_only_fields = ["id", "created_by", "product", "auction_cycle"]
 
     def get_auction_cycle(self, obj):
+        # Ensure obj is a model instance
+        if isinstance(obj, dict):
+            return None
         if obj.auction_cycle:
             return {
                 "id": obj.auction_cycle.id,
@@ -179,6 +186,7 @@ class ListingSerializer(serializers.ModelSerializer):
         return None
 
     def validate(self, data):
+        """Validates the listing data."""
         if data["quantity_available"] <= 0:
             raise serializers.ValidationError(
                 {"quantity_available": "Quantity must be greater than 0."}
@@ -186,47 +194,62 @@ class ListingSerializer(serializers.ModelSerializer):
         return data
 
 
+
 class AuctionCycleSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuctionCycle
         fields = "__all__"
 
-class AuctionSerializer(serializers.ModelSerializer):
-    listings = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Listing.objects.all()
-    )
-
-    class Meta:
-        model = Auction
-        fields = [
-            "id",
-            "name",
-            "listings",
-            "start_date",
-            "end_date",
-            "status",
-            "created_by",
-        ]
-        read_only_fields = ["id", "created_by", "status"]
-
 class BidSerializer(serializers.ModelSerializer):
-    listing_id = serializers.PrimaryKeyRelatedField(
-        queryset=Listing.objects.all(), source="listing", write_only=True
-    )  # Allow setting listing by ID
-    auction_id = serializers.PrimaryKeyRelatedField(
-        queryset=Auction.objects.all(), source="auction", write_only=True
-    )  # Allow setting auction by ID
-
+    listing = serializers.SerializerMethodField()
+    listing_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Bid
         fields = [
             "id",
-            "auction_id",
-            "listing_id",
             "price_per_unit",
+            "listing_id",
             "quantity",
             "timestamp",
             "is_winning_bid",
-            "buyer",  # Included in read-only for clarity but not writable
+            "buyer",
+            "listing",  # New field for listing details
         ]
-        read_only_fields = ["id", "timestamp", "is_winning_bid", "buyer"]
+        read_only_fields = ["buyer"]
+
+    def get_listing(self, obj):
+        listing = obj.listing
+        return {
+            "id": listing.id,
+            "product_name": listing.product.name,
+            "auction_end_date": listing.auction_cycle.end_date,
+            "current_highest_bid": (
+                listing.bids.order_by("-price_per_unit").first().price_per_unit
+                if listing.bids.exists()
+                else None
+            ),
+            "quantity_available": listing.quantity_available,
+        }
+
+    def validate(self, data):
+        listing = Listing.objects.filter(id=data["listing_id"]).first()
+        
+        buyer = self.context["request"].user.company
+
+        # Validate auction cycle status
+        if listing.auction_cycle.status != "open":
+            raise serializers.ValidationError("You can only bid on listings in active auction cycles.")
+
+        # Validate buyer is in the seller's network
+        seller = listing.created_by.company
+        if buyer not in seller.network.all():
+            raise serializers.ValidationError("You are not authorized to bid on this listing.")
+
+        # Validate quantity
+        if data["quantity"] > listing.quantity_available:
+            raise serializers.ValidationError("Bid quantity exceeds available quantity.")
+        
+        data["listing"] = listing
+
+        return data
+
