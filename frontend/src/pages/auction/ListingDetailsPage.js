@@ -7,6 +7,8 @@ import {
   Button,
   Image,
   List,
+  VStack,
+  SimpleGrid,
   ListItem,
   Flex,
   Badge,
@@ -93,58 +95,31 @@ const ListingDetailsPage = () => {
   } = listing;
 
   return (
-    <Box maxW="800px" mx="auto" p={4}>
-      {/* Image or Placeholder */}
-      <Box
-        bg="gray.200"
-        rounded="lg"
-        shadow="md"
-        mb={4}
-        height="300px"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        overflow="hidden"
-      >
-        {product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            objectFit="cover"
-            width="100%"
-            height="100%"
-          />
-        ) : (
-          <Text color="gray.500" fontSize="lg">
-            No Image Available
-          </Text>
-        )}
-      </Box>
-
-      {/* Product Overview */}
-      <Box mb={4}>
-        <Text fontSize="2xl" fontWeight="bold">{product.name}</Text>
-        <Text>{product.description}</Text>
-        <Text fontSize="sm" color="gray.500">
-          Brand: {product.brand}
-        </Text>
-        {product.certifications && (
-          <Flex mt={2}>
-            {product.certifications.non_gmo && (
-              <Badge colorScheme="green" mr={2}>Non-GMO</Badge>
-            )}
-            {product.certifications.organic && (
-              <Badge colorScheme="teal" mr={2}>Organic</Badge>
-            )}
-            {product.certifications.fair_trade && (
-              <Badge colorScheme="blue">Fair Trade</Badge>
-            )}
-          </Flex>
-        )}
-      </Box>
+    <Box minH="100vh" w="100%" maxW="1400px" mx="auto" py={6}>
+  <Flex direction={["column", "row"]} gap={6} align="flex-start">
+    {/* Product Details (Left) */}
+    <Box flex="1">
+      <Text fontSize="2xl" fontWeight="bold">{product.name}</Text>
+      <Text>{product.description}</Text>
+      <Text fontSize="sm" color="gray.500">
+        Brand: {product.brand}
+      </Text>
+      {product.certifications && (
+        <Flex mt={2}>
+          {product.certifications.non_gmo && (
+            <Badge colorScheme="green" mr={2}>Non-GMO</Badge>
+          )}
+          {product.certifications.organic && (
+            <Badge colorScheme="teal" mr={2}>Organic</Badge>
+          )}
+          {product.certifications.fair_trade && (
+            <Badge colorScheme="blue">Fair Trade</Badge>
+          )}
+        </Flex>
+      )}
 
       {/* Auction Details */}
-      <Box mb={4}>
+      <Box mt={6}>
         <Text fontWeight="bold">Auction Details</Text>
         <List spacing={2} mt={2}>
           <ListItem>
@@ -165,7 +140,7 @@ const ListingDetailsPage = () => {
       </Box>
 
       {/* Logistics */}
-      <Box mb={4}>
+      <Box mt={6}>
         <Text fontWeight="bold">Logistics</Text>
         <List spacing={2} mt={2}>
           <ListItem>Warehouse: {warehouse_location}</ListItem>
@@ -174,7 +149,7 @@ const ListingDetailsPage = () => {
       </Box>
 
       {/* Specifications */}
-      <Box mb={4}>
+      <Box mt={6}>
         <Text fontWeight="bold">Specifications</Text>
         <List spacing={2} mt={2}>
           <ListItem>GTIN: {product.gtin}</ListItem>
@@ -189,51 +164,71 @@ const ListingDetailsPage = () => {
           </ListItem>
         </List>
       </Box>
-
-      {/* Place Bid and Back Buttons */}
-      <Flex justify="space-between" mt={4}>
-        <Button colorScheme="blue" onClick={onOpen}>
-          Place Bid
-        </Button>
-        <Button colorScheme="teal" onClick={() => navigate("/auction")}>
-          Back to Listings
-        </Button>
-      </Flex>
-
-      {/* Modal for Bidding */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Place Your Bid</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text mb={4}>Minimum Bid: ${minimum_selling_price}</Text>
-            <Input
-              placeholder="Enter your bid amount"
-              value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)}
-              mb={4}
-            />
-            <NumberInput
-              min={1}
-              max={quantity_available}
-              value={bidQuantity}
-              onChange={(valueString) => setBidQuantity(Number(valueString))}
-            >
-              <NumberInputField placeholder="Enter quantity" />
-            </NumberInput>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={handlePlaceBid}>
-              Submit Bid
-            </Button>
-            <Button variant="ghost" onClick={onClose} ml={3}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Box>
+
+    {/* Image (Right) */}
+    <Box flex="1" bg="gray.200" rounded="lg" shadow="md" overflow="hidden" py={10}>
+      {product.image ? (
+        <Image
+          src={product.image}
+          alt={product.name}
+          objectFit="cover"
+          w="100%"
+          h="100%"
+        />
+      ) : (
+        <Text color="gray.500" fontSize="lg" textAlign="center" py={20}>
+          No Image Available
+        </Text>
+      )}
+    </Box>
+  </Flex>
+
+  {/* Place Bid and Back Buttons */}
+  <Flex px={6} mt={8} gap={4}>
+    <Button colorScheme="blue" onClick={onOpen} px={6}>
+      Place Bid
+    </Button>
+    <Button px={6} colorScheme="teal" onClick={() => navigate("/auction")}>
+      Back to Listings
+    </Button>
+  </Flex>
+
+  {/* Modal for Bidding */}
+  <Modal isOpen={isOpen} onClose={onClose}>
+    <ModalOverlay />
+    <ModalContent>
+      <ModalHeader>Place Your Bid</ModalHeader>
+      <ModalCloseButton />
+      <ModalBody>
+        <Text mb={4}>Minimum Bid: ${minimum_selling_price}</Text>
+        <Input
+          placeholder="Enter your bid amount"
+          value={bidAmount}
+          onChange={(e) => setBidAmount(e.target.value)}
+          mb={4}
+        />
+        <NumberInput
+          min={1}
+          max={quantity_available}
+          value={bidQuantity}
+          onChange={(valueString) => setBidQuantity(Number(valueString))}
+        >
+          <NumberInputField placeholder="Enter quantity" />
+        </NumberInput>
+      </ModalBody>
+      <ModalFooter>
+        <Button colorScheme="blue" onClick={handlePlaceBid}>
+          Submit Bid
+        </Button>
+        <Button variant="ghost" onClick={onClose} ml={3}>
+          Cancel
+        </Button>
+      </ModalFooter>
+    </ModalContent>
+  </Modal>
+</Box>
+
   );
 };
 

@@ -6,66 +6,118 @@ import {
   Heading,
   Text,
   Button,
+  HStack,
   Image,
   VStack,
   SimpleGrid,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
+import cpg_photo from '../images/9397334.png';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
 const LandingPage = () => {
   return (
-    <Box bgGradient="linear(to-r, blue.600, teal.500)" color="white" minH="100vh" p={8}>
+    <Box bg="white" color="black" minH="100vh" p={8}>
       {/* Hero Section */}
       <Flex
         align="center"
-        justify="center"
+        justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        py={16}
+        py={10}
         px={8}
+        bg="white"
+      >
+        <VStack
+          px={{ base: 4, md: 8 }}
+          spacing={6}
+          align="start"
+          maxW="600px"
+          textAlign={{ base: 'center', md: 'left' }}
         >
-        <VStack spacing={6} align="start" maxW="600px">
-            <Heading fontSize={{ base: '2xl', md: '4xl' }} fontWeight="bold">
-            Revolutionizing the Bulk CPG Marketplace
-            </Heading>
-            <Text fontSize={{ base: 'md', md: 'lg' }}>
-            Empowering sellers and buyers with streamlined auctions and real-time analytics.
-            </Text>
-            <Button
-            as={RouterLink}
-            to="/signup"
-            colorScheme="teal"
-            size="lg"
-            shadow="lg"
-            _hover={{ bg: 'teal.300' }}
-            >
-            Get Started
-            </Button>
+          <Heading
+            fontSize={{ base: '2xl', md: '4xl' }}
+            fontWeight="bold"
+            color="black"
+          >
+            Buy and sell excess CPG inventory
+          </Heading>
+          <Text fontSize={{ base: 'md', md: 'lg' }}>
+            Our B2B auction platform allows sellers to automate the sale of excess
+            consumer packaged goods inventory and buyers to bid on a variety of
+            products from well-known brands across categories.
+          </Text>
+          <HStack
+            spacing={6}
+            align={{ base: 'center', md: 'start' }}
+            justify="center"
+            w="full"
+          >
+            <VStack spacing={2} align="center">
+              <Button
+                as={RouterLink}
+                to="/onboarding/register?role=buyer"
+                colorScheme="teal"
+                size="lg"
+                shadow="md"
+                _hover={{ bg: 'teal.400' }}
+              >
+                I'm a Buyer
+              </Button>
+              <Text fontSize="sm" textAlign="center">
+                Access exclusive auctions and bid on top CPG inventory.
+              </Text>
+            </VStack>
+            <VStack spacing={2} align="center">
+              <Button
+                as={RouterLink}
+                to="/onboarding/register?role=seller"
+                colorScheme="teal"
+                size="lg"
+                shadow="md"
+                _hover={{ bg: 'teal.400' }}
+              >
+                I'm a Seller
+              </Button>
+              <Text fontSize="sm" textAlign="center">
+                List and sell your excess inventory with ease.
+              </Text>
+            </VStack>
+          </HStack>
         </VStack>
         <Box
-            flex="1"
-            bg="gray.200"
-            rounded="lg"
-            shadow="lg"
-            overflow="hidden"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            maxW="600px"
-            maxH="400px"
-            mt={{ base: 8, md: 0 }}
+          flex="1"
+          bg="white"
+          p={15}
+          rounded="lg"
+          overflow="hidden"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          maxW="600px"
+          maxH="400px"
+          mt={{ base: 8, md: 0 }}
+          ml={{ base: 0, md: 8 }}
         >
-            <Image
+          <Image
+                      src={cpg_photo} // Relative path to the image in the public folder
+                      alt="Pallet of CPG Goods"
+                      borderRadius="8px"
+                      width="100%"
+                      maxW="400px"
+                    />
+          {/* <Image
             src="https://source.unsplash.com/800x600/?warehouse,logistics"
             alt="Warehouse"
             objectFit="cover"
             width="100%"
             height="100%"
-            />
+          /> */}
         </Box>
-        </Flex>
+      </Flex>
+
+
 
 
 
@@ -111,7 +163,7 @@ const LandingPage = () => {
       </Box>
 
         {/* Features Showcase Section */}
-        <Box py={16} px={8} bg="gray.100">
+        <Box py={16} px={8} bg="brand.background_color">
         <Box maxW="1200px" mx="auto" px={{ base: 4, md: 8 }}>
             <SimpleGrid columns={{ base: 1, md: 1 }} spacing={16}>
             {[
@@ -179,7 +231,7 @@ const LandingPage = () => {
 
 
       {/* Call-to-Action Section */}
-      <Box py={16} px={8} bgGradient="linear(to-r, teal.500, blue.600)" textAlign="center">
+      <Box py={16} px={8} bg="brand.background_color" textAlign="center">
         <Heading fontSize="3xl" mb={4}>
           Ready to Join Pallet?
         </Heading>

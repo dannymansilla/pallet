@@ -271,54 +271,6 @@ const SellerDashboard = () => {
           <Text>No queued listings for the next auction cycle.</Text>
         )}
       </Box>
-
-      <Divider mt={8} mb={6} />
-
-      {/* Quick Actions Section */}
-<Heading as="h3" size="lg" mb={4} color={textColor}>
-  Quick Actions
-</Heading>
-<SimpleGrid columns={[1, 3]} spacing={6} mt={4}>
-  {/* Create New Listing */}
-  <Box bg={cardBg} p={4} shadow="md" borderRadius="lg" textAlign="center">
-    <Heading as="h4" size="sm" mb={2}>
-      Create New Listing
-    </Heading>
-    <Text mb={4} color={textColor}>
-      Start a new auction by providing product details and parameters.
-    </Text>
-    <Button as={RouterLink} to="/products/select" colorScheme="blue" size="sm">
-      Create
-    </Button>
-  </Box>
-
-  {/* Manage Network */}
-  <Box bg={cardBg} p={4} shadow="md" borderRadius="lg" textAlign="center">
-    <Heading as="h4" size="sm" mb={2}>
-      Manage Network
-    </Heading>
-    <Text mb={4} color={textColor}>
-      Manage your buyer network and invite companies to join.
-    </Text>
-    <Button as={RouterLink} to="/seller/network" colorScheme="teal" size="sm">
-      Network
-    </Button>
-  </Box>
-
-  {/* Manage Listings */}
-  <Box bg={cardBg} p={4} shadow="md" borderRadius="lg" textAlign="center">
-    <Heading as="h4" size="sm" mb={2}>
-      Manage Listings
-    </Heading>
-    <Text mb={4} color={textColor}>
-      Manage your current and upcoming listings.
-    </Text>
-    <Button as={RouterLink} to="/seller/manage-listings" colorScheme="teal" size="sm">
-      Listings
-    </Button>
-  </Box>
-</SimpleGrid>
-
     </Box>
   );
 };

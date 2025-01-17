@@ -12,6 +12,7 @@ import {
   Td,
   Spinner,
   VStack,
+  Flex,
   Text,
   useToast,
   useColorModeValue,
@@ -25,7 +26,7 @@ const SellerNetworkPage = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  const bgColor = useColorModeValue("gray.50", "gray.800");
+  const bgColor = "white";
   const cardBg = useColorModeValue("white", "gray.700");
 
   const handleSearch = async () => {
@@ -110,25 +111,28 @@ const SellerNetworkPage = () => {
   }, []);
 
   return (
-    <Box bg={bgColor} p={6} minH="100vh">
+    <Box bg={bgColor} py={6} minH="100vh">
       <Heading mb={6}>Seller Network</Heading>
 
-      <Box mb={6} p={4} bg={cardBg} borderRadius="lg" shadow="md">
+      <Flex mb={6} gap={4} align="center" w="100%">
         <Input
           placeholder="Search for companies"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          mb={4}
+          flex="1"
+          maxW="1200px"
         />
         <Button
           onClick={handleSearch}
           colorScheme="blue"
           isDisabled={!searchTerm}
           isLoading={loading}
+          px={6}
         >
           Search
         </Button>
-      </Box>
+      </Flex>
+
 
       <VStack align="stretch" spacing={6}>
         <Box bg={cardBg} p={4} borderRadius="lg" shadow="md">

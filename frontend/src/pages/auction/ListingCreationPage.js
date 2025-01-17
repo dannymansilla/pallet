@@ -75,15 +75,14 @@ const ListingCreationPage = () => {
     const { product, quantity_available, minimum_selling_price, warehouse_location, auction_cycle } =
       createdListing;
     return (
-      <Box p={6} bg="gray.50" minH="100vh">
+      <Box py={6} bg="brand.background_color" minH="100vh">
         <Heading mb={6}>Listing Created Successfully</Heading>
-        <Box mb={6} p={4} bg="gray.100" borderRadius="md">
-          <Heading size="md">Listing Details</Heading>
-          <Text><strong>Product:</strong> {product.name} ({product.brand})</Text>
-          <Text><strong>Quantity Available:</strong> {quantity_available}</Text>
-          <Text><strong>Minimum Selling Price:</strong> ${minimum_selling_price}</Text>
-          <Text><strong>Warehouse Location:</strong> {warehouse_location}</Text>
-          <Text><strong>Auction Cycle:</strong> {auction_cycle.start_date} to {auction_cycle.end_date} ({auction_cycle.status})</Text>
+        <Box mb={6} py={4} bg="brand.background_color" borderRadius="md">
+          <Heading py={4} size="md">{product.name} ({product.brand})</Heading>
+          <Text py={2}><strong>Quantity Available:</strong> {quantity_available}</Text>
+          <Text py={2}><strong>Minimum Selling Price:</strong> ${minimum_selling_price}</Text>
+          <Text py={2}><strong>Warehouse Location:</strong> {warehouse_location}</Text>
+          <Text py={2}><strong>Auction Cycle:</strong> {auction_cycle.start_date} to {auction_cycle.end_date} ({auction_cycle.status})</Text>
         </Box>
         <Button
           colorScheme="blue"
@@ -132,9 +131,9 @@ const ListingCreationPage = () => {
   }
 
   return (
-    <Box p={6} bg="gray.50" minH="100vh">
+    <Box p={6} bg="white" minH="100vh">
       <Heading mb={6}>Create a Listing</Heading>
-      <Box mb={6} p={4} bg="gray.100" borderRadius="md">
+      <Box mb={6} p={4} bg="white" borderRadius="md">
         <Text><strong>Product:</strong> {selectedProduct.name}</Text>
         <Text><strong>GTIN:</strong> {selectedProduct.gtin}</Text>
         <Text><strong>Description:</strong> {selectedProduct.description}</Text>

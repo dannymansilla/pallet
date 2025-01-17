@@ -56,7 +56,7 @@ const BuyerDashboard = () => {
   }, []);
 
   return (
-    <Box bg={bgColor} minH="100vh" p={6}>
+    <Box bg={bgColor} minH="100vh" p={6} >
       <Heading mb={6} color={textColor}>
         Buyer Dashboard
       </Heading>

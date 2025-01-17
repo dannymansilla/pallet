@@ -186,7 +186,7 @@ const ManageListingsPage = () => {
   );
 
   return (
-    <Box bg={bgColor} minH="100vh" p={6}>
+    <Box bg={bgColor} minH="100vh" py={6}>
       <Heading mb={6} color={textColor}>
         Manage Listings
       </Heading>
@@ -199,15 +199,9 @@ const ManageListingsPage = () => {
 
         <TabPanels>
           <TabPanel>
-            <Heading as="h3" size="lg" mb={4} color={textColor}>
-              Current Listings
-            </Heading>
             {renderTable(currentListings)}
           </TabPanel>
           <TabPanel>
-            <Heading as="h3" size="lg" mb={4} color={textColor}>
-              Queued Listings
-            </Heading>
             {renderTable(queuedListings)}
           </TabPanel>
         </TabPanels>

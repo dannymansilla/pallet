@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -9,10 +9,16 @@ import {
   Radio,
 } from "@chakra-ui/react";
 import { InputField, CheckboxField, PrimaryButton } from "../../components/Form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { registerCompany } from "../../services/api";
 
 const CompanyRegistration = () => {
+  const [searchParams] = useSearchParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
+  const navigate = useNavigate();
+  
+
   const [formData, setFormData] = useState({
     companyName: "",
     address: "",
@@ -21,12 +27,22 @@ const CompanyRegistration = () => {
     adminEmail: "",
     adminPassword: "",
     adminUsername: "",
-    companyRole: "buyer", // Default to buyer
+    companyRole: "", // Default to buyer
     termsAccepted: false,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const toast = useToast();
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get the role from the query parameters and set it in the form data
+    const roleFromParams = searchParams.get("role");
+    if (roleFromParams) {
+      setFormData((prev) => ({
+        ...prev,
+        companyRole: roleFromParams,
+      }));
+    }
+  }, [searchParams]);
+
+  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -83,7 +99,7 @@ const CompanyRegistration = () => {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={10}>
+    <Box maxW="md" mx="auto" mt={10} minH="100vh">
       <Heading mb={6} textAlign="center">
         Company Registration
       </Heading>
@@ -96,14 +112,7 @@ const CompanyRegistration = () => {
           onChange={handleChange}
           isRequired
         />
-        <InputField
-          label="Address"
-          placeholder="Enter company address"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-        />
-        <InputField
+        {/* <InputField
           label="Contact Email"
           placeholder="Enter company contact email"
           type="email"
@@ -111,17 +120,17 @@ const CompanyRegistration = () => {
           value={formData.contactEmail}
           onChange={handleChange}
           isRequired
-        />
-        <InputField
+        /> */}
+        {/* <InputField
           label="Contact Phone"
           placeholder="Enter company contact phone"
           name="contactPhone"
           value={formData.contactPhone}
           onChange={handleChange}
           isRequired
-        />
+        /> */}
         <InputField
-          label="Admin Email"
+          label="Email"
           placeholder="Enter admin email"
           type="email"
           name="adminEmail"
@@ -129,16 +138,16 @@ const CompanyRegistration = () => {
           onChange={handleChange}
           isRequired
         />
-        <InputField
+        {/* <InputField
           label="Admin Username"
           placeholder="Enter admin username"
           name="adminUsername"
           value={formData.adminUsername}
           onChange={handleChange}
           isRequired
-        />
+        /> */}
         <InputField
-          label="Admin Password"
+          label="Password"
           placeholder="Enter admin password"
           type="password"
           name="adminPassword"
@@ -146,19 +155,37 @@ const CompanyRegistration = () => {
           onChange={handleChange}
           isRequired
         />
+        <InputField
+          label="Address"
+          placeholder="Enter company address"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+        />
         <RadioGroup
           onChange={handleRoleChange}
           value={formData.companyRole}
           name="companyRole"
         >
-          <Stack direction="row" spacing={4}>
+          <Stack direction="row" spacing={4} p={6}>
             <Radio value="buyer">Buyer</Radio>
             <Radio value="seller">Seller</Radio>
-            <Radio value="both">Both</Radio>
           </Stack>
         </RadioGroup>
         <CheckboxField
-          label="I accept the Terms of Service"
+          label={
+            <>
+              I accept the{" "}
+              <a
+                href="/onboarding/accept-terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "teal", textDecoration: "underline" }}
+              >
+                Terms of Service
+              </a>
+            </>
+          }
           isChecked={formData.termsAccepted}
           onChange={handleChange}
           name="termsAccepted"

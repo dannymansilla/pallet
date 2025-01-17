@@ -1,91 +1,68 @@
 import React from "react";
-import { Box, Flex, Heading, Link, Image, Button, Spacer, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
-import { Link as RouterLink } from "react-router-dom";
-import logo from '../images/logo.png';
+import { Box, Flex, Heading, Link, Image, Button, HStack, Divider } from "@chakra-ui/react";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import logo from "../images/logo.png";
 
 const Header = () => {
   const { user, logout } = useAuth();
 
   return (
-    <Box bg="white" color="black" w="100%" p={4} borderBottom="1px solid" borderColor="gray.200">
-      <Flex maxW="1400px" mx="auto" align="center">
+    <Box bg="white" w="100%" >
+      {/* Header */}
+      <Flex maxW="1400px" mx="auto" align="center" px={6} py={2}>
         {/* Logo */}
-        <Image
-            src={logo} 
-            alt="Pallet Marketplace Logo"
-            boxSize="40px" // Adjust size as needed
-            mr={2} // Margin-right for spacing
-          />
-        <Heading as={RouterLink} to="/" size="lg" letterSpacing="wider">
-          Pallet
-        </Heading>
-        <Spacer />
-
-        {/* General Links */}
         <Flex align="center">
-          <Link as={RouterLink} to="/details" mx={2} fontSize="lg" _hover={{ textDecoration: "underline" }}>
-            Product
-          </Link>
-          <Link as={RouterLink} to="/team" mx={2} fontSize="lg" _hover={{ textDecoration: "underline" }}>
-            Team
-          </Link>
+          <Image src={logo} alt="Pallet Logo" boxSize="40px" mr={2} />
+          <Heading as={NavLink} to="/" size="lg" letterSpacing="wider" _hover={{ textDecoration: "none" }}>
+            Pallet
+          </Heading>
+        </Flex>
 
-          {/* Conditional Links for Authenticated Users */}
+        <Flex ml="auto" gap={4} align="center">
+          {/* Global Navigation */}
+          <NavLink
+            to="/details"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                : { color: "black", padding: "8px 12px" }
+            }
+          >
+            Product
+          </NavLink>
+          <NavLink
+            to="/team"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                : { color: "black", padding: "8px 12px" }
+            }
+          >
+            Team
+          </NavLink>
+
+          {/* User-Specific Actions */}
           {user ? (
             <>
-              {(user.company.roles.includes("buyer") || user.company.roles.includes("both")) && (
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    mx={2}
-                    variant="outline"
-                    borderColor="black"
-                    color="black"
-                    _hover={{ bg: "gray.100" }}
-                    _active={{ bg: "gray.200" }}
-                    borderRadius="md"
-                  >
-                    Buyer Actions
-                  </MenuButton>
-                  <MenuList bg="white" color="black" borderColor="gray.200" zIndex="dropdown">
-                    <MenuItem as={RouterLink} to="/buyer-dashboard">Dashboard</MenuItem>
-                    <MenuItem as={RouterLink} to="/auction">Auctions</MenuItem>
-                    <MenuItem as={RouterLink} to="/current-bids">Current Bids</MenuItem>
-                  </MenuList>
-                </Menu>
-              )}
-              {(user.company.roles.includes("seller") || user.company.roles.includes("both")) && (
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    mx={2}
-                    variant="outline"
-                    borderColor="black"
-                    color="black"
-                    _hover={{ bg: "gray.100" }}
-                    _active={{ bg: "gray.200" }}
-                    borderRadius="md"
-                  >
-                    Seller Actions
-                  </MenuButton>
-                  <MenuList bg="white" color="black" borderColor="gray.200" zIndex="dropdown">
-                    <MenuItem as={RouterLink} to="/seller-dashboard">Dashboard</MenuItem>
-                    <MenuItem as={RouterLink} to="/products/select">Create Listing</MenuItem>
-                    <MenuItem as={RouterLink} to="/seller/manage-listings">Manage Listings</MenuItem>
-                    <MenuItem as={RouterLink} to="/seller/network">Manage Network</MenuItem>
-                  </MenuList>
-                </Menu>
-              )}
-              <Button onClick={logout} ml={4} bg="black" color="white" _hover={{ bg: "gray.800" }}>
+              <NavLink
+                to="/profile"
+                style={({ isActive }) =>
+                  isActive
+                    ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                    : { color: "black", padding: "8px 12px" }
+                }
+              >
+                Profile
+              </NavLink>
+              <Button onClick={logout} bg="black" color="white" _hover={{ bg: "gray.800" }}>
                 Logout
               </Button>
             </>
           ) : (
             <Button
-              as={RouterLink}
+              as={NavLink}
               to="/login"
-              ml={4}
               bg="black"
               color="white"
               _hover={{ bg: "gray.800" }}
@@ -96,6 +73,102 @@ const Header = () => {
           )}
         </Flex>
       </Flex>
+
+      {/* <Divider borderBottom="1px solid black" /> */}
+
+
+      {/* Horizontal Navigation for Role-Specific Links */}
+      {user && (
+        <Box>
+          <Divider borderBottom="1px solid black" />
+
+        <Box bg="brand.background_color" py={2}>
+          <Flex maxW="1400px" mx="auto" px={6} align="center">
+            <HStack spacing={8}>
+              {(user?.company.roles.includes("buyer") || user?.company.roles.includes("both")) && (
+                <>
+                  <NavLink
+                    to="/buyer-dashboard"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Buyer Dashboard
+                  </NavLink>
+                  <NavLink
+                    to="/auction"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Auctions
+                  </NavLink>
+                  <NavLink
+                    to="/current-bids"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Current Bids
+                  </NavLink>
+                </>
+              )}
+              {(user?.company.roles.includes("buyer") || user?.company.roles.includes("both")) && (
+                <>
+                  <NavLink
+                    to="/seller-dashboard"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Seller Dashboard
+                  </NavLink>
+                  <NavLink
+                    to="/products/select"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Create Listing
+                  </NavLink>
+                  <NavLink
+                    to="/seller/manage-listings"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Manage Listings
+                  </NavLink>
+                  <NavLink
+                    to="/seller/network"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Manage Network
+                  </NavLink>
+                </>
+              )}
+            </HStack>
+          </Flex>
+        </Box>
+        <Divider borderBottom="1px solid black" />
+        </Box>
+      )}
     </Box>
   );
 };

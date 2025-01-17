@@ -4,14 +4,8 @@ import {
   Heading,
   Input,
   Button,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  SimpleGrid,
   Spinner,
-  useColorModeValue,
   Text,
   Modal,
   ModalOverlay,
@@ -20,9 +14,12 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
+  VStack,
+  useColorModeValue,
+  Flex,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { searchProducts } from "../../services/api"; // Import the search API function
+import { searchProducts } from "../../services/api";
 
 const ProductSelectionPage = () => {
   const [query, setQuery] = useState("");
@@ -35,7 +32,7 @@ const ProductSelectionPage = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const response = await searchProducts(query); // Call API to search products
+      const response = await searchProducts(query);
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -54,58 +51,84 @@ const ProductSelectionPage = () => {
   };
 
   const handleSelectProduct = (product) => {
-    navigate("/listings/create", { state: { selectedProduct: product } }); // Updated route
+    navigate("/listings/create", { state: { selectedProduct: product } });
   };
 
-  return (
-    <Box p={6} bg={useColorModeValue("white", "gray.800")} minH="100vh">
-      <Heading mb={6}>Select a Product</Heading>
-      <Box mb={6}>
-        <Input
-          placeholder="Search for a product by name or GTIN"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <Button onClick={handleSearch} mt={4} colorScheme="blue" isDisabled={!query}>
-          Search
-        </Button>
-      </Box>
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.700", "gray.200");
 
-      {loading ? (
-        <Spinner />
-      ) : (
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>GTIN</Th>
-              <Th>Brand</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {products.map((product) => (
-              <Tr key={product.id} onClick={() => openModal(product)} _hover={{ bg: "gray.100", cursor: "pointer" }}>
-                <Td>{product.name}</Td>
-                <Td>{product.gtin}</Td>
-                <Td>{product.brand}</Td>
-                <Td>
+  return (
+    <Box bg={bgColor} py={6} minH="100vh" w="100%">
+      {/* Page Content Wrapper */}
+      <Flex mx="auto" direction="column" w="100%">
+        {/* Page Title */}
+        <Heading mb={4} color={textColor} textAlign="left">
+          Select a Product
+        </Heading>
+
+        {/* Search Section */}
+        <Flex mb={6} gap={4} align="center" w="100%">
+          <Input
+            placeholder="Search for a product by name or GTIN"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            flex="1"
+            maxW="1200px"
+          />
+          <Button
+            onClick={handleSearch}
+            colorScheme="blue"
+            isDisabled={!query}
+            px={6}
+          >
+            Search
+          </Button>
+        </Flex>
+
+        {/* Product Grid Area */}
+        <Box minH="300px" w="100%">
+          {loading ? (
+            <Spinner mx="auto" display="block" size="xl" />
+          ) : products.length > 0 ? (
+            <SimpleGrid columns={[1, 2, 3]} spacing={6}>
+              {products.map((product) => (
+                <Box
+                  key={product.id}
+                  p={4}
+                  bg={"white"}
+                  borderRadius="md"
+                  shadow="md"
+                  _hover={{ shadow: "lg", bg: "gray.200" }}
+                  onClick={() => openModal(product)}
+                >
+                  <Heading size="md" mb={2} color={textColor}>
+                    {product.name}
+                  </Heading>
+                  <Text><strong>GTIN:</strong> {product.gtin}</Text>
+                  <Text><strong>Brand:</strong> {product.brand}</Text>
                   <Button
+                    mt={4}
                     colorScheme="teal"
                     size="sm"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering modal
+                      e.stopPropagation(); // Prevents triggering the modal
                       handleSelectProduct(product);
                     }}
                   >
                     Select
                   </Button>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      )}
+                </Box>
+              ))}
+            </SimpleGrid>
+          ) : (
+            <VStack spacing={4} align="center" textAlign="center" minH="300px" w="100%">
+              <Text fontSize="lg" fontWeight="bold" color={textColor}>
+                Use the search bar above to find a product. Search results will appear here.
+              </Text>
+            </VStack>
+          )}
+        </Box>
+      </Flex>
 
       {/* Product Details Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
@@ -136,6 +159,8 @@ const ProductSelectionPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      
     </Box>
   );
 };

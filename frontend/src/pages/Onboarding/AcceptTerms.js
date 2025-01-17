@@ -34,7 +34,7 @@ const AcceptTerms = () => {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={10}>
+    <Box maxW="md" mx="auto" minH="100vh" mt={10}>
       <Heading mb={6} textAlign="center">
         Terms of Service
       </Heading>
@@ -44,13 +44,13 @@ const AcceptTerms = () => {
           rules, including but not limited to fair trading practices,
           confidentiality, and adherence to applicable laws.
         </Text>
-        <Button
+        {/* <Button
           colorScheme="blue"
           isLoading={isSubmitting}
           onClick={handleAccept}
         >
           Accept Terms of Service
-        </Button>
+        </Button> */}
       </VStack>
     </Box>
   );

@@ -81,7 +81,7 @@ const ListingSearchPage = () => {
           display={{ base: "none", md: "block" }}
           w="250px"
           bg="white"
-          p={4}
+          px={4}
           borderRight="1px solid"
           borderColor="gray.200"
           h="calc(100vh - 64px)"
@@ -96,7 +96,7 @@ const ListingSearchPage = () => {
         </Box>
 
         {/* Main Content */}
-        <Box flex="1" p={4}>
+        <Box flex="1" p={6}>
           {loading ? (
             <Spinner size="xl" />
           ) : error ? (
