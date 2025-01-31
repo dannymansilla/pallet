@@ -7,7 +7,6 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Spinner,
   useToast,
 } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
