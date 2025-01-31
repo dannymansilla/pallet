@@ -3,8 +3,9 @@ import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   fonts: {
-    heading: `'Sora', sans-serif`,
-    body: `'Sora', sans-serif`,
+    heading: 'Inter, sans-serif',
+    body: 'Inter, sans-serif',
+    logo: 'DM Mono, monospace',
   },
   colors: {
     brand: {
@@ -29,7 +30,7 @@ const theme = extendTheme({
           color: 'white', // White text
           _hover: {
             color: 'white', // White text
-            bg: 'black', // Olive hover effect
+            bg: 'teal.400', // Olive hover effect
           },
         },
         outline: {

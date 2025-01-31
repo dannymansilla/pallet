@@ -94,7 +94,7 @@ const ListingCreationPage = () => {
               } else if (user.company.roles === "seller") {
                 navigate("/seller-dashboard");
               } else if (user.company.roles === "both") {
-                navigate("/unified-dashboard");
+                navigate("/seller-dashboard");
               } else {
                 toast({
                   title: "Role not recognized.",

@@ -7,6 +7,8 @@ import {
   RadioGroup,
   Stack,
   Radio,
+  Text,
+  Flex,
 } from "@chakra-ui/react";
 import { InputField, CheckboxField, PrimaryButton } from "../../components/Form";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -21,12 +23,8 @@ const CompanyRegistration = () => {
 
   const [formData, setFormData] = useState({
     companyName: "",
-    address: "",
-    contactEmail: "",
-    contactPhone: "",
     adminEmail: "",
     adminPassword: "",
-    adminUsername: "",
     companyRole: "", // Default to buyer
     termsAccepted: false,
   });
@@ -34,10 +32,12 @@ const CompanyRegistration = () => {
   useEffect(() => {
     // Get the role from the query parameters and set it in the form data
     const roleFromParams = searchParams.get("role");
+    const emailFromParams = searchParams.get("email");
     if (roleFromParams) {
       setFormData((prev) => ({
         ...prev,
-        companyRole: roleFromParams,
+        companyRole: roleFromParams || "",
+        adminEmail: emailFromParams || "",
       }));
     }
   }, [searchParams]);
@@ -63,6 +63,31 @@ const CompanyRegistration = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    if (!formData.companyName || !formData.adminEmail || !formData.adminPassword) {
+      toast({
+        title: "Error",
+        description: "All fields are required.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Ensure role is selected
+    if (!formData.companyRole) {
+      toast({
+        title: "Error",
+        description: "Please select a role (Buyer or Seller).",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+  
     if (!formData.termsAccepted) {
       toast({
         title: "Error",
@@ -84,11 +109,11 @@ const CompanyRegistration = () => {
         duration: 5000,
         isClosable: true,
       });
-      navigate("/onboarding/approval-status");
+      navigate("/profile");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Registration failed. Please try again.",
+        description: error.response?.data?.message || "Registration failed. Please try again.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -99,79 +124,77 @@ const CompanyRegistration = () => {
   };
 
   return (
-    <Box maxW="md" mx="auto" mt={10} minH="100vh">
-      <Heading mb={6} textAlign="center">
+    <Box bg="brand.background_color" p={8} minH="80vh">
+      <Flex direction="column" maxW="800px" mx="auto" p={6} bg="white" borderRadius="md" >
+    <Box maxW="md" mx="auto" mt={10}>
+      <Heading mb={6}>
         Company Registration
       </Heading>
-      <VStack as="form" onSubmit={handleSubmit} spacing={4}>
+      <VStack as="form" onSubmit={handleSubmit} spacing={4} borderRadius="md">
         <InputField
           label="Company Name"
-          placeholder="Enter your company name"
+          placeholder="company name"
           name="companyName"
           value={formData.companyName}
           onChange={handleChange}
           isRequired
         />
-        {/* <InputField
-          label="Contact Email"
-          placeholder="Enter company contact email"
-          type="email"
-          name="contactEmail"
-          value={formData.contactEmail}
-          onChange={handleChange}
-          isRequired
-        /> */}
-        {/* <InputField
-          label="Contact Phone"
-          placeholder="Enter company contact phone"
-          name="contactPhone"
-          value={formData.contactPhone}
-          onChange={handleChange}
-          isRequired
-        /> */}
         <InputField
           label="Email"
-          placeholder="Enter admin email"
+          placeholder="email"
           type="email"
           name="adminEmail"
           value={formData.adminEmail}
           onChange={handleChange}
           isRequired
         />
-        {/* <InputField
-          label="Admin Username"
-          placeholder="Enter admin username"
-          name="adminUsername"
-          value={formData.adminUsername}
-          onChange={handleChange}
-          isRequired
-        /> */}
         <InputField
           label="Password"
-          placeholder="Enter admin password"
+          placeholder="password"
           type="password"
           name="adminPassword"
           value={formData.adminPassword}
           onChange={handleChange}
           isRequired
         />
-        <InputField
-          label="Address"
-          placeholder="Enter company address"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-        />
-        <RadioGroup
-          onChange={handleRoleChange}
-          value={formData.companyRole}
-          name="companyRole"
+          {/* Role Selection Cards */}
+  <Heading fontSize="lg" textAlign="left" mt={4}>
+    Select Your Role
+  </Heading>
+  <Flex justify="space-between" direction={{ base: "column", md: "row" }} gap={4}>
+    <Box
+      as="button"
+      onClick={() => handleRoleChange("buyer")}
+      borderWidth="2px"
+      borderColor={formData.companyRole === "buyer" ? "teal.500" : "gray.200"}
+      bg={formData.companyRole === "buyer" ? "teal.50" : "white"}
+      p={6}
+      rounded="md"
+      shadow="sm"
+      textAlign="center"
+      _hover={{ bg: "teal.100", borderColor: "teal.500" }}
+    >
+      <Heading fontSize="md" color="teal.700">
+        Buyer
+      </Heading>
+    </Box>
+        <Box
+          as="button"
+          onClick={() => handleRoleChange("seller")}
+          borderWidth="2px"
+          borderColor={formData.companyRole === "seller" ? "teal.500" : "gray.200"}
+          bg={formData.companyRole === "seller" ? "teal.50" : "white"}
+          p={6}
+          rounded="md"
+          shadow="sm"
+          textAlign="center"
+          _hover={{ bg: "teal.100", borderColor: "teal.500" }}
         >
-          <Stack direction="row" spacing={4} p={6}>
-            <Radio value="buyer">Buyer</Radio>
-            <Radio value="seller">Seller</Radio>
-          </Stack>
-        </RadioGroup>
+          <Heading fontSize="md" color="teal.700">
+            Seller
+          </Heading>
+        </Box>
+      </Flex>
         <CheckboxField
           label={
             <>
@@ -192,6 +215,8 @@ const CompanyRegistration = () => {
         />
         <PrimaryButton label="Register" type="submit" isLoading={isSubmitting} />
       </VStack>
+    </Box>
+    </Flex>
     </Box>
   );
 };

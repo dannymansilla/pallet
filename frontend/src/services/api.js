@@ -131,16 +131,15 @@ export const registerUser = (data) => API.post(endpoints.register, data);
 export const registerCompany = async (data) => {
   const response = await API.post("/companies/register/", {
     company_name: data.companyName,
-    address: data.address,
-    contact_email: data.contactEmail,
-    contact_phone: data.contactPhone,
     admin_email: data.adminEmail,
     admin_password: data.adminPassword,
-    admin_username: data.adminUsername,
-    roles: data.companyRole,
+    roles: data.companyRole, // Preselected as buyer or seller
+    terms_accepted: data.termsAccepted, // Mandatory
   });
   return response.data;
 };
+
+
 
 // Approve a company
 export const approveCompany = (companyId) =>

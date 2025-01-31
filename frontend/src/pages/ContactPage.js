@@ -19,11 +19,11 @@ const ContactUs = () => {
 
   return (
     <Box bg="brand.background_color" p={8} minH="80vh">
-      <Flex direction="column" align="center" maxW="800px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
+      <Flex direction="column" maxW="1000px" mx="auto" p={6} bg="white" borderRadius="md">
         <Heading as="h1" size="xl" color="brand.600" mb={4}>
           Contact Us
         </Heading>
-        <Text fontSize="lg" color="gray.600" mb={8} textAlign="center">
+        <Text fontSize="lg" color="gray.600" mb={8}>
           Have any questions or need help? Fill out the form below, and we'll get in touch as soon as possible.
         </Text>
         <Box as="form" onSubmit={handleSubmit} w="100%">
@@ -39,9 +39,11 @@ const ContactUs = () => {
             <FormLabel>Message</FormLabel>
             <Textarea placeholder="Your Message" required />
           </FormControl>
-          <Button type="submit" colorScheme="teal" size="lg" w="100%">
+          <Box py={8} px={4} bg="brand.background_color">
+          <Button type="submit" colorScheme="teal" size="lg">
             Send Message
           </Button>
+          </Box>
         </Box>
       </Flex>
     </Box>

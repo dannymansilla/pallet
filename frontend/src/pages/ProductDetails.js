@@ -5,25 +5,21 @@ import { CheckCircleIcon } from '@chakra-ui/icons';
 
 const ProductDetails = () => {
   return (
-    <Box bg="brand.background_color" p={8} minH="80vh">
+    <Box bg="brand.background_color" py={8} minH="80vh">
       <Flex
         direction="column"
-        align="center"
-        maxW="800px"
         mx="auto"
-        p={6}
+        py={6}
         bg="white"
-        borderRadius="md"
-        boxShadow="md"
         mb={8}
       >
-        <Heading as="h1" size="xl" color="black" mb={4}>
-          About Pallet Marketplace
+        <Heading fontSize={{ base: '3xl', md: '5xl' }} color="black" mb={4}>
+          Marketplace
         </Heading>
-        <Text fontSize="lg" color="gray.600" mb={6} textAlign="center">
-          Pallet Marketplace is a blind auction-style marketplace for purchasing large quantities of consumer packaged goods (CPGs).
+        <Text fontSize="lg" color="gray.600" mb={6}>
+          Aiden Marketplace is a blind auction-style marketplace for purchasing large quantities of consumer packaged goods (CPGs).
         </Text>
-        <Heading as="h2" size="md" color="black" mb={4}>
+        <Heading as="h2" size="md" color="black" mb={4} py={5}>
           How It Works
         </Heading>
         <List spacing={3} mb={6}>
@@ -37,16 +33,22 @@ const ProductDetails = () => {
           </ListItem>
           <ListItem>
             <ListIcon as={CheckCircleIcon} color="teal.500" />
-            Auctions close at the specified time, and the highest bids win.
+            Auctions close at the specified time.
+          </ListItem>
+          <ListItem>
+            <ListIcon as={CheckCircleIcon} color="teal.500" />
+            We optimize bids to maximize complete truckloads.
           </ListItem>
           <ListItem>
             <ListIcon as={CheckCircleIcon} color="teal.500" />
             Buyers and sellers connect to arrange payment and shipping.
           </ListItem>
         </List>
+        <Box py={16} bg="brand.background_color">
         <Button variant="solid" size="lg" as="a" href="/auctions">
           Browse Auctions
         </Button>
+        </Box>
       </Flex>
     </Box>
   );

@@ -33,7 +33,7 @@ const LoginPage = () => {
       } else if (user.company.roles === "seller") {
         navigate("/seller-dashboard");
       } else if (user.company.roles === "both") {
-        navigate("/unified-dashboard");
+        navigate("/seller-dashboard");
       }
       toast({
         title: "Login successful!",
@@ -59,11 +59,10 @@ const LoginPage = () => {
   return (
     <Box
       bg="white"
-      minH="100vh"
+      minH="90vh"
       display="flex"
       justifyContent="center"
       alignItems="center"
-      px={4}
     >
       <Box bg="white" p={8} shadow="md" borderRadius="lg" w="full" maxW="md">
         <Heading as="h2" size="lg" mb={6} textAlign="center">

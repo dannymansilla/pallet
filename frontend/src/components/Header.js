@@ -2,83 +2,101 @@ import React from "react";
 import { Box, Flex, Heading, Link, Image, Button, HStack, Divider } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import logo from "../images/logo.png";
+import avatar from "../images/avatar.png";
 
 const Header = () => {
   const { user, logout } = useAuth();
+  console.log(user);
 
   return (
     <Box bg="white" w="100%" >
       {/* Header */}
-      <Flex maxW="1400px" mx="auto" align="center" px={6} py={2}>
+      <Flex maxW="1400px" mx="auto" align="center" p={4}>
         {/* Logo */}
         <Flex align="center">
-          <Image src={logo} alt="Pallet Logo" boxSize="40px" mr={2} />
-          <Heading as={NavLink} to="/" size="lg" letterSpacing="wider" _hover={{ textDecoration: "none" }}>
-            Pallet
+          {/* <Image src={avatar} alt="Pallet Logo" boxSize="50px" mr={2} /> */}
+          <Heading as={NavLink} to="/" size="lg" fontFamily="logo" letterSpacing="-2px" _hover={{ textDecoration: "none" }}>
+            aiden
           </Heading>
         </Flex>
 
         <Flex ml="auto" gap={4} align="center">
           {/* Global Navigation */}
-          <NavLink
+          <Link
+          as={NavLink}
             to="/details"
             style={({ isActive }) =>
               isActive
                 ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
                 : { color: "black", padding: "8px 12px" }
             }
+            _hover={{ textDecoration: "underline" }} 
           >
             Product
-          </NavLink>
-          <NavLink
+          </Link>
+          <Link
+          as={NavLink}
             to="/team"
             style={({ isActive }) =>
               isActive
                 ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
                 : { color: "black", padding: "8px 12px" }
             }
+            _hover={{ textDecoration: "underline" }} 
           >
-            Team
-          </NavLink>
+            About Us
+          </Link>
 
           {/* User-Specific Actions */}
           {user ? (
             <>
-              <NavLink
+              <Link
+              as={NavLink}
                 to="/profile"
                 style={({ isActive }) =>
                   isActive
                     ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
                     : { color: "black", padding: "8px 12px" }
                 }
+                _hover={{ textDecoration: "underline" }} 
               >
                 Profile
-              </NavLink>
+              </Link>
               <Button onClick={logout} bg="black" color="white" _hover={{ bg: "gray.800" }}>
                 Logout
               </Button>
             </>
           ) : (
+            <>
+            <Link
+              as={NavLink}
+              to="/contact"
+              style={({ isActive }) => ({
+                background: isActive ? "#3182ce" : "transparent",
+                color: isActive ? "white" : "black",
+                borderRadius: isActive ? "8px" : "none",
+                padding: "8px 12px",
+              })}
+              _hover={{ textDecoration: "underline" }} // Add hover effect
+            >
+              Contact Us
+            </Link>
             <Button
               as={NavLink}
               to="/login"
-              bg="black"
-              color="white"
-              _hover={{ bg: "gray.800" }}
-              borderRadius="md"
             >
               Login
             </Button>
+            </>
           )}
         </Flex>
       </Flex>
 
-      {/* <Divider borderBottom="1px solid black" /> */}
+      <Divider borderBottom="1px solid #999" />
 
 
       {/* Horizontal Navigation for Role-Specific Links */}
-      {user && (
+      {user !== null && user.company.status === 'approved' && (
         <Box>
           <Divider borderBottom="1px solid black" />
 
@@ -119,7 +137,7 @@ const Header = () => {
                   </NavLink>
                 </>
               )}
-              {(user?.company.roles.includes("buyer") || user?.company.roles.includes("both")) && (
+              {(user?.company.roles.includes("seller") || user?.company.roles.includes("both")) && (
                 <>
                   <NavLink
                     to="/seller-dashboard"

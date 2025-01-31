@@ -1,5 +1,5 @@
 // src/pages/LandingPage.js
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Flex,
@@ -10,14 +10,17 @@ import {
   Image,
   VStack,
   SimpleGrid,
+  Input,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import cpg_photo from '../images/9397334.png';
+import cpg_photo from '../images/hero_image_warehouse.png';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
 const LandingPage = () => {
+  const [email, setEmail] = useState('');
+
   return (
     <Box bg="white" color="black" minH="100vh" p={8}>
       {/* Hero Section */}
@@ -26,7 +29,7 @@ const LandingPage = () => {
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
         py={10}
-        px={8}
+        px={4}
         bg="white"
       >
         <VStack
@@ -37,9 +40,11 @@ const LandingPage = () => {
           textAlign={{ base: 'center', md: 'left' }}
         >
           <Heading
-            fontSize={{ base: '2xl', md: '4xl' }}
+            fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }} 
             fontWeight="bold"
             color="black"
+            letterSpacing="-3px"  // Reduce spacing between letters
+            lineHeight="1.2"  // Reduce line height for closer spacing
           >
             Buy and sell excess CPG inventory
           </Heading>
@@ -48,6 +53,28 @@ const LandingPage = () => {
             consumer packaged goods inventory and buyers to bid on a variety of
             products from well-known brands across categories.
           </Text>
+
+          <Box
+            p={0}
+            rounded="md"
+            // shadow="sm"
+            width="100%"
+          >
+          <Text fontSize="lg" mb={4} fontWeight="semibold">
+            Join our platform today
+          </Text>
+          {/* Email Input */}
+          <Box py={4}>
+          <Input
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            size="lg"
+            mb={4}
+            bg="gray.100"
+            _focus={{ bg: 'white', borderColor: 'teal.500' }}
+          />
+          </Box>
           <HStack
             spacing={6}
             align={{ base: 'center', md: 'start' }}
@@ -57,11 +84,14 @@ const LandingPage = () => {
             <VStack spacing={2} align="center">
               <Button
                 as={RouterLink}
-                to="/onboarding/register?role=buyer"
+                to={`/onboarding/register?role=buyer&email=${encodeURIComponent(
+                  email
+                )}`}
                 colorScheme="teal"
                 size="lg"
                 shadow="md"
                 _hover={{ bg: 'teal.400' }}
+                isDisabled={!email} // Disable button if email is empty
               >
                 I'm a Buyer
               </Button>
@@ -72,11 +102,14 @@ const LandingPage = () => {
             <VStack spacing={2} align="center">
               <Button
                 as={RouterLink}
-                to="/onboarding/register?role=seller"
+                to={`/onboarding/register?role=seller&email=${encodeURIComponent(
+                  email
+                )}`}
                 colorScheme="teal"
                 size="lg"
                 shadow="md"
                 _hover={{ bg: 'teal.400' }}
+                isDisabled={!email} // Disable button if email is empty
               >
                 I'm a Seller
               </Button>
@@ -85,45 +118,38 @@ const LandingPage = () => {
               </Text>
             </VStack>
           </HStack>
+          </Box>
         </VStack>
         <Box
           flex="1"
           bg="white"
-          p={15}
+          p={10}
           rounded="lg"
           overflow="hidden"
           display="flex"
           justifyContent="center"
           alignItems="center"
-          maxW="600px"
-          maxH="400px"
+          maxW="700px"
+          maxH="500px"
           mt={{ base: 8, md: 0 }}
           ml={{ base: 0, md: 8 }}
         >
           <Image
-                      src={cpg_photo} // Relative path to the image in the public folder
-                      alt="Pallet of CPG Goods"
-                      borderRadius="8px"
-                      width="100%"
-                      maxW="400px"
-                    />
-          {/* <Image
-            src="https://source.unsplash.com/800x600/?warehouse,logistics"
-            alt="Warehouse"
-            objectFit="cover"
+            src={cpg_photo} // Relative path to the image in the public folder
+            alt="Pallet of CPG Goods"
+            borderRadius="8px"
             width="100%"
-            height="100%"
-          /> */}
+            maxW="400px"
+          />
         </Box>
       </Flex>
 
 
 
 
-
       {/* Key Features Section */}
-      <Box py={16} px={8} bg="white" color="gray.800">
-        <Box maxW="1200px" mx="auto" px={{ base: 4, md: 8 }}>
+      <Box py={16} px={0} bg="white" color="gray.800">
+        <Box maxW="1200px" mx="auto" py={16} px={{ base: 4, md: 8 }}>
           <Heading textAlign="left" fontSize="3xl" mb={8}>
             Key Features
           </Heading>
@@ -163,7 +189,7 @@ const LandingPage = () => {
       </Box>
 
         {/* Features Showcase Section */}
-        <Box py={16} px={8} bg="brand.background_color">
+        <Box py={16} p={8} bg="brand.background_color">
         <Box maxW="1200px" mx="auto" px={{ base: 4, md: 8 }}>
             <SimpleGrid columns={{ base: 1, md: 1 }} spacing={16}>
             {[
@@ -233,7 +259,7 @@ const LandingPage = () => {
       {/* Call-to-Action Section */}
       <Box py={16} px={8} bg="brand.background_color" textAlign="center">
         <Heading fontSize="3xl" mb={4}>
-          Ready to Join Pallet?
+          Ready to Join?
         </Heading>
         <Button
           as={RouterLink}

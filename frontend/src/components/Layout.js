@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
   return (
     <Flex direction="column" minH="100vh">
       {/* Header */}
-      <Box as="header" w="100%">
+      <Box as="header" w="100%" mb="14">
         <Header />
       </Box>
 
