@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Flex,
@@ -24,16 +24,15 @@ const ListingSearchPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [categories, setCategories] = useState(["Beverages", "Snacks", "Cleaning Supplies"]);
   const [error, setError] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  useEffect(() => {
-    fetchListings();
-  }, [category, searchQuery]);
+  
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoading(true);
     try {
       const filters = {};
@@ -48,7 +47,11 @@ const ListingSearchPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+}, [category, searchQuery]);
+
+useEffect(() => {
+  fetchListings();
+}, [fetchListings]);
 
   return (
     <Box>

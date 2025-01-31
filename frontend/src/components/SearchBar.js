@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Button, HStack, Box } from "@chakra-ui/react";
+import { Input, Button, HStack } from "@chakra-ui/react";
 
 const SearchBar = ({ value, onSearch, onChange }) => {
   return (

@@ -30,7 +30,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { getActiveListings, getQueuedListings, getAuctionPerformance, getListingBids } from "../../services/api";
-import { Link as RouterLink } from "react-router-dom";
+
 
 const SellerDashboard = () => {
   const [activeListings, setActiveListings] = useState([]);

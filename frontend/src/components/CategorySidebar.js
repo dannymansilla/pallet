@@ -1,5 +1,5 @@
 import React from "react";
-import { VStack, Text, Button, Icon, Box } from "@chakra-ui/react";
+import { VStack, Text, Button, Icon } from "@chakra-ui/react";
 import { FiCoffee, FiBox, FiDroplet } from "react-icons/fi"; // Example icons
 
 const CategorySidebar = ({ categories, selected, onSelect }) => {
