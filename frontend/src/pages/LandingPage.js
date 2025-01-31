@@ -15,6 +15,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import cpg_photo from '../images/hero_image_warehouse.png';
 import { motion } from 'framer-motion';
+import SubtleBackground from '../components/SubtleBackground';
 
 const MotionBox = motion(Box);
 
@@ -22,29 +23,32 @@ const LandingPage = () => {
   const [email, setEmail] = useState('');
 
   return (
-    <Box bg="white" color="black" minH="100vh" p={8}>
+    <Box bg="transparent" color="black">
+      <Box >
+      <SubtleBackground /> {/* Background Animation */}
       {/* Hero Section */}
       <Flex
         align="center"
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        py={10}
+        minH="100vh" // ✅ Ensures hero section takes full viewport height
         px={4}
-        bg="white"
+        position="relative" // ✅ Needed for Lottie to fit perfectly
+        overflow="hidden" // ✅ Prevents Lottie from extending
       >
         <VStack
-          px={{ base: 4, md: 8 }}
-          spacing={6}
+          px={{ base: 4, md: 10 }}
+          spacing={8}
           align="start"
           maxW="600px"
           textAlign={{ base: 'center', md: 'left' }}
         >
           <Heading
-            fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }} 
+            fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
             fontWeight="bold"
             color="black"
-            letterSpacing="-3px"  // Reduce spacing between letters
-            lineHeight="1.2"  // Reduce line height for closer spacing
+            letterSpacing="-3px"
+            lineHeight="1.2"
           >
             Buy and sell excess CPG inventory
           </Heading>
@@ -66,7 +70,7 @@ const LandingPage = () => {
           {/* Email Input */}
           <Box py={4}>
           <Input
-            placeholder="Enter your email"
+            placeholder="youremail@company.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             size="lg"
@@ -122,8 +126,7 @@ const LandingPage = () => {
         </VStack>
         <Box
           flex="1"
-          bg="white"
-          p={10}
+          bg="transparent"
           rounded="lg"
           overflow="hidden"
           display="flex"
@@ -131,24 +134,25 @@ const LandingPage = () => {
           alignItems="center"
           maxW="700px"
           maxH="500px"
-          mt={{ base: 8, md: 0 }}
-          ml={{ base: 0, md: 8 }}
+          mt={{ base: 10, md: 0 }}
+          ml={{ base: 0, md: 12 }}
         >
           <Image
-            src={cpg_photo} // Relative path to the image in the public folder
+            src={cpg_photo}
             alt="Pallet of CPG Goods"
             borderRadius="8px"
             width="100%"
-            maxW="400px"
+            maxW="500px"
           />
         </Box>
       </Flex>
 
-
+      </Box>
 
 
       {/* Key Features Section */}
-      <Box py={16} px={0} bg="white" color="gray.800">
+      <Box py={16} px={0} bg="white" color="gray.800" position="relative" zIndex="1">
+
         <Box maxW="1200px" mx="auto" py={16} px={{ base: 4, md: 8 }}>
           <Heading textAlign="left" fontSize="3xl" mb={8}>
             Key Features

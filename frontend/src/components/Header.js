@@ -8,7 +8,14 @@ const Header = () => {
   console.log(user);
 
   return (
-    <Box bg="white" w="100%" >
+    <Box
+      position="fixed"
+      top="0"
+      left="0"
+      width="100%"
+      zIndex="10"
+      bg="white"
+    >
       {/* Header */}
       <Flex maxW="1400px" mx="auto" align="center" p={4}>
         {/* Logo */}
@@ -77,7 +84,7 @@ const Header = () => {
               })}
               _hover={{ textDecoration: "underline" }} // Add hover effect
             >
-              Contact Us
+              Request a demo
             </Link>
             <Button
               as={NavLink}

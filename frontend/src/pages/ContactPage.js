@@ -21,7 +21,7 @@ const ContactUs = () => {
     <Box bg="brand.background_color" p={8} minH="80vh">
       <Flex direction="column" maxW="1000px" mx="auto" p={6} bg="white" borderRadius="md">
         <Heading as="h1" size="xl" color="brand.600" mb={4}>
-          Request a Demo
+          Contact us
         </Heading>
         <Text fontSize="lg" color="gray.600" mb={8}>
           Have any questions or need help? Fill out the form below, and we'll get in touch as soon as possible.
@@ -29,15 +29,15 @@ const ContactUs = () => {
         <Box as="form" onSubmit={handleSubmit} w="100%">
           <FormControl id="name" mb={4}>
             <FormLabel>Name</FormLabel>
-            <Input type="text" placeholder="Your Name" required />
+            <Input type="text" placeholder="John Doe" required />
           </FormControl>
           <FormControl id="email" mb={4}>
             <FormLabel>Email</FormLabel>
-            <Input type="email" placeholder="Your Email" required />
+            <Input type="email" placeholder="youremail@company.com" required />
           </FormControl>
           <FormControl id="message" mb={6}>
             <FormLabel>Message</FormLabel>
-            <Textarea placeholder="Your Message" required />
+            <Textarea placeholder="Hi, I'm interested in learning more about your platform. Can you provide more details?" required />
           </FormControl>
           <Box py={8} px={4} bg="brand.background_color">
           <Button type="submit" colorScheme="teal" size="lg">

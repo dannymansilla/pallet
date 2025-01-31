@@ -23,7 +23,7 @@ const AboutPage = () => {
   return (
   
     <Box bg="brand.background_color" py={8} maxW="1000px">
-      <Box py={{ base: 12, md: 20 }}>
+      <Box py={{ base: 12, md: 20 }} minH="95vh">
           <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={4}>
           Turning Excess into Opportunity
           </Heading>
@@ -33,9 +33,9 @@ const AboutPage = () => {
           </Text>
       </Box>
 
-      <Divider borderBottom="1px solid #999" py={10} />
+      <Divider borderBottom="1px solid #999"/>
 
-      <Flex direction="column" maxW="1000px" mx="auto" py={10} bg="white">
+      <Flex direction="column" maxW="1000px" mx="auto" py={10} bg="white" minH="90vh">
       <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={4} py={5}>
           Founders
         </Heading>
