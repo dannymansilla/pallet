@@ -142,7 +142,7 @@ const ListingCreationPage = () => {
         <FormLabel>Quantity Available</FormLabel>
         <Input
           type="number"
-          placeholder="Enter quantity"
+          placeholder="1000"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
         />
@@ -151,7 +151,7 @@ const ListingCreationPage = () => {
         <FormLabel>Minimum Selling Price (per unit)</FormLabel>
         <Input
           type="number"
-          placeholder="Enter minimum price"
+          placeholder="5.00"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
         />
@@ -160,7 +160,7 @@ const ListingCreationPage = () => {
         <FormLabel>Warehouse Location</FormLabel>
         <Input
           type="text"
-          placeholder="Enter warehouse location"
+          placeholder="5678 Distribution Rd, Los Angeles, CA 90012"
           value={warehouseLocation}
           onChange={(e) => setWarehouseLocation(e.target.value)}
         />

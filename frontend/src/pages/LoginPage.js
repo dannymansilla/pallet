@@ -70,16 +70,16 @@ const LoginPage = () => {
         </Heading>
         <form onSubmit={handleSubmit}>
           <FormControl id="username" isRequired mb={4}>
-            <FormLabel>Username</FormLabel>
+            <FormLabel>email</FormLabel>
             <Input
               type="text"
-              placeholder="Enter your username"
+              placeholder="youremail@company.com"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
           </FormControl>
           <FormControl id="password" isRequired mb={6}>
-            <FormLabel>Password</FormLabel>
+            <FormLabel>password</FormLabel>
             <Input
               type="password"
               placeholder="Enter your password"

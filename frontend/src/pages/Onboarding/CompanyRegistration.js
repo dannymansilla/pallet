@@ -121,59 +121,34 @@ const CompanyRegistration = () => {
 
   return (
     <Box bg="brand.background_color" p={8} minH="80vh">
-      <Flex direction="column" maxW="800px" mx="auto" p={6} bg="white" borderRadius="md" >
+      <Flex direction="column" maxW="1000px" mx="auto" p={6} bg="white" borderRadius="md" >
     <Box maxW="md" mx="auto" mt={10}>
-      <Heading mb={6}>
+      <Heading textAlign="center" mb={6}>
         Company Registration
       </Heading>
-      <VStack as="form" onSubmit={handleSubmit} spacing={4} borderRadius="md">
-        <InputField
-          label="Company Name"
-          placeholder="company name"
-          name="companyName"
-          value={formData.companyName}
-          onChange={handleChange}
-          isRequired
-        />
-        <InputField
-          label="Email"
-          placeholder="email"
-          type="email"
-          name="adminEmail"
-          value={formData.adminEmail}
-          onChange={handleChange}
-          isRequired
-        />
-        <InputField
-          label="Password"
-          placeholder="password"
-          type="password"
-          name="adminPassword"
-          value={formData.adminPassword}
-          onChange={handleChange}
-          isRequired
-        />
-          {/* Role Selection Cards */}
-  <Heading fontSize="lg" textAlign="left" mt={4}>
-    Select Your Role
-  </Heading>
-  <Flex justify="space-between" direction={{ base: "column", md: "row" }} gap={4}>
-    <Box
-      as="button"
-      onClick={() => handleRoleChange("buyer")}
-      borderWidth="2px"
-      borderColor={formData.companyRole === "buyer" ? "teal.500" : "gray.200"}
-      bg={formData.companyRole === "buyer" ? "teal.50" : "white"}
-      p={6}
-      rounded="md"
-      shadow="sm"
-      textAlign="center"
-      _hover={{ bg: "teal.100", borderColor: "teal.500" }}
-    >
-      <Heading fontSize="md" color="teal.700">
-        Buyer
+      <Heading fontSize="lg" textAlign="center" m={4} fontWeight="semibold">
+        Select Your Role
       </Heading>
-    </Box>
+
+      <Flex mb={6} gap={4} justify="center" align="center">
+        <Box
+          as="button"
+          onClick={() => handleRoleChange("buyer")}
+          borderWidth="2px"
+          borderColor={formData.companyRole === "buyer" ? "teal.500" : "gray.200"}
+          bg={formData.companyRole === "buyer" ? "teal.50" : "white"}
+          p={6}
+          rounded="md"
+          shadow="sm"
+          textAlign="center"
+          _hover={{ bg: "teal.100", borderColor: "teal.500" }}
+          w={{ base: "100%", md: "200px" }} // Ensures consistent sizing
+        >
+          <Heading fontSize="md" color="teal.700">
+            Buyer
+          </Heading>
+        </Box>
+
         <Box
           as="button"
           onClick={() => handleRoleChange("seller")}
@@ -185,12 +160,41 @@ const CompanyRegistration = () => {
           shadow="sm"
           textAlign="center"
           _hover={{ bg: "teal.100", borderColor: "teal.500" }}
+          w={{ base: "100%", md: "200px" }} // Ensures consistent sizing
         >
           <Heading fontSize="md" color="teal.700">
             Seller
           </Heading>
         </Box>
       </Flex>
+
+      <VStack as="form" onSubmit={handleSubmit} spacing={5} borderRadius="md">
+        <InputField
+          label="Company Name"
+          placeholder="Your Company Inc."
+          name="companyName"
+          value={formData.companyName}
+          onChange={handleChange}
+          isRequired
+        />
+        <InputField
+          label="Email"
+          placeholder="youremail@company.com"
+          type="email"
+          name="adminEmail"
+          value={formData.adminEmail}
+          onChange={handleChange}
+          isRequired
+        />
+        <InputField
+          label="Password"
+          placeholder="Enter a strong password"
+          type="password"
+          name="adminPassword"
+          value={formData.adminPassword}
+          onChange={handleChange}
+          isRequired
+        />
         <CheckboxField
           label={
             <>

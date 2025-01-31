@@ -201,7 +201,7 @@ const ListingDetailsPage = () => {
       <ModalBody>
         <Text mb={4}>Minimum Bid: ${minimum_selling_price}</Text>
         <Input
-          placeholder="Enter your bid amount"
+          placeholder="50.00"
           value={bidAmount}
           onChange={(e) => setBidAmount(e.target.value)}
           mb={4}
@@ -212,7 +212,7 @@ const ListingDetailsPage = () => {
           value={bidQuantity}
           onChange={(valueString) => setBidQuantity(Number(valueString))}
         >
-          <NumberInputField placeholder="Enter quantity" />
+          <NumberInputField placeholder="500" />
         </NumberInput>
       </ModalBody>
       <ModalFooter>
