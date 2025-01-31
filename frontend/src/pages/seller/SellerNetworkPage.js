@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Heading,
@@ -91,7 +91,7 @@ const SellerNetworkPage = () => {
     }
   };
 
-  const loadNetwork = async () => {
+  const loadNetwork = useCallback(async () => {
     try {
       const response = await fetchNetwork(); // API call to fetch current network
       setNetwork(response.data);
@@ -104,11 +104,11 @@ const SellerNetworkPage = () => {
         isClosable: true,
       });
     }
-  };
+}, [toast]); 
 
   useEffect(() => {
     loadNetwork();
-  }, []);
+  }, [loadNetwork]);
 
   return (
     <Box bg={bgColor} py={6} minH="100vh">

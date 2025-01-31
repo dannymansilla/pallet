@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useAuth } from './context/AuthContext';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:8000'

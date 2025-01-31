@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Heading,
@@ -46,7 +46,7 @@ const ManageListingsPage = () => {
   const cardBg = useColorModeValue("white", "gray.700");
   const textColor = useColorModeValue("gray.700", "gray.200");
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoading(true);
     try {
       const [currentResponse, queuedResponse] = await Promise.all([
@@ -66,7 +66,7 @@ const ManageListingsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+}, [toast]); 
 
   const handleDelete = async (listingId) => {
     try {
@@ -136,7 +136,7 @@ const ManageListingsPage = () => {
 
   useEffect(() => {
     fetchListings();
-  }, []);
+  }, [fetchListings]);
 
   if (loading) {
     return (

@@ -3,11 +3,9 @@ import { Flex, Box } from "@chakra-ui/react";
 import Header from "./Header";
 import Footer from "./Footer";
 import Container from "./Container";
-import { useAuth } from "../context/AuthContext";
 import WidthPlaceholder from "./WidthPlaceholder";
 
 const Layout = ({ children }) => {
-  const { user } = useAuth();
 
   return (
     <Flex direction="column" minH="100vh">
