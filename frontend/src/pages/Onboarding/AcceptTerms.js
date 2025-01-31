@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, useToast } from "@chakra-ui/react";
 import { acceptTerms } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 

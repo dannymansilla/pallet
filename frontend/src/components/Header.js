@@ -1,8 +1,7 @@
 import React from "react";
-import { Box, Flex, Heading, Link, Image, Button, HStack, Divider } from "@chakra-ui/react";
+import { Box, Flex, Heading, Link, Button, HStack, Divider } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import avatar from "../images/avatar.png";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -14,7 +13,6 @@ const Header = () => {
       <Flex maxW="1400px" mx="auto" align="center" p={4}>
         {/* Logo */}
         <Flex align="center">
-          {/* <Image src={avatar} alt="Pallet Logo" boxSize="50px" mr={2} /> */}
           <Heading as={NavLink} to="/" size="lg" fontFamily="logo" letterSpacing="-2px" _hover={{ textDecoration: "none" }}>
             aiden
           </Heading>

@@ -7,8 +7,6 @@ import {
   Button,
   Image,
   List,
-  VStack,
-  SimpleGrid,
   ListItem,
   Flex,
   Badge,
