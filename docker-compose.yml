@@ -14,11 +14,16 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
-      - db
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h db -U ${POSTGRES_USER}"]
-      interval: 10s
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python palletproject/manage.py migrate && python palletproject/manage.py runserver 0.0.0.0:8000"
+    healthcheck:  # Add the healthcheck for backend service here
+      test: ["CMD-SHELL", "curl -f http://localhost:8000 || exit 1"]
+      interval: 30s
       retries: 5
+      start_period: 60s
+      timeout: 10s
 
   frontend:
     build:
@@ -48,11 +53,14 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U danielmansilla -d palletdev"]
       interval: 10s
-      retries: 5
-      start_period: 10s
       timeout: 5s
+      retries: 5
 
 volumes:
   pg_data:
+
+networks:
+  app-network:
+    driver: bridge

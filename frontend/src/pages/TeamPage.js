@@ -1,6 +1,6 @@
 // src/pages/AboutUs.js
 import React from 'react';
-import { Box, Flex, Heading, Text, Image, Stack } from '@chakra-ui/react';
+import { Box, Flex, Divider, Heading, Container, Text, Image, Stack } from '@chakra-ui/react';
 import founder1 from '../images/jake_profile.jpg';
 import founder2 from '../images/danny_profile.jpg';
 
@@ -21,11 +21,23 @@ const founders = [
 
 const AboutPage = () => {
   return (
-    
-    <Box bg="brand.background_color" p={8} minH="80vh">
-      <Flex direction="column" align="center" maxW="1000px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
-        <Heading as="h1" size="xl" color="black" mb={8}>
-          Meet the Team
+  
+    <Box bg="brand.background_color" py={8} maxW="1000px">
+      <Box py={{ base: 12, md: 20 }}>
+          <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={4}>
+          Turning Excess into Opportunity
+          </Heading>
+          <Text fontSize={{ base: 'lg', md: 'xl' }} mx="auto" color="gray.600">
+            At Aiden, we are transforming the way businesses buy and sell excess consumer packaged goods. 
+            Our goal is to create a more efficient, transparent, and accessible marketplace for bulk inventory transactions.
+          </Text>
+      </Box>
+
+      <Divider borderBottom="1px solid #999" py={10} />
+
+      <Flex direction="column" maxW="1000px" mx="auto" py={10} bg="white">
+      <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={4} py={5}>
+          Founders
         </Heading>
         <Stack spacing={8} w="100%">
           {founders.map((founder, index) => (
@@ -34,9 +46,8 @@ const AboutPage = () => {
               direction={{ base: 'column', md: 'row' }}
               align="center"
               bg="brand.background_color"
-              p={6}
+              p={10}
               borderRadius="md"
-              boxShadow="sm"
               w="100%"
             >
               <Image

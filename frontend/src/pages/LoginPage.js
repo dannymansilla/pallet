@@ -1,46 +1,107 @@
-// src/pages/LoginPage.js
-import React from 'react';
-import { Box, Flex, Heading, Input, Button, FormControl, FormLabel, useToast } from '@chakra-ui/react';
-import { Link } from 'react-router-dom'; 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {
+  Box,
+  Button,
+  Input,
+  FormControl,
+  FormLabel,
+  Heading,
+  useToast,
+} from "@chakra-ui/react";
 
 const LoginPage = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, error, isLoading } = useAuth();
+  const navigate = useNavigate();
   const toast = useToast();
 
-  const handleLogin = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add login logic here
-    toast({
-      title: 'Login Successful!',
-      description: 'You are now logged in.',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-    });
+    try {
+      await login({ username, password });
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user.is_superuser) {
+        navigate("/admin");
+      }
+      else if (user.company.status === "pending") {
+        navigate("/profile");
+      } else if (user.company.roles === "buyer") {
+        navigate("/buyer-dashboard");
+      } else if (user.company.roles === "seller") {
+        navigate("/seller-dashboard");
+      } else if (user.company.roles === "both") {
+        navigate("/seller-dashboard");
+      }
+      toast({
+        title: "Login successful!",
+        description: "Redirecting...",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error("Login failed:", err);
+      toast({
+        title: "Login failed",
+        description: error || "Invalid credentials.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
+  
+  
 
   return (
-    <Box bg="brand.background_color" p={8} minH="80vh">
-      <Flex direction="column" align="center" maxW="400px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
-        <Heading as="h1" size="xl" color="brand.600" mb={6}>
-          Log In
+    <Box
+      bg="white"
+      minH="90vh"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Box bg="white" p={8} shadow="md" borderRadius="lg" w="full" maxW="md">
+        <Heading as="h2" size="lg" mb={6} textAlign="center">
+          Login
         </Heading>
-        <Box as="form" onSubmit={handleLogin} w="100%">
-          <FormControl id="email" mb={4}>
-            <FormLabel>Email</FormLabel>
-            <Input type="email" placeholder="Your Email" required />
+        <form onSubmit={handleSubmit}>
+          <FormControl id="username" isRequired mb={4}>
+            <FormLabel>Username</FormLabel>
+            <Input
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </FormControl>
-          <FormControl id="password" mb={6}>
+          <FormControl id="password" isRequired mb={6}>
             <FormLabel>Password</FormLabel>
-            <Input type="password" placeholder="Your Password" required />
+            <Input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </FormControl>
-          <Button type="submit" variant='solid' size="lg" w="100%" mb={4}>
-            Log In
+          <Button
+            type="submit"
+            colorScheme="blue"
+            w="full"
+            isLoading={isLoading}
+          >
+            Login
           </Button>
-          <Button as={Link} to="/create-account" variant="ghost" size="sm" w="100%">
-            Create an Account
-          </Button>
-        </Box>
-      </Flex>
+        </form>
+        {error && (
+          <Box color="red.500" mt={4} textAlign="center">
+            {error}
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };

@@ -1,46 +1,192 @@
-// src/components/Header.js
-import React from 'react';
-import { Box, Flex, Heading, Button, Image, Link, Spacer } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
-import logo from '../images/logo.png';
+import React from "react";
+import { Box, Flex, Heading, Link, Image, Button, HStack, Divider } from "@chakra-ui/react";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import avatar from "../images/avatar.png";
 
 const Header = () => {
+  const { user, logout } = useAuth();
+  console.log(user);
+
   return (
-    <Box bg="brand.background_color" p={4}> {/* Updated background color to match main content */}
-      <Flex maxW="1200px" mx="auto" align="center">
-        <Image
-            src={logo} 
-            alt="Pallet Marketplace Logo"
-            boxSize="40px" // Adjust size as needed
-            mr={2} // Margin-right for spacing
-          />
-          <Heading as={RouterLink} to="/" size="lg" color="black" letterSpacing="wider">
-            Pallet
-          </Heading>
-        <Spacer />
+    <Box bg="white" w="100%" >
+      {/* Header */}
+      <Flex maxW="1400px" mx="auto" align="center" p={4}>
+        {/* Logo */}
         <Flex align="center">
-          <Link as={RouterLink} to="/details" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
+          {/* <Image src={avatar} alt="Pallet Logo" boxSize="50px" mr={2} /> */}
+          <Heading as={NavLink} to="/" size="lg" fontFamily="logo" letterSpacing="-2px" _hover={{ textDecoration: "none" }}>
+            aiden
+          </Heading>
+        </Flex>
+
+        <Flex ml="auto" gap={4} align="center">
+          {/* Global Navigation */}
+          <Link
+          as={NavLink}
+            to="/details"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                : { color: "black", padding: "8px 12px" }
+            }
+            _hover={{ textDecoration: "underline" }} 
+          >
             Product
           </Link>
-          {/* <Link as={RouterLink} to="/auctions" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            Auctions
-          </Link> */}
-          <Link as={RouterLink} to="/about" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            About
-          </Link>
-          {/* <Link as={RouterLink} to="/profile" color="black" mx={2} fontSize="lg" _hover={{ textDecoration: 'underline' }}>
-            Profile
-          </Link> */}
-          <Button
-            as={RouterLink}
-            to="/login"
-            variant="outline"
-            ml={4}
+          <Link
+          as={NavLink}
+            to="/team"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                : { color: "black", padding: "8px 12px" }
+            }
+            _hover={{ textDecoration: "underline" }} 
           >
-            Login
-          </Button>
+            About Us
+          </Link>
+
+          {/* User-Specific Actions */}
+          {user ? (
+            <>
+              <Link
+              as={NavLink}
+                to="/profile"
+                style={({ isActive }) =>
+                  isActive
+                    ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                    : { color: "black", padding: "8px 12px" }
+                }
+                _hover={{ textDecoration: "underline" }} 
+              >
+                Profile
+              </Link>
+              <Button onClick={logout} bg="black" color="white" _hover={{ bg: "gray.800" }}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+            <Link
+              as={NavLink}
+              to="/contact"
+              style={({ isActive }) => ({
+                background: isActive ? "#3182ce" : "transparent",
+                color: isActive ? "white" : "black",
+                borderRadius: isActive ? "8px" : "none",
+                padding: "8px 12px",
+              })}
+              _hover={{ textDecoration: "underline" }} // Add hover effect
+            >
+              Contact Us
+            </Link>
+            <Button
+              as={NavLink}
+              to="/login"
+            >
+              Login
+            </Button>
+            </>
+          )}
         </Flex>
       </Flex>
+
+      <Divider borderBottom="1px solid #999" />
+
+
+      {/* Horizontal Navigation for Role-Specific Links */}
+      {user !== null && user.company.status === 'approved' && (
+        <Box>
+          <Divider borderBottom="1px solid black" />
+
+        <Box bg="brand.background_color" py={2}>
+          <Flex maxW="1400px" mx="auto" px={6} align="center">
+            <HStack spacing={8}>
+              {(user?.company.roles.includes("buyer") || user?.company.roles.includes("both")) && (
+                <>
+                  <NavLink
+                    to="/buyer-dashboard"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Buyer Dashboard
+                  </NavLink>
+                  <NavLink
+                    to="/auction"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Auctions
+                  </NavLink>
+                  <NavLink
+                    to="/current-bids"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Current Bids
+                  </NavLink>
+                </>
+              )}
+              {(user?.company.roles.includes("seller") || user?.company.roles.includes("both")) && (
+                <>
+                  <NavLink
+                    to="/seller-dashboard"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Seller Dashboard
+                  </NavLink>
+                  <NavLink
+                    to="/products/select"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Create Listing
+                  </NavLink>
+                  <NavLink
+                    to="/seller/manage-listings"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Manage Listings
+                  </NavLink>
+                  <NavLink
+                    to="/seller/network"
+                    style={({ isActive }) =>
+                      isActive
+                        ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                        : { color: "black", padding: "8px 12px" }
+                    }
+                  >
+                    Manage Network
+                  </NavLink>
+                </>
+              )}
+            </HStack>
+          </Flex>
+        </Box>
+        <Divider borderBottom="1px solid black" />
+        </Box>
+      )}
     </Box>
   );
 };

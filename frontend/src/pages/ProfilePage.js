@@ -1,172 +1,128 @@
-// src/pages/ProfilePage.js
-import React from 'react';
-import person_image from '../images/person_outline.jpeg';
+import React, { useEffect, useState } from "react";
+import { getProfile } from "../services/api";
 import {
   Box,
-  Flex,
   Heading,
   Text,
-  Image,
+  Spinner,
+  Alert,
+  AlertIcon,
+  Flex,
+  Avatar,
+  VStack,
   Divider,
-  SimpleGrid,
-  Badge,
-  Button
-} from '@chakra-ui/react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-
-const user = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  profileImage: 'https://via.placeholder.com/150',
-  company: {
-    name: 'Acme Corp',
-    address: '123 Business St, Suite 456',
-    phone: '123-456-7890'
-  }
-};
-
-const currentBids = [
-  {
-    id: 1,
-    item: 'Pallet of Paper Towels',
-    bidAmount: '$500',
-    quantity: '500 units',
-    status: 'OPEN'
-  },
-  {
-    id: 2,
-    item: 'Bulk Pack of Bottled Water',
-    bidAmount: '$300',
-    quantity: '1000 units',
-    status: 'OPEN'
-  },
-];
-
-const listings = [
-  {
-    id: 1,
-    title: 'Premium Liquid Laundry Detergent', // Updated to match the example
-    currentBids: 8,
-    status: 'Open',
-    closingDate: '2024-10-15'
-  },
-  {
-    id: 2,
-    title: 'Bulk Pack of Beverages',
-    currentBids: 10,
-    status: 'Closed',
-    closingDate: '2024-10-05'
-  }
-];
+  useColorModeValue,
+} from "@chakra-ui/react";
 
 const ProfilePage = () => {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Call useColorModeValue unconditionally
+  const bgColor = useColorModeValue("white", "gray.800");
+  const cardBgColor = useColorModeValue("white", "gray.700");
+  const pendingStatusColor = "yellow.500";
+  const approvedStatusColor = "green.500";
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile();
+        setProfile(response.data);
+      } catch (err) {
+        setError("Failed to load profile information.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <Flex justify="center" align="center" minH="100vh" bg={bgColor}>
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
+
+  if (error) {
+    return (
+      <Flex justify="center" align="center" minH="100vh" bg={bgColor}>
+        <Text color="red.500" fontSize="lg">
+          {error}
+        </Text>
+      </Flex>
+    );
+  }
+
+  const { user, company } = profile;
+
   return (
-    <Box bg="brand.background_color" p={8} minH="80vh">
-      <Flex direction="column" align="center" maxW="1200px" mx="auto" p={6} bg="white" borderRadius="md" boxShadow="md">
-        <Flex direction={{ base: 'column', md: 'row' }} align="center" mb={8}>
-          <Image
-            src={person_image}
-            alt={user.name}
-            borderRadius="full"
-            boxSize="150px"
-            objectFit="cover"
-            mr={{ base: 0, md: 6 }}
-            mb={{ base: 4, md: 0 }}
-          />
-          <Box textAlign={{ base: 'center', md: 'left' }}>
-            <Heading as="h1" size="xl" color="teal.600" mb={2}>
-              {user.name}
+    <Flex
+      direction="column"
+      align="center"
+      p={6}
+      bg={bgColor}
+      minH="100vh"
+    >
+      <Box
+        bg={cardBgColor}
+        p={8}
+        shadow="lg"
+        borderRadius="lg"
+        w="100%"
+        maxW="600px"
+      >
+        <Flex align="center" mb={6}>
+          <Avatar size="lg" name={user.username} />
+          <VStack align="start" ml={4}>
+            <Heading as="h2" size="md">
+              {user.username}
             </Heading>
-            <Text fontSize="lg" color="gray.600" mb={1}>
-              {user.email}
-            </Text>
-            <Text fontSize="md" color="gray.500">
-              {user.company.name}
-            </Text>
-          </Box>
+            <Text color="gray.500">{user.email}</Text>
+          </VStack>
         </Flex>
 
-        <Divider mb={8} />
+        <Divider my={4} />
 
-        {/* Active Bids Section */}
-        <Box w="100%" mb={8}>
-          <Heading as="h2" size="lg" color="teal.600" mb={4}>
-            Active Bids
-          </Heading>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-            {currentBids.map((bid) => (
-              <Box
-                key={bid.id}
-                p={5}
-                bg="gray.100"
-                borderRadius="md"
-                boxShadow="sm"
-                _hover={{ boxShadow: 'md' }}
-                transition="box-shadow 0.2s ease-in-out"
+        {company ? (
+          <>
+            <Heading as="h3" size="sm" mb={2}>
+              Company Details
+            </Heading>
+            <Box>
+              <Text fontWeight="bold">Name:</Text>
+              <Text mb={2}>{company.name}</Text>
+
+              <Text fontWeight="bold">Status:</Text>
+              <Text
+                mb={2}
+                color={
+                  company.status === "pending" ? pendingStatusColor : approvedStatusColor
+                }
               >
-                <Heading as="h3" size="md" color="teal.600" mb={2}>
-                  {bid.item}
-                </Heading>
-                <Text fontSize="md" color="gray.700" mb={2}>
-                  Bid Amount: {bid.bidAmount}
-                </Text>
-                <Text fontSize="sm" color="gray.500" mb={2}>
-                  Quantity: {bid.quantity}
-                </Text>
-                <Badge colorScheme={bid.status === 'OPEN' ? 'green' : 'red'}>
-                  {bid.status}
-                </Badge>
-              </Box>
-            ))}
-          </SimpleGrid>
-        </Box>
+                {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
+              </Text>
 
-        <Divider mb={8} />
-
-        {/* Your Listings Section */}
-        <Box w="100%">
-          <Heading as="h2" size="lg" color="teal.600" mb={4}>
-            Your Listings
-          </Heading>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-            {listings.map((listing) => (
-              <Box
-                key={listing.id}
-                p={5}
-                bg="gray.100"
-                borderRadius="md"
-                boxShadow="sm"
-                _hover={{ boxShadow: 'md' }}
-                transition="box-shadow 0.2s ease-in-out"
-              >
-                <Heading as="h3" size="md" color="teal.600" mb={2}>
-                  {listing.title}
-                </Heading>
-                <Text fontSize="md" color="gray.700" mb={2}>
-                  Current Bids: {listing.currentBids}
-                </Text>
-                <Text fontSize="sm" color="gray.500" mb={2}>
-                  Status: {listing.status}
-                </Text>
-                <Text fontSize="sm" color="gray.500" mb={4}>
-                  Closing Date: {listing.closingDate}
-                </Text>
-                <Button
-                  as={Link} // Use Link component for navigation
-                  to={`/auction/${listing.id}`} // Link to auction details page
-                  colorScheme="teal"
-                  size="sm"
-                  width="100%"
-                  variant="outline"
-                >
-                  View Listing
-                </Button>
-              </Box>
-            ))}
-          </SimpleGrid>
-        </Box>
-      </Flex>
-    </Box>
+              {company.status === "pending" && (
+                <Alert status="warning" mt={4}>
+                  <AlertIcon />
+                  Your company is awaiting approval. Access will be granted once approved.
+                </Alert>
+              )}
+            </Box>
+          </>
+        ) : (
+          <Alert status="info" mt={4}>
+            <AlertIcon />
+            No company information associated with your account.
+          </Alert>
+        )}
+      </Box>
+    </Flex>
   );
 };
 

@@ -9,9 +9,12 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+from datetime import timedelta
 from decouple import Config, RepositoryEnv
 import os
 from pathlib import Path
+from celery.schedules import crontab
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,6 +26,14 @@ print("env_path DIR: " + env_path)
 # config = Config(env_path)
 config = Config(RepositoryEnv(env_path))
 
+print("Database Config:")
+print(f"DB NAME: {config('POSTGRES_DB', default='NOT_SET')}")
+print(f"DB USER: {config('POSTGRES_USER', default='NOT_SET')}")
+print(f"DB HOST: {config('POSTGRES_HOST', default='NOT_SET')}")
+print(f"DB PASSWORD: {config('POSTGRES_PASSWORD', default='NOT_SET')}")
+print(f"DB PORT: {config('POSTGRES_PORT', default='NOT_SET')}")
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -32,8 +43,16 @@ SECRET_KEY = 'django-insecure-_ui9yh=3)e(@-yy6syz+atfs+pz@k@^dgd#!vh%4dw7y_eg+v5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+PROMETHEUS_EXPORT_MIGRATIONS = False
 
+ALLOWED_HOSTS = [
+    'localhost',          # Allow requests from localhost
+    '127.0.0.1',          # Allow requests from the loopback IP
+    'frontend',
+    'backend',            # The name of the service in Docker Compose
+    'backend:8000',       # If you need to include the port
+    '*',                  # Allow all hosts (use cautiously)
+]
 
 # Application definition
 
@@ -44,9 +63,37 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'palletapp',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React app
+    "http://frontend:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,6 +102,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Your frontend running locally
+    'http://yourfrontenddomain.com',  # Your deployed frontend domain
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+LOGIN_REDIRECT_URL = '/'   # Redirects users to the homepage after login
+LOGOUT_REDIRECT_URL = '/'  # Redirects users to the homepage after logout
+
+
 
 ROOT_URLCONF = 'palletproject.urls'
 
@@ -76,6 +135,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'palletproject.wsgi.application'
 
+CELERY_BEAT_SCHEDULE = {
+    "update_auction_cycles_daily": {
+        "task": "palletapp.tasks.update_auction_cycles",
+        "schedule": crontab(hour=0, minute=0),  # Runs daily at midnight
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -93,6 +159,8 @@ DATABASES = {
 
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
+
+AUTH_USER_MODEL = 'palletapp.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -112,6 +180,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
