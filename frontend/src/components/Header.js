@@ -93,8 +93,8 @@ const Header = () => {
             to="/buyer-dashboard"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { color: "black", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Buyer Dashboard
@@ -103,8 +103,8 @@ const Header = () => {
             to="/auction"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Auctions
@@ -113,8 +113,8 @@ const Header = () => {
             to="/current-bids"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Current Bids
@@ -127,8 +127,8 @@ const Header = () => {
             to="/seller-dashboard"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Seller Dashboard
@@ -137,8 +137,8 @@ const Header = () => {
             to="/products/select"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Create Listing
@@ -147,8 +147,8 @@ const Header = () => {
             to="/seller/manage-listings"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Manage Listings
@@ -157,8 +157,8 @@ const Header = () => {
             to="/seller/network"
             style={({ isActive }) =>
               isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
             }
           >
             Manage Network
@@ -232,7 +232,7 @@ const Header = () => {
 
       {/* Role-Specific Horizontal Navigation (visible only on desktop) */}
       {user !== null && user.company.status === "approved" && (
-        <Box display={{ base: "none", md: "block" }}>
+        <Box display={{ base: "none", md: "block" }} pb={2}>
           <Divider borderBottom="1px solid black" />
           <Box bg="brand.background_color" py={2}>
             <Flex maxW="1400px" mx="auto" px={6} align="center">

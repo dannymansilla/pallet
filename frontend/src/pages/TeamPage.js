@@ -1,6 +1,6 @@
 // src/pages/AboutUs.js
 import React from 'react';
-import { Box, Flex, Heading, Text, Image, Stack } from '@chakra-ui/react';
+import { Box, Flex, Heading, VStack, Text, Image, Stack } from '@chakra-ui/react';
 import founder1 from '../images/jake_profile.jpg';
 import founder2 from '../images/danny_profile.jpg';
 
@@ -26,7 +26,7 @@ const AboutUs = () => {
     <Box>
       {/* Mission Section */}
       <Box
-        minH="100vh"
+        minH="95vh"
         bg="white"
         display="flex"
         alignItems="center"
@@ -35,19 +35,30 @@ const AboutUs = () => {
         px={4}
       >
         <Box maxW="1000px" textAlign={"left"}>
-          <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={4} color="black">
+          <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={10} color="black">
             Turning Excess into Opportunity
           </Heading>
-          <Text fontSize={{ base: 'lg', md: 'xl' }} color="black">
-            At Aiden, we are transforming the way businesses buy and sell excess consumer packaged goods.
-            Our goal is to create a more efficient, transparent, and accessible marketplace for bulk inventory transactions.
-          </Text>
+          <VStack spacing={6} align="start">
+            <Text fontSize={{ base: 'lg', md: 'xl' }} color="black">
+              <strong>At Aiden, we believe</strong> that selling excess inventory shouldn't be a time-consuming, manual process. 
+              Our goal is to help businesses maximize sales volume, price, and speed—while eliminating over 90% of the manual work involved.
+            </Text>
+
+            <Text fontSize={{ base: 'lg', md: 'xl' }} color="black">
+              With Aiden, simply upload your UPCs, and our automated system takes care of everything—pulling product data, 
+              contacting customers, collecting bids, optimizing sales for revenue, and generating transaction documents.
+            </Text>
+
+            <Text fontSize={{ base: 'lg', md: 'xl' }} color="black" fontWeight="bold">
+              Save time. Save money. Waste less.
+            </Text>
+          </VStack>
         </Box>
       </Box>
 
       {/* Our Story Section */}
       <Box
-        minH="100vh"
+        minH="95vh"
         minW="100vw"
         bg="black"
         display="flex"
@@ -70,7 +81,7 @@ const AboutUs = () => {
 
       {/* Our Founders Section */}
       <Box
-        minH="100vh"
+        minH="95vh"
         bg="white"
         display="flex"
         flexDirection="column"

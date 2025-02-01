@@ -6,7 +6,6 @@ import {
   Heading,
   Text,
   Button,
-  HStack,
   Image,
   VStack,
   SimpleGrid,
@@ -27,24 +26,24 @@ const LandingPage = () => {
 
   const features = [
     {
-      title: 'Effortless Auctions',
-      description: 'Dynamic bidding functionality designed for bulk transactions.',
-      icon: '🚀',
+      title: 'Instant Product Sync',
+      description: 'Upload UPCs or sync directly with your inventory system. Aiden automatically enriches product data.',
+      icon: '📥',
     },
     {
-      title: 'Real-Time Insights',
-      description: 'Analytics that empower decision-making for buyers and sellers.',
-      icon: '📊',
+      title: 'Automated Buyer Matching',
+      description: 'AI-driven recommendations instantly match your inventory with the highest-value buyers.',
+      icon: '🤖',
     },
     {
-      title: 'Seamless Integration',
-      description: 'Connect with your existing tools and workflows seamlessly.',
-      icon: '🔗',
+      title: 'Smart Pricing Optimization',
+      description: 'Dynamic pricing adjusts in real-time to maximize your revenue while moving inventory fast.',
+      icon: '💰',
     },
     {
-      title: 'Robust Security',
-      description: 'Built with security in mind to protect your data and transactions.',
-      icon: '🔒',
+      title: 'One-Click Order Processing',
+      description: 'Receive purchase orders, generate invoices, and finalize deals with zero manual effort.',
+      icon: '✅',
     },
   ];
 
@@ -79,7 +78,7 @@ const LandingPage = () => {
       {showLottie && <SubtleBackground />}
       <Flex
       position="relative"  // This container will serve as the positioning reference
-      minH="100vh"
+      minH="95vh"
       align="center"
       justify="center"
       overflow="hidden"
@@ -90,7 +89,7 @@ const LandingPage = () => {
         align="center"
         justify="space-between"
         direction={{ base: 'column', md: 'row' }}
-        minH="100vh" // Full viewport height
+        minH="95vh" // Full viewport height
         px={{ base: 6, md: 16 }}
         position="relative"
         overflow="hidden"
@@ -112,75 +111,63 @@ const LandingPage = () => {
             Automate excess inventory sales
           </Heading>
           <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
-            Our B2B auction platform allows sellers to automate the sale of excess consumer packaged goods inventory and buyers to bid on a variety of products from well-known brands across categories.
+            Aiden is the only excess inventory solution that maximizing sales volume, price, and speed - while reducing manual work by over 90%. Simply upload your UPCs and let Aiden improve your margins by up to 1.0%
           </Text>
           <Box width="100%">
-            <Text fontSize="lg" mb={4} fontWeight="semibold">
-              Join our platform today
-            </Text>
-            <Box mb={4}>
+            <Flex
+              as="form"
+              direction={{ base: "column", md: "row" }}
+              align="center"
+              justify="center"
+            >
               <Input
                 placeholder="youremail@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 size="lg"
-                bg="gray.100"
-                _focus={{ bg: 'white', borderColor: 'teal.500' }}
+                fontSize="lg"
+                h="60px"
+                bg="white"
+                p={4}
+                border="2px solid" 
+                borderColor="gray.400" 
+                borderRadius="md"
+                _hover={{ borderColor: "gray.500" }}
+                _focus={{ bg: "white", borderColor: "teal.500", borderWidth: "2px" }}
+                flex="1"
               />
-            </Box>
-            <HStack spacing={6} align="center" justify="center" w="full">
-              <VStack spacing={2} align="center">
-                <Button
-                  as={RouterLink}
-                  to={`/onboarding/register?role=buyer&email=${encodeURIComponent(email)}`}
-                  colorScheme="teal"
-                  size="lg"
-                  shadow="md"
-                  _hover={{ bg: 'teal.400' }}
-                  isDisabled={!email}
-                >
-                  I'm a Buyer
-                </Button>
-                <Text fontSize="sm" textAlign="center">
-                  Access exclusive auctions and bid on top CPG inventory.
-                </Text>
-              </VStack>
-              <VStack spacing={2} align="center">
-                <Button
-                  as={RouterLink}
-                  to={`/onboarding/register?role=seller&email=${encodeURIComponent(email)}`}
-                  colorScheme="teal"
-                  size="lg"
-                  shadow="md"
-                  _hover={{ bg: 'teal.400' }}
-                  isDisabled={!email}
-                >
-                  I'm a Seller
-                </Button>
-                <Text fontSize="sm" textAlign="center">
-                  List and sell your excess inventory with ease.
-                </Text>
-              </VStack>
-            </HStack>
+              <Button
+                as={RouterLink}
+                to={`/requestdemo?email=${encodeURIComponent(email)}`}
+                colorScheme="teal"
+                size="lg"
+                shadow="md"
+                _hover={{ bg: "teal.400" }}
+                mt={{ base: 4, md: 0 }}
+                ml={{ md: 4 }}
+              >
+                Request a Demo
+              </Button>
+            </Flex>
           </Box>
         </VStack>
-        <Box
-          flex="1"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          mt={{ base: 10, md: 0 }}
-          ml={{ base: 0, md: 12 }}
-        >
-          <Image
-            src={cpg_photo}
-            alt="Pallet of CPG Goods"
-            borderRadius="8px"
-            width="100%"
-            maxW="500px"
-          />
-        </Box>
-      </Flex>
+          <Box
+            flex="1"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            mt={{ base: 10, md: 0 }}
+            ml={{ base: 0, md: 12 }}
+          >
+            <Image
+              src={cpg_photo}
+              alt="Pallet of CPG Goods"
+              borderRadius="8px"
+              width="100%"
+              maxW="500px"
+            />
+          </Box>
+        </Flex>
       </Flex>
       {/* Key Features Section */}
       <Box bg="black" minH="80vh" color="white" display="flex" flexDirection="column" justifyContent="center">
@@ -208,18 +195,18 @@ const LandingPage = () => {
           <SimpleGrid columns={1} spacing={16}>
             {[
               {
-                title: 'Manage Auctions Effortlessly',
-                description: 'Create, monitor, and manage your auctions with intuitive dashboards that provide real-time insights into bidding activity and performance.',
+                title: 'Reduce manual work by 90%',
+                description: 'Aiden pulls in product data, creates listings, contacts customers, collects bids, calculates the best sales for revenue, and generates transaction documents. Just upload your UPCs and wait to receive a purchase order.',
                 image: 'https://source.unsplash.com/600x400/?dashboard,technology',
               },
               {
-                title: 'Dynamic Bidding',
-                description: 'Empower buyers with an easy-to-use bidding interface that ensures a seamless experience while maximizing your sales.',
+                title: 'Maximize sales volume, price, and speed',
+                description: 'Marketplace solutions require manual work and force you to choose between sales volume, price and speed. Aiden maximizes sales volume, price and speed while reducing manual work by over 90%.',
                 image: 'https://source.unsplash.com/600x400/?bidding,finance',
               },
               {
-                title: 'Streamlined Selling',
-                description: 'List your products efficiently with streamlined workflows designed to simplify bulk CPG transactions.',
+                title: 'Waste less and improve margines by up to 1%',
+                description: 'By maximizing sales volume, price and speed, Aiden cuts your carrying costs, reduces waste and increases revenue - resulting in a margin improvement of up to 1%. Let Aiden automatically save you millions.',
                 image: 'https://source.unsplash.com/600x400/?selling,warehouse',
               },
             ].map((feature, index) => (
@@ -271,13 +258,13 @@ const LandingPage = () => {
         </Heading>
         <Button
           as={RouterLink}
-          to="/signup"
+          to="/requestdemo"
           colorScheme="blue"
           size="lg"
           shadow="lg"
           _hover={{ bg: 'blue.300' }}
         >
-          Create an Account
+          Request Demo
         </Button>
       </Box>
     </Box>

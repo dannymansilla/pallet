@@ -14,11 +14,12 @@ class Company(models.Model):
     ]
     name = models.CharField(max_length=255)
     legal_entity_info = models.CharField(max_length=255, blank=True, null=True)
-    contact_email = models.EmailField()
+    contact_email = models.EmailField(blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
-    terms_accepted = models.DateTimeField(blank=True, null=True)
+    terms_accepted = models.DateTimeField(blank=True, null=True)  # Preserve the old field
+    terms_accepted_boolean = models.BooleanField(default=False) 
     network = models.ManyToManyField(
         "self", symmetrical=False, related_name="approved_network", blank=True
     )

@@ -54,28 +54,28 @@ useEffect(() => {
 }, [fetchListings]);
 
   return (
-    <Box>
+    <Box minH="90vh" p={6}>
       {/* Sticky Search Bar */}
       <Box position="sticky" top="0" bg="white" zIndex="base" p={4} shadow="sm">
         <Flex justify="center" align="center" w="100%">
             <Box w="100%" maxW="1600px">
-            <Flex align="center">
-                <IconButton
-                display={{ base: "block", md: "none" }}
-                icon={<FiMenu />}
-                onClick={onOpen}
-                aria-label="Toggle Sidebar"
-                mr={4}
-                />
-                <SearchBar
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onSearch={fetchListings}
-                />
-            </Flex>
+              <Flex align="center">
+                  <IconButton
+                  display={{ base: "block", md: "none" }}
+                  icon={<FiMenu />}
+                  onClick={onOpen}
+                  aria-label="Toggle Sidebar"
+                  mr={4}
+                  />
+                  <SearchBar
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onSearch={fetchListings}
+                  />
+              </Flex>
             </Box>
         </Flex>
-    </Box>
+      </Box>
 
 
       {/* Sidebar for larger screens */}
@@ -99,7 +99,7 @@ useEffect(() => {
         </Box>
 
         {/* Main Content */}
-        <Box flex="1" p={6}>
+        <Box flex="1" minH="90vh" p={6}>
           {loading ? (
             <Spinner size="xl" />
           ) : error ? (
