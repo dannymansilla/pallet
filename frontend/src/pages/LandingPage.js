@@ -17,7 +17,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import cpg_photo from '../images/hero_image_warehouse.png';
 import { motion } from 'framer-motion';
 import SubtleBackground from '../components/SubtleBackground';
-import LottieBackground from '../components/LottieBackground';
+// import LottieBackground from '../components/LottieBackground';
 
 const MotionBox = motion(Box);
 
