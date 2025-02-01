@@ -6,7 +6,6 @@ import Container from "./Container";
 import WidthPlaceholder from "./WidthPlaceholder";
 
 const Layout = ({ children }) => {
-
   return (
     <Flex direction="column" minH="100vh">
       {/* Header */}
@@ -15,13 +14,12 @@ const Layout = ({ children }) => {
       </Box>
 
       <Container>
-      {/* Main Content */}
-      <Box as="main" flex="1">
-        {children}
-        <WidthPlaceholder columns={6} boxCount={1} />
-      </Box>
+        {/* Main Content */}
+        <Box as="main" flex="1" pt={{ base: "70px", md: "0" }}>
+          {children}
+          <WidthPlaceholder columns={6} boxCount={1} />
+        </Box>
       </Container>
-      
 
       {/* Footer */}
       <Box as="footer" w="100%">
