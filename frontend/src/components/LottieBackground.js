@@ -10,7 +10,6 @@ const LottieBackground = () => {
         height: "100vh",
         top: 0,
         left: 0,
-        transform: "transalate(-5%)",
         zIndex: -1, // Keep it behind everything
         overflow: "hidden",
         pointerEvents: "none", // Prevents it from blocking interactions
@@ -27,8 +26,8 @@ const LottieBackground = () => {
           position: "absolute",
           top: "0", // Moves it up slightly
           left: "0", // Moves it left slightly
-          opacity: 0.15, // Adjust to make it subtle
-          backgroundColor: "blue",
+          opacity: 1.0, // Adjust to make it subtle
+          backgroundColor: "#FD7A4E",
         }}
       />
     </div>
