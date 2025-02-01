@@ -6,48 +6,67 @@ import {
   Heading,
   Text,
   Button,
-  Image,
   VStack,
+  Image,
   SimpleGrid,
   Circle,
   Input,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import cpg_photo from '../images/hero_image_warehouse.png';
-import SubtleBackground from '../components/SubtleBackground';
-
+import uploadIcon from '../images/Upload_no_title.png';
+import downloadIcon from '../images/Download_no_title.png';
+import first_feature from '../images/first_feature.png';
+import second_feature from '../images/second_feature.png';
+import third_feature from '../images/third_feature.png';
+import Lottie from 'lottie-react'; // Import the Lottie component
+import globeAnimation from '../assets/aiden_globe.json'; // Update with your Lottie JSON file name
+import aidenlogo from "../images/aiden_logo.png";
+import upload_icon from "../images/upload_icon.png";
+import download_icon from "../images/download_icon.png";
+// import SubtleBackground from '../components/SubtleBackground';
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
 
   // Only show the subtle background on medium and larger screens.
-  const showLottie = useBreakpointValue({ base: false, md: true });
+  // const showLottie = useBreakpointValue({ base: false, md: true });
 
   const features = [
     {
-      title: 'Instant Product Sync',
-      description: 'Upload UPCs or sync directly with your inventory system. Aiden automatically enriches product data.',
-      icon: '📥',
+      title: '1. You upload UPCs',
+      icon: upload_icon,
     },
     {
-      title: 'Automated Buyer Matching',
-      description: 'AI-driven recommendations instantly match your inventory with the highest-value buyers.',
-      icon: '🤖',
+      title: '2. Pulls in product info',
+      icon: aidenlogo,
     },
     {
-      title: 'Smart Pricing Optimization',
-      description: 'Dynamic pricing adjusts in real-time to maximize your revenue while moving inventory fast.',
-      icon: '💰',
+      title: '3. Creates listings',
+      icon: aidenlogo,
     },
     {
-      title: 'One-Click Order Processing',
-      description: 'Receive purchase orders, generate invoices, and finalize deals with zero manual effort.',
-      icon: '✅',
+      title: '4. Contacts customers',
+      icon: aidenlogo,
+    },
+    {
+      title: '6. Builds trucks',
+      icon: aidenlogo,
+    },{
+      title: '2. Pulls in product info',
+      icon: aidenlogo,
+    },
+    {
+      title: '7. Generates PO',
+      icon: aidenlogo,
+    },
+    {
+      title: '8. You receive PO',
+      icon: download_icon,
     },
   ];
 
   const FeatureCard = ({ icon, title, description }) => (
+    
     <VStack
       spacing={4}
       p={6}
@@ -59,98 +78,202 @@ const LandingPage = () => {
       transition="transform 0.3s"
       _hover={{ transform: 'translateY(-4px)' }}
     >
-      <Circle size="60px" bg="teal.500" color="white">
-        <Text fontSize="2xl">{icon}</Text>
-      </Circle>
+      <Circle size="60px" bg="transparent" color="white" display="flex" justifyContent="center" alignItems="center">
+        <Image src={icon} alt={title} boxSize="60px" objectFit="contain" /> 
+    </Circle>
       <Heading as="h3" size="md" color="gray.800">
         {title}
       </Heading>
-      <Text fontSize="sm" color="gray.600">
-        {description}
-      </Text>
     </VStack>
   );
+
+  const AnimatedLogoOverlay = () => {
+    return (
+      <Box position="relative" width="100%" maxW="550px" maxH="550px">
+        {/* Lottie Animation */}
+        <Box zIndex={1}
+        maxW="500px" maxH="500px">
+          <Lottie
+            animationData={globeAnimation}
+            loop
+            style={{ width: '100%', height: '100%' }}
+          />
+        </Box>
+  
+        {/* SVG overlay for arrows/dotted lines */}
+        <Box
+          position="absolute"
+          top="-5%"
+          left="-5%"
+          width="110%"
+          height="110%"
+          zIndex={2}
+        >
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 500 500"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="7"
+                refX="0"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+              </marker>
+            </defs>
+            {/* Arrow path from top-left to bottom-right */}
+            <path
+            d="M 425,75 A 140,140 0 0 1 75,425"
+            fill="none"
+            stroke="black"
+            strokeWidth="2"
+            strokeDasharray="10"
+            markerEnd="url(#arrowhead)"
+          >
+            <animate
+              attributeName="stroke-dashoffset"
+              from="100"
+              to="0"
+              dur="3s"
+              repeatCount="indefinite"
+            />
+          </path>
+            {/* Reverse arrow path */}
+            <path
+            d="M 75,425 A 140,140 0 0 1 425,75"
+            fill="none"
+            stroke="black"
+            strokeWidth="2"
+            strokeDasharray="10"
+            markerEnd="url(#arrowhead)"
+          >
+            <animate
+              attributeName="stroke-dashoffset"
+              from="100"
+              to="0"
+              dur="3s"
+              repeatCount="indefinite"
+              begin="1.5s"
+            />
+          </path>
+          </svg>
+        </Box>
+  
+        {/* Upload Icon (top left) */}
+        <Image
+          src={uploadIcon}
+          alt="Upload Inventory"
+          position="absolute"
+          top="-15%"
+          left="-15%"
+          width={{ base: '350px', md: '350px' }} // Responsive sizes
+          height="auto"
+          zIndex={3} // Ensures this PNG is on top of the SVG
+        />
+  
+        {/* Download Icon (bottom right) */}
+        <Image
+          src={downloadIcon}
+          alt="Download Invoice"
+          position="absolute"
+          bottom="-15%"
+          right="-15%"
+          width={{ base: '350px', md: '350px' }} // Responsive sizes
+          height="auto"
+          zIndex={3} // Ensures this PNG is on top of the SVG
+        />
+      </Box>
+    );
+  };
+  
   
 
   return (
     <Box bg="transparent" color="black" minW="100vw">
       {/* Background */}
-      {showLottie && <SubtleBackground />}
+      {/* {showLottie && <SubtleBackground />} */}
       <Flex
-      position="relative"  // This container will serve as the positioning reference
-      minH="95vh"
-      align="center"
-      justify="center"
-      overflow="hidden"
-    >
-      
-      {/* Hero Section */}
-      <Flex
+        position="relative"  // This container will serve as the positioning reference
+        minH="95vh"
         align="center"
-        justify="space-between"
-        direction={{ base: 'column', md: 'row' }}
-        minH="95vh" // Full viewport height
-        px={{ base: 6, md: 16 }}
-        position="relative"
+        justify="center"
         overflow="hidden"
       >
-        <VStack
-          spacing={8}
-          align={{ base: 'center', md: 'flex-start' }}
-          maxW="600px"
-          textAlign={{ base: 'center', md: 'left' }}
-          py={{ base: 8, md: 0 }}
+        {/* Hero Section */}
+        <Flex
+          align="center"
+          justify="space-between"
+          direction={{ base: 'column', md: 'row' }}
+          minH="95vh" // Full viewport height
+          px={{ base: 6, md: 16 }}
+          py={{ base: 10, md: 0 }}
+          position="relative"
+          overflow="hidden"
         >
-          <Heading
-            fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
-            fontWeight="bold"
-            color="black"
-            letterSpacing="-2px"
-            lineHeight="1.2"
+          <VStack
+            spacing={8}
+            align={{ base: 'center', md: 'flex-start' }}
+            maxW="600px"
+            textAlign={{ base: 'center', md: 'left' }}
+            py={{ base: 8, md: 0 }}
           >
-            Automate excess inventory sales
-          </Heading>
-          <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
-            Aiden is the only excess inventory solution that maximizing sales volume, price, and speed - while reducing manual work by over 90%. Simply upload your UPCs and let Aiden improve your margins by up to 1.0%
-          </Text>
-          <Box width="100%">
-            <Flex
-              as="form"
-              direction={{ base: "column", md: "row" }}
-              align="center"
-              justify="center"
+            <Heading
+              fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
+              fontWeight="bold"
+              color="black"
+              letterSpacing="-2px"
+              lineHeight="1.2"
             >
-              <Input
-                placeholder="youremail@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                size="lg"
-                fontSize="lg"
-                h="60px"
-                bg="white"
-                p={4}
-                border="2px solid" 
-                borderColor="gray.400" 
-                borderRadius="md"
-                _hover={{ borderColor: "gray.500" }}
-                _focus={{ bg: "white", borderColor: "teal.500", borderWidth: "2px" }}
-                flex="1"
-              />
-              <Button
-                as={RouterLink}
-                to={`/requestdemo?email=${encodeURIComponent(email)}`}
-                colorScheme="teal"
-                size="lg"
-                shadow="md"
-                _hover={{ bg: "teal.400" }}
-                mt={{ base: 4, md: 0 }}
-                ml={{ md: 4 }}
+              Automate excess inventory sales
+            </Heading>
+            <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
+              Aiden is the only excess inventory solution that maximizing sales volume, price, and speed - while reducing manual work by over 90%. Simply upload your UPCs and let Aiden improve your margins by up to 1.0%
+            </Text>
+            <Box width="100%">
+              <Flex
+                as="form"
+                direction={{ base: "column", md: "row" }}
+                align="center"
+                justify="center"
               >
-                Request a Demo
-              </Button>
-            </Flex>
-          </Box>
-        </VStack>
+                <Input
+                  placeholder="youremail@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  size="lg"
+                  fontSize="lg"
+                  h="60px"
+                  bg="white"
+                  p={4}
+                  border="2px solid" 
+                  borderColor="gray.400" 
+                  borderRadius="md"
+                  _hover={{ borderColor: "gray.500" }}
+                  _focus={{ bg: "white", borderColor: "teal.500", borderWidth: "2px" }}
+                  flex="1"
+                />
+                <Button
+                  as={RouterLink}
+                  to={`/requestdemo?email=${encodeURIComponent(email)}`}
+                  colorScheme="teal"
+                  size="lg"
+                  shadow="md"
+                  _hover={{ bg: "teal.400" }}
+                  mt={{ base: 4, md: 0 }}
+                  ml={{ md: 4 }}
+                >
+                  Request a Demo
+                </Button>
+              </Flex>
+            </Box>
+          </VStack>
+          {/* Replace the Image with the Lottie Animation */}
           <Box
             flex="1"
             display="flex"
@@ -159,27 +282,24 @@ const LandingPage = () => {
             mt={{ base: 10, md: 0 }}
             ml={{ base: 0, md: 12 }}
           >
-            <Image
-              src={cpg_photo}
-              alt="Pallet of CPG Goods"
-              borderRadius="8px"
-              width="100%"
-              maxW="500px"
-            />
+            <AnimatedLogoOverlay />
+            {/* <Lottie
+              animationData={globeAnimation}
+              loop={true}
+              style={{ width: '100%', maxWidth: '500px' }}
+            /> */}
           </Box>
         </Flex>
       </Flex>
+
       {/* Key Features Section */}
       <Box bg="black" minH="80vh" color="white" display="flex" flexDirection="column" justifyContent="center">
-        {/* Inner Container (Centers Content) */}
-        <Box maxW="1200px" mx="auto" width="100%" px={{ base: 6, md: 12 }}>
-          {/* Header Section */}
+        <Box maxW="1200px" mx="auto" width="100%" px={{ base: 10, md: 12 }} py={{ base: 10, md: 0 }}>
           <Box mb={12} alignSelf="flex-start">
             <Heading fontSize="3xl" textAlign="left">
               How It Works
             </Heading>
           </Box>
-          {/* Grid of Feature Cards */}
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
             {features.map((feature, index) => (
               <FeatureCard key={index} {...feature} />
@@ -187,7 +307,6 @@ const LandingPage = () => {
           </SimpleGrid>
         </Box>
       </Box>
-
 
       {/* Features Showcase Section */}
       <Box bg="brand.background_color" py={20} px={{ base: 6, md: 12 }}>
@@ -197,17 +316,17 @@ const LandingPage = () => {
               {
                 title: 'Reduce manual work by 90%',
                 description: 'Aiden pulls in product data, creates listings, contacts customers, collects bids, calculates the best sales for revenue, and generates transaction documents. Just upload your UPCs and wait to receive a purchase order.',
-                image: 'https://source.unsplash.com/600x400/?dashboard,technology',
+                image: first_feature,
               },
               {
                 title: 'Maximize sales volume, price, and speed',
                 description: 'Marketplace solutions require manual work and force you to choose between sales volume, price and speed. Aiden maximizes sales volume, price and speed while reducing manual work by over 90%.',
-                image: 'https://source.unsplash.com/600x400/?bidding,finance',
+                image: second_feature,
               },
               {
                 title: 'Waste less and improve margines by up to 1%',
                 description: 'By maximizing sales volume, price and speed, Aiden cuts your carrying costs, reduces waste and increases revenue - resulting in a margin improvement of up to 1%. Let Aiden automatically save you millions.',
-                image: 'https://source.unsplash.com/600x400/?selling,warehouse',
+                image: third_feature,
               },
             ].map((feature, index) => (
               <Flex
@@ -215,12 +334,13 @@ const LandingPage = () => {
                 direction={{ base: 'column', md: index % 2 === 0 ? 'row' : 'row-reverse' }}
                 align="center"
                 spacing={8}
+                p={{ base: 6, md: 5 }}
               >
                 <Box
                   flex="1"
-                  bg="gray.200"
+                  bg="white"
                   rounded="lg"
-                  shadow="lg"
+                  // shadow="lg"
                   overflow="hidden"
                   display="flex"
                   justifyContent="center"
@@ -228,13 +348,12 @@ const LandingPage = () => {
                   mr={{ md: index % 2 === 0 ? 12 : 0 }}
                   ml={{ md: index % 2 !== 0 ? 12 : 0 }}
                   mb={{ base: 6, md: 0 }}
+                  p={{ base: 6, md: 5 }}
                 >
-                  <Image
+                  <img
                     src={feature.image}
                     alt={feature.title}
-                    objectFit="cover"
-                    width="100%"
-                    height="auto"
+                    style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
                   />
                 </Box>
                 <Box flex="1" textAlign={{ base: 'center', md: 'left' }}>
