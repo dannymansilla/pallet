@@ -10,204 +10,216 @@ import {
   Image,
   VStack,
   SimpleGrid,
+  Circle,
   Input,
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import cpg_photo from '../images/hero_image_warehouse.png';
-import { motion } from 'framer-motion';
 import SubtleBackground from '../components/SubtleBackground';
-// import LottieBackground from '../components/LottieBackground';
 
-const MotionBox = motion(Box);
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
 
-  // Use useBreakpointValue to determine if we're on a mobile screen.
-  // This returns false on base (mobile) breakpoints and true on md and above.
+  // Only show the subtle background on medium and larger screens.
   const showLottie = useBreakpointValue({ base: false, md: true });
 
+  const features = [
+    {
+      title: 'Effortless Auctions',
+      description: 'Dynamic bidding functionality designed for bulk transactions.',
+      icon: '🚀',
+    },
+    {
+      title: 'Real-Time Insights',
+      description: 'Analytics that empower decision-making for buyers and sellers.',
+      icon: '📊',
+    },
+    {
+      title: 'Seamless Integration',
+      description: 'Connect with your existing tools and workflows seamlessly.',
+      icon: '🔗',
+    },
+    {
+      title: 'Robust Security',
+      description: 'Built with security in mind to protect your data and transactions.',
+      icon: '🔒',
+    },
+  ];
+
+  const FeatureCard = ({ icon, title, description }) => (
+    <VStack
+      spacing={4}
+      p={6}
+      bg="white"
+      borderRadius="md"
+      boxShadow="sm"
+      align="center"
+      textAlign="center"
+      transition="transform 0.3s"
+      _hover={{ transform: 'translateY(-4px)' }}
+    >
+      <Circle size="60px" bg="teal.500" color="white">
+        <Text fontSize="2xl">{icon}</Text>
+      </Circle>
+      <Heading as="h3" size="md" color="gray.800">
+        {title}
+      </Heading>
+      <Text fontSize="sm" color="gray.600">
+        {description}
+      </Text>
+    </VStack>
+  );
+  
+
   return (
-    <Box bg="transparent" color="black">
-      <Box>
-        {/* Conditionally render the Lottie background on md and larger screens */}
-        {showLottie && <SubtleBackground />}
-        {/* Hero Section */}
-        <Flex
-          align="center"
-          justify="space-between"
-          direction={{ base: 'column', md: 'row' }}
-          minH="100vh" // Ensures hero section takes full viewport height
-          px={4}
-          position="relative" // Needed for Lottie to fit perfectly
-          overflow="hidden" // Prevents Lottie from extending
+    <Box bg="transparent" color="black" minW="100vw">
+      {/* Background */}
+      {showLottie && <SubtleBackground />}
+      <Flex
+      position="relative"  // This container will serve as the positioning reference
+      minH="100vh"
+      align="center"
+      justify="center"
+      overflow="hidden"
+    >
+      
+      {/* Hero Section */}
+      <Flex
+        align="center"
+        justify="space-between"
+        direction={{ base: 'column', md: 'row' }}
+        minH="100vh" // Full viewport height
+        px={{ base: 6, md: 16 }}
+        position="relative"
+        overflow="hidden"
+      >
+        <VStack
+          spacing={8}
+          align={{ base: 'center', md: 'flex-start' }}
+          maxW="600px"
+          textAlign={{ base: 'center', md: 'left' }}
+          py={{ base: 8, md: 0 }}
         >
-          <VStack
-            px={{ base: 4, md: 10 }}
-            spacing={8}
-            align="start"
-            maxW="600px"
-            textAlign={{ base: 'center', md: 'left' }}
+          <Heading
+            fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
+            fontWeight="bold"
+            color="black"
+            letterSpacing="-2px"
+            lineHeight="1.2"
           >
-            <Heading
-              fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
-              fontWeight="bold"
-              color="black"
-              letterSpacing="-3px"
-              lineHeight="1.2"
-            >
-              Buy and sell excess CPG inventory
-            </Heading>
-            <Text fontSize={{ base: 'md', md: 'lg' }}>
-              Our B2B auction platform allows sellers to automate the sale of excess
-              consumer packaged goods inventory and buyers to bid on a variety of
-              products from well-known brands across categories.
-            </Text>
-
-            <Box p={0} rounded="md" width="100%">
-              <Text fontSize="lg" mb={4} fontWeight="semibold">
-                Join our platform today
-              </Text>
-              {/* Email Input */}
-              <Box py={4}>
-                <Input
-                  placeholder="youremail@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  size="lg"
-                  mb={4}
-                  bg="gray.100"
-                  _focus={{ bg: 'white', borderColor: 'teal.500' }}
-                />
-              </Box>
-              <HStack
-                spacing={6}
-                align={{ base: 'center', md: 'start' }}
-                justify="center"
-                w="full"
-              >
-                <VStack spacing={2} align="center">
-                  <Button
-                    as={RouterLink}
-                    to={`/onboarding/register?role=buyer&email=${encodeURIComponent(email)}`}
-                    colorScheme="teal"
-                    size="lg"
-                    shadow="md"
-                    _hover={{ bg: 'teal.400' }}
-                    isDisabled={!email} // Disable button if email is empty
-                  >
-                    I'm a Buyer
-                  </Button>
-                  <Text fontSize="sm" textAlign="center">
-                    Access exclusive auctions and bid on top CPG inventory.
-                  </Text>
-                </VStack>
-                <VStack spacing={2} align="center">
-                  <Button
-                    as={RouterLink}
-                    to={`/onboarding/register?role=seller&email=${encodeURIComponent(email)}`}
-                    colorScheme="teal"
-                    size="lg"
-                    shadow="md"
-                    _hover={{ bg: 'teal.400' }}
-                    isDisabled={!email} // Disable button if email is empty
-                  >
-                    I'm a Seller
-                  </Button>
-                  <Text fontSize="sm" textAlign="center">
-                    List and sell your excess inventory with ease.
-                  </Text>
-                </VStack>
-              </HStack>
-            </Box>
-          </VStack>
-          <Box
-            flex="1"
-            bg="transparent"
-            rounded="lg"
-            overflow="hidden"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            maxW="700px"
-            maxH="500px"
-            mt={{ base: 10, md: 0 }}
-            ml={{ base: 0, md: 12 }}
-          >
-            <Image
-              src={cpg_photo}
-              alt="Pallet of CPG Goods"
-              borderRadius="8px"
-              width="100%"
-              maxW="500px"
-            />
-          </Box>
-        </Flex>
-      </Box>
-
-      {/* Key Features Section */}
-      <Box py={16} px={0} bg="white" color="gray.800" position="relative" zIndex="1">
-        <Box maxW="1200px" mx="auto" py={16} px={{ base: 4, md: 8 }}>
-          <Heading textAlign="left" fontSize="3xl" mb={8}>
-            Key Features
+            Automate excess inventory sales
           </Heading>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
-            {[
-              {
-                title: 'Effortless Auctions',
-                description: 'Dynamic bidding functionality designed for bulk transactions.',
-                icon: '🚀',
-              },
-              {
-                title: 'Real-Time Insights',
-                description: 'Analytics that empower decision-making for buyers and sellers.',
-                icon: '📊',
-              },
-            ].map((feature, index) => (
-              <MotionBox
-                key={index}
-                p={8}
-                shadow="md"
-                rounded="lg"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-                bg="gray.50"
-              >
-                <Flex align="center" mb={4}>
-                  <Box fontSize="3xl" mr={4}>
-                    {feature.icon}
-                  </Box>
-                  <Heading fontSize="xl">{feature.title}</Heading>
-                </Flex>
-                <Text>{feature.description}</Text>
-              </MotionBox>
+          <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
+            Our B2B auction platform allows sellers to automate the sale of excess consumer packaged goods inventory and buyers to bid on a variety of products from well-known brands across categories.
+          </Text>
+          <Box width="100%">
+            <Text fontSize="lg" mb={4} fontWeight="semibold">
+              Join our platform today
+            </Text>
+            <Box mb={4}>
+              <Input
+                placeholder="youremail@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                size="lg"
+                bg="gray.100"
+                _focus={{ bg: 'white', borderColor: 'teal.500' }}
+              />
+            </Box>
+            <HStack spacing={6} align="center" justify="center" w="full">
+              <VStack spacing={2} align="center">
+                <Button
+                  as={RouterLink}
+                  to={`/onboarding/register?role=buyer&email=${encodeURIComponent(email)}`}
+                  colorScheme="teal"
+                  size="lg"
+                  shadow="md"
+                  _hover={{ bg: 'teal.400' }}
+                  isDisabled={!email}
+                >
+                  I'm a Buyer
+                </Button>
+                <Text fontSize="sm" textAlign="center">
+                  Access exclusive auctions and bid on top CPG inventory.
+                </Text>
+              </VStack>
+              <VStack spacing={2} align="center">
+                <Button
+                  as={RouterLink}
+                  to={`/onboarding/register?role=seller&email=${encodeURIComponent(email)}`}
+                  colorScheme="teal"
+                  size="lg"
+                  shadow="md"
+                  _hover={{ bg: 'teal.400' }}
+                  isDisabled={!email}
+                >
+                  I'm a Seller
+                </Button>
+                <Text fontSize="sm" textAlign="center">
+                  List and sell your excess inventory with ease.
+                </Text>
+              </VStack>
+            </HStack>
+          </Box>
+        </VStack>
+        <Box
+          flex="1"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mt={{ base: 10, md: 0 }}
+          ml={{ base: 0, md: 12 }}
+        >
+          <Image
+            src={cpg_photo}
+            alt="Pallet of CPG Goods"
+            borderRadius="8px"
+            width="100%"
+            maxW="500px"
+          />
+        </Box>
+      </Flex>
+      </Flex>
+      {/* Key Features Section */}
+      <Box bg="black" minH="80vh" color="white" display="flex" flexDirection="column" justifyContent="center">
+        {/* Inner Container (Centers Content) */}
+        <Box maxW="1200px" mx="auto" width="100%" px={{ base: 6, md: 12 }}>
+          {/* Header Section */}
+          <Box mb={12} alignSelf="flex-start">
+            <Heading fontSize="3xl" textAlign="left">
+              How It Works
+            </Heading>
+          </Box>
+          {/* Grid of Feature Cards */}
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
+            {features.map((feature, index) => (
+              <FeatureCard key={index} {...feature} />
             ))}
           </SimpleGrid>
         </Box>
       </Box>
 
+
       {/* Features Showcase Section */}
-      <Box py={16} p={8} bg="brand.background_color">
-        <Box maxW="1200px" mx="auto" px={{ base: 4, md: 8 }}>
-          <SimpleGrid columns={{ base: 1, md: 1 }} spacing={16}>
+      <Box bg="brand.background_color" py={20} px={{ base: 6, md: 12 }}>
+        <Box maxW="1200px" mx="auto" py={20} px={{ base: 4, md: 8 }}>
+          <SimpleGrid columns={1} spacing={16}>
             {[
               {
                 title: 'Manage Auctions Effortlessly',
-                description:
-                  'Create, monitor, and manage your auctions with intuitive dashboards that provide real-time insights into bidding activity and performance.',
+                description: 'Create, monitor, and manage your auctions with intuitive dashboards that provide real-time insights into bidding activity and performance.',
                 image: 'https://source.unsplash.com/600x400/?dashboard,technology',
               },
               {
                 title: 'Dynamic Bidding',
-                description:
-                  'Empower buyers with an easy-to-use bidding interface that ensures a seamless experience while maximizing your sales.',
+                description: 'Empower buyers with an easy-to-use bidding interface that ensures a seamless experience while maximizing your sales.',
                 image: 'https://source.unsplash.com/600x400/?bidding,finance',
               },
               {
                 title: 'Streamlined Selling',
-                description:
-                  'List your products efficiently with streamlined workflows designed to simplify bulk CPG transactions.',
+                description: 'List your products efficiently with streamlined workflows designed to simplify bulk CPG transactions.',
                 image: 'https://source.unsplash.com/600x400/?selling,warehouse',
               },
             ].map((feature, index) => (
@@ -238,7 +250,7 @@ const LandingPage = () => {
                     height="auto"
                   />
                 </Box>
-                <Box flex="1" textAlign="left">
+                <Box flex="1" textAlign={{ base: 'center', md: 'left' }}>
                   <Heading fontSize={{ base: '2xl', md: '3xl' }} mb={6} color="black">
                     {feature.title}
                   </Heading>
@@ -253,8 +265,8 @@ const LandingPage = () => {
       </Box>
 
       {/* Call-to-Action Section */}
-      <Box py={16} px={8} bg="brand.background_color" textAlign="center">
-        <Heading fontSize="3xl" mb={4}>
+      <Box bg="brand.background_color" textAlign="center" py={16} px={{ base: 6, md: 12 }}>
+        <Heading fontSize="3xl" mb={4} color="white">
           Ready to Join?
         </Heading>
         <Button

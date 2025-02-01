@@ -18,7 +18,7 @@ const ContactUs = () => {
   };
 
   return (
-    <Box bg="brand.background_color" p={8} minH="80vh">
+    <Box bg="brand.background_color" p={16} minH="80vh">
       <Flex direction="column" maxW="1000px" mx="auto" p={6} bg="white" borderRadius="md">
         <Heading as="h1" size="xl" color="brand.600" mb={4}>
           Contact us
