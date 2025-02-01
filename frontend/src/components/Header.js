@@ -16,10 +16,12 @@ import {
   DrawerBody,
   VStack,
   useDisclosure,
+  Image, // Import the Image component
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import aidenlogo from "../images/aiden_logo.png";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -183,6 +185,13 @@ const Header = () => {
       {/* Main Header */}
       <Flex maxW="1400px" mx="auto" align="center" p={4}>
         <Flex align="center">
+          {/* Logo Image */}
+          <Image
+            src={aidenlogo} // Replace with your logo path or URL
+            alt="Aiden Logo"
+            boxSize="40px"
+            mr={2}
+          />
           <Heading
             as={NavLink}
             to="/"
@@ -204,7 +213,7 @@ const Header = () => {
           icon={<HamburgerIcon />}
           size="lg"
           onClick={onOpen}
-          ml={4}  // <-- Added margin to separate it from the logo on mobile
+          ml="auto" // Using ml="auto" here aligns the button to the far right in mobile view
           display={{ base: "flex", md: "none" }}
         />
       </Flex>

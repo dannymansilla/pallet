@@ -26,7 +26,7 @@ const theme = extendTheme({
       },
       variants: {
         solid: {
-          bg: 'black', // Teal background for primary button
+          bg: '#008FFF', // Teal background for primary button
           color: 'white', // White text
           _hover: {
             color: 'white', // White text
