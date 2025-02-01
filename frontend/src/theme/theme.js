@@ -21,7 +21,7 @@ const theme = extendTheme({
     Button: {
       baseStyle: {
         borderRadius: 'md', // Rounded corners
-        fontFamily: `'Sora', sans-serif`,
+        fontFamily: 'Inter, sans-serif',
         fontWeight: 'bold'
       },
       variants: {
