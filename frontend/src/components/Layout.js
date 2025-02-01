@@ -4,8 +4,11 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Container from "./Container";
 import WidthPlaceholder from "./WidthPlaceholder";
+import { useAuth } from "../context/AuthContext";
 
 const Layout = ({ children }) => {
+
+  const { user, logout } = useAuth();
 
   return (
     <Flex direction="column" minH="100vh">
@@ -16,7 +19,7 @@ const Layout = ({ children }) => {
 
       <Container>
       {/* Main Content */}
-        <Box as="main" flex="1" pt={{ base: "70px", md: "0" }}>
+        <Box as="main" flex="1" pt={{ base: "70px", md: user !== null && user.company.status === "approved" ? "110px" : "80px" }}>
         {children}
         <WidthPlaceholder columns={6} boxCount={1} />
       </Box>

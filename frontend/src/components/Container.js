@@ -3,7 +3,7 @@ import { Box } from "@chakra-ui/react";
 
 const Container = ({ children }) => {
   return (
-    <Box mx="auto" p={0}>
+    <Box mx="auto">
       {children}
     </Box>
   );
