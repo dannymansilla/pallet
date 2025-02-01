@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 
 const Layout = ({ children }) => {
 
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <Flex direction="column" minH="100vh">

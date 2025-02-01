@@ -286,17 +286,47 @@ class CompanyViewSet(viewsets.ModelViewSet):
         """
         Handles combined Company and Admin User registration.
         """
+        # Simplified serializer with only required fields
         serializer = CompanyRegistrationSerializer(data=request.data)
         if serializer.is_valid():
-            result = serializer.save()
+            # Extract validated data
+            company_name = serializer.validated_data["company_name"]
+            admin_email = serializer.validated_data["admin_email"]
+            admin_password = serializer.validated_data["admin_password"]
+            roles = serializer.validated_data["roles"]
+            terms_accepted = serializer.validated_data["terms_accepted"]
+
+            # Determine the timestamp for terms acceptance
+            terms_accepted_datetime = now() if terms_accepted else None
+
+            # Create the company
+            company = Company.objects.create(
+                name=company_name,
+                roles=roles,
+                terms_accepted=terms_accepted_datetime,  # Save the timestamp
+                terms_accepted_boolean=terms_accepted,   # Save the boolean
+            )
+
+            # Create the admin user
+            admin_user = User.objects.create_user(
+                username=admin_email,
+                email=admin_email,
+                password=admin_password,
+                company=company,
+                is_admin=True
+            )
+
+            # Return success response
             return Response(
                 {
                     "message": "Company and admin user registered successfully.",
-                    "company": CompanySerializer(result["company"]).data,
-                    "admin_user": UserSerializer(result["admin_user"]).data,
+                    "company": {"name": company.name, "roles": company.roles},
+                    "admin_user": {"email": admin_user.email, "username": admin_user.username},
                 },
                 status=status.HTTP_201_CREATED,
             )
+
+        # If validation fails, return errors
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["post"], permission_classes=[IsSuperUser])
@@ -463,6 +493,19 @@ class CompanyViewSet(viewsets.ModelViewSet):
         network_data = CompanySerializer(network, many=True).data
 
         return Response(network_data, status=200)
+    
+    @action(detail=True, methods=["patch"], permission_classes=[IsAuthenticated])
+    def update_company(self, request, pk=None):
+        """
+        Allows updating optional fields for a company.
+        """
+        company = self.get_object()
+        serializer = CompanyUpdateSerializer(company, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Company updated successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()

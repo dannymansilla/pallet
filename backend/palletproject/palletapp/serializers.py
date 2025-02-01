@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import AuctionCycle, Company, Product, Listing, Bid
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.utils.timezone import now
+
 
 User = get_user_model()
 
@@ -67,37 +69,50 @@ class UserSerializer(serializers.ModelSerializer):
         self.instance.company = company
         self.instance.save()
         return self.instance
+    
+class CompanyUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ["address", "contact_email", "contact_phone"]
 
     
 class CompanyRegistrationSerializer(serializers.Serializer):
     company_name = serializers.CharField(max_length=255)
-    address = serializers.CharField(max_length=500, required=False)
-    contact_email = serializers.EmailField()
-    contact_phone = serializers.CharField(max_length=20, required=False)
-
     admin_email = serializers.EmailField()
     admin_password = serializers.CharField(write_only=True)
-    admin_username = serializers.CharField(max_length=150)
     roles = serializers.ChoiceField(choices=Company.ROLES)
+    terms_accepted = serializers.BooleanField()
+
+    # Optional fields
+    address = serializers.CharField(max_length=500, required=False, allow_blank=True)
+    contact_email = serializers.EmailField(required=False, allow_blank=True)
+    contact_phone = serializers.CharField(max_length=20, required=False, allow_blank=True)
+
+    def validate_terms_accepted(self, value):
+        if not value:
+            raise serializers.ValidationError("You must accept the terms of service to register.")
+        return value
 
     def create(self, validated_data):
+        # Determine the datetime for terms_accepted
+        terms_accepted_datetime = now() if validated_data["terms_accepted"] else None
+
+        # Create company and admin user
         company = Company.objects.create(
             name=validated_data["company_name"],
-            address=validated_data.get("address"),
-            contact_email=validated_data["contact_email"],
-            contact_phone=validated_data.get("contact_phone"),
             roles=validated_data["roles"],
+            terms_accepted=terms_accepted_datetime,
+            terms_accepted_boolean=validated_data["terms_accepted"],  # Save boolean value
         )
-
         admin_user = User.objects.create_user(
-            username=validated_data["admin_username"],
+            username=validated_data["admin_email"],  # Use email as username
             email=validated_data["admin_email"],
             password=validated_data["admin_password"],
-            is_admin=True,  # Mark as admin
             company=company,
+            is_admin=True,
         )
-
         return {"company": company, "admin_user": admin_user}
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -139,6 +154,11 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = '__all__'
         read_only_fields = ['terms_accepted']
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['admin_email', 'admin_password']
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
