@@ -6,20 +6,22 @@ import Container from "./Container";
 import WidthPlaceholder from "./WidthPlaceholder";
 
 const Layout = ({ children }) => {
+
   return (
     <Flex direction="column" minH="100vh">
       {/* Header */}
-      <Box as="header" w="100%" mb="14">
+      <Box as="header" w="100%">
         <Header />
       </Box>
 
       <Container>
-        {/* Main Content */}
+      {/* Main Content */}
         <Box as="main" flex="1" pt={{ base: "70px", md: "0" }}>
-          {children}
-          <WidthPlaceholder columns={6} boxCount={1} />
-        </Box>
+        {children}
+        <WidthPlaceholder columns={6} boxCount={1} />
+      </Box>
       </Container>
+      
 
       {/* Footer */}
       <Box as="footer" w="100%">

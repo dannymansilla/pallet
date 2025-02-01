@@ -32,18 +32,6 @@ const Header = () => {
     <>
       <Link
         as={NavLink}
-        to="/details"
-        style={({ isActive }) =>
-          isActive
-            ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-            : { color: "black", padding: "8px 12px" }
-        }
-        _hover={{ textDecoration: "underline" }}
-      >
-        Product
-      </Link>
-      <Link
-        as={NavLink}
         to="/team"
         style={({ isActive }) =>
           isActive
@@ -77,7 +65,7 @@ const Header = () => {
         <>
           <Link
             as={NavLink}
-            to="/contact"
+            to="/requestdemo"
             style={({ isActive }) => ({
               background: isActive ? "#3182ce" : "transparent",
               color: isActive ? "white" : "black",
@@ -210,6 +198,7 @@ const Header = () => {
         {/* Mobile Hamburger Button (visible only on mobile) */}
         <IconButton
           aria-label="Open Menu"
+          backgroundColor={"black"}
           icon={<HamburgerIcon />}
           size="lg"
           onClick={onOpen}

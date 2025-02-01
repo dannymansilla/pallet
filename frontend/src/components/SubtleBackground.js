@@ -26,8 +26,9 @@ const SubtleBackground = () => {
           position: "absolute",
           top: "0", // Moves it up slightly
           left: "0", // Moves it left slightly
-          opacity: 0.15, // Adjust to make it subtle
-          backgroundColor: "pink",
+          opacity: 0.75, // Adjust to make it subtle
+        //   backgroundColor: "#FFF3E0",
+        color:"black",
         }}
       />
     </div>

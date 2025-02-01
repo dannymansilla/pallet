@@ -24,6 +24,7 @@ import SellerNetworkPage from "./pages/seller/SellerNetworkPage";
 import ManageListingsPage from "./pages/seller/ManageListingsPage";
 import ListingSearchPage from "./pages/auction/ListingSearchPage";
 import ListingDetailsPage from "./pages/auction/ListingDetailsPage";
+import RequestDemoPage from "./pages/RequestDemoPage";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
               <Route path="/Home" element={<HomePage />} />
               <Route path="/" element={<LandingPage />} />
               <Route path="/team" element={<TeamPage />} />
+              <Route path="/requestdemo" element={<RequestDemoPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
               <Route path="/buyer-dashboard" element={<PrivateRoute Component={BuyerDashboard} />} />
