@@ -49,6 +49,10 @@ const LandingPage = () => {
       icon: aidenlogo,
     },
     {
+      title: '5. Collects bids',
+      icon: aidenlogo,
+    },
+    {
       title: '6. Builds trucks',
       icon: aidenlogo,
     },
