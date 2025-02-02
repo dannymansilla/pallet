@@ -51,9 +51,6 @@ const LandingPage = () => {
     {
       title: '6. Builds trucks',
       icon: aidenlogo,
-    },{
-      title: '2. Pulls in product info',
-      icon: aidenlogo,
     },
     {
       title: '7. Generates PO',
@@ -324,7 +321,7 @@ const LandingPage = () => {
                 image: second_feature,
               },
               {
-                title: 'Waste less and improve margines by up to 1%',
+                title: 'Waste less and improve margins by up to 1%',
                 description: 'By maximizing sales volume, price and speed, Aiden cuts your carrying costs, reduces waste and increases revenue - resulting in a margin improvement of up to 1%. Let Aiden automatically save you millions.',
                 image: third_feature,
               },
