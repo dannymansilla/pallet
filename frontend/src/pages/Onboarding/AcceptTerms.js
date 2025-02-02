@@ -33,7 +33,7 @@ const AcceptTerms = () => {
   // };
 
   return (
-    <Box maxW="md" mx="auto" minH="100vh" mt={10}>
+    <Box maxW="md" mx="auto" minH="85vh" mt={10}>
       <Heading mb={6} textAlign="center">
         Terms of Service
       </Heading>
