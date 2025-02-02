@@ -57,11 +57,11 @@ const LandingPage = () => {
       icon: aidenlogo,
     },
     {
-      title: '7. Generates PO',
+      title: '7. Generates POs',
       icon: aidenlogo,
     },
     {
-      title: '8. You receive PO',
+      title: '8. You receive POs',
       icon: download_icon,
     },
   ];
@@ -234,7 +234,7 @@ const LandingPage = () => {
               Automate excess inventory sales
             </Heading>
             <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
-              Aiden is the only excess inventory solution that maximizing sales volume, price, and speed - while reducing manual work by over 90%. Simply upload your UPCs and let Aiden improve your margins by up to 1.0%
+            Aiden is the only excess inventory solution that maximizes sales volume, price and speed — while reducing manual work by 90%.
             </Text>
             <Box width="100%">
               <Flex
@@ -325,7 +325,7 @@ const LandingPage = () => {
                 image: second_feature,
               },
               {
-                title: 'Waste less and improve margins by up to 1%',
+                title: 'Improve margins by up to 1%',
                 description: 'By maximizing sales volume, price and speed, Aiden cuts your carrying costs, reduces waste and increases revenue - resulting in a margin improvement of up to 1%. Let Aiden automatically save you millions.',
                 image: third_feature,
               },
