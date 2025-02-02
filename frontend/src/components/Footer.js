@@ -20,12 +20,12 @@ const Footer = () => {
           <Link as={RouterLink} to="/privacy" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Privacy Policy
           </Link>
-          <Link as={RouterLink} to="/terms" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
+          <Link as={RouterLink} to="/onboarding/accept-terms" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Terms of Service
           </Link>
-          <Link as={RouterLink} to="/contact" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
+          {/* <Link as={RouterLink} to="/contact" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Contact Us
-          </Link>
+          </Link> */}
         </Flex>
       </Flex>
     </Box>
