@@ -1,5 +1,5 @@
 // src/pages/LandingPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -23,10 +23,35 @@ import globeAnimation from '../assets/aiden_globe.json'; // Update with your Lot
 import aidenlogo from "../images/aiden_logo.png";
 import upload_icon from "../images/upload_icon.png";
 import download_icon from "../images/download_icon.png";
+import posthog from 'posthog-js';
+import { useLocation } from 'react-router-dom';
 // import SubtleBackground from '../components/SubtleBackground';
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (typeof posthog !== 'undefined' && posthog) {
+      const getQueryParam = (param) => {
+        const urlParams = new URLSearchParams(location.search);
+        return urlParams.get(param);
+      };
+
+      const utm_source = getQueryParam('utm_source');
+      const utm_campaign = getQueryParam('utm_campaign');
+      const utm_id = getQueryParam('utm_id');
+
+      if (utm_source || utm_campaign || utm_id) {
+        posthog.capture('utm_click', {
+          utm_source,
+          utm_campaign,
+          utm_id
+        });
+      }
+    }
+  }, [location.search]);
 
   // Only show the subtle background on medium and larger screens.
   // const showLottie = useBreakpointValue({ base: false, md: true });
@@ -269,7 +294,7 @@ const LandingPage = () => {
                   mt={{ base: 4, md: 0 }}
                   ml={{ md: 4 }}
                 >
-                  Request a Demo
+                  Talk to Sales
                 </Button>
               </Flex>
             </Box>
@@ -372,8 +397,8 @@ const LandingPage = () => {
       </Box>
 
       {/* Call-to-Action Section */}
-      <Box bg="brand.background_color" textAlign="center" py={16} px={{ base: 6, md: 12 }}>
-        <Heading fontSize="3xl" mb={4} color="white">
+      <Box bg="brand.background_color" textAlign="center" py={4} px={{ base: 6, md: 12 }}>
+        <Heading fontSize="3xl" mb={4} color="black">
           Ready to Join?
         </Heading>
         <Button
@@ -384,7 +409,7 @@ const LandingPage = () => {
           shadow="lg"
           _hover={{ bg: 'blue.300' }}
         >
-          Request Demo
+          Talk to Sales
         </Button>
       </Box>
     </Box>

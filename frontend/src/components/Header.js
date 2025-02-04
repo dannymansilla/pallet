@@ -74,7 +74,7 @@ const Header = () => {
             })}
             _hover={{ textDecoration: "underline" }}
           >
-            Request a demo
+            Talk to Sales
           </Link>
           <Button as={NavLink} to="/login">
             Login

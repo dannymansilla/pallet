@@ -20,10 +20,10 @@ const RequestDemoPage = () => {
         {/* Page Heading */}
         <VStack spacing={4} textAlign="center" m={10}>
           <Heading as="h1" size="2xl" fontWeight="extrabold">
-            Request a Demo
+            Talk to Sales
           </Heading>
           <Text fontSize="lg" color="gray.600">
-            Schedule a demo with us and discover how our platform can transform your business.
+            Discover how our platform can transform your business.
           </Text>
         </VStack>
 
