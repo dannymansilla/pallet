@@ -24,34 +24,46 @@ import aidenlogo from "../images/aiden_logo.png";
 import upload_icon from "../images/upload_icon.png";
 import download_icon from "../images/download_icon.png";
 import posthog from 'posthog-js';
-import { useLocation } from 'react-router-dom';
 // import SubtleBackground from '../components/SubtleBackground';
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
 
-  const location = useLocation();
-
   useEffect(() => {
-    if (typeof posthog !== 'undefined' && posthog) {
-      const getQueryParam = (param) => {
-        const urlParams = new URLSearchParams(location.search);
-        return urlParams.get(param);
-      };
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const utm_source = urlParams.get("utm_source");
+    const utm_medium = urlParams.get("utm_medium");
+    const utm_campaign = urlParams.get("utm_campaign");
+    const utm_content = urlParams.get("utm_content");
+    const utm_term = urlParams.get("utm_term");
+    const utm_email = urlParams.get("utm_email"); // Custom UTM parameter
 
-      const utm_source = getQueryParam('utm_source');
-      const utm_campaign = getQueryParam('utm_campaign');
-      const utm_id = getQueryParam('utm_id');
+    // Track UTM parameters in PostHog
+    posthog.capture("utm_tracking", {
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_content,
+      utm_term,
+      utm_email, // Custom parameter
+    });
 
-      if (utm_source || utm_campaign || utm_id) {
-        posthog.capture('utm_click', {
-          utm_source,
-          utm_campaign,
-          utm_id
-        });
-      }
+    // Identify user in PostHog if `utm_email` is present
+    if (utm_email) {
+      posthog.identify(utm_email, { email: utm_email });
     }
-  }, [location.search]);
+
+    // Remove UTM parameters from URL (Optional)
+    const url = new URL(window.location.href);
+    url.searchParams.delete("utm_source");
+    url.searchParams.delete("utm_medium");
+    url.searchParams.delete("utm_campaign");
+    url.searchParams.delete("utm_content");
+    url.searchParams.delete("utm_term");
+    url.searchParams.delete("utm_email");
+    window.history.replaceState({}, document.title, url.pathname);
+  }, []);
 
   // Only show the subtle background on medium and larger screens.
   // const showLottie = useBreakpointValue({ base: false, md: true });
