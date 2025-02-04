@@ -16,6 +16,10 @@ if (isProduction) {
   });
 }
 
+console.log('PostHog API Key:', process.env.REACT_APP_PUBLIC_POSTHOG_KEY);
+console.log('PostHog Host:', process.env.REACT_APP_PUBLIC_POSTHOG_HOST);
+console.log('is prod', isProduction)
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
