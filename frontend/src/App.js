@@ -1,4 +1,5 @@
 // src/App.js
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme"; // Ensure you have your custom theme file
@@ -20,12 +21,19 @@ import UnifiedDashboard from "./pages/Dashboard/UnifiedDashboard";
 import ProductSelectionPage from "./pages/auction/ProductSelectionPage";
 import ListingCreationPage from "./pages/auction/ListingCreationPage";
 import SellerNetworkPage from "./pages/seller/SellerNetworkPage";
+import AuctionTrucksPage from "./pages/seller/AuctionTruckPage";
+import BuyerTruckPage from "./pages/buyer/BuyerTruckPage";
 import ManageListingsPage from "./pages/seller/ManageListingsPage";
+import MyBidsPage from "./pages/buyer/MyBids";
 import ListingSearchPage from "./pages/auction/ListingSearchPage";
 import ListingDetailsPage from "./pages/auction/ListingDetailsPage";
 import RequestDemoPage from "./pages/RequestDemoPage";
+import { checkTokenValidity } from "./services/api";
 
 function App() {
+  useEffect(() => {
+    checkTokenValidity(); // Verify token when the app starts
+  }, []);
   return (
     <ChakraProvider theme={theme}>
       <Router>
@@ -46,9 +54,12 @@ function App() {
               <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
               <Route path="/buyer-dashboard" element={<PrivateRoute Component={BuyerDashboard} />} />
               <Route path="/seller-dashboard" element={<PrivateRoute Component={SellerDashboard} />} />
+              <Route path="/auction-trucks" element={<PrivateRoute Component={AuctionTrucksPage} />} />
+              <Route path="/buyer-trucks" element={<PrivateRoute Component={BuyerTruckPage} />} />
               <Route path="/unified-dashboard" element={<PrivateRoute Component={UnifiedDashboard} />} />
               <Route path="/seller/network" element={<PrivateRoute Component={SellerNetworkPage} />} />
               <Route path="/seller/manage-listings" element={<PrivateRoute Component={ManageListingsPage} />} />
+              <Route path="/buyer/mybids" element={<PrivateRoute Component={MyBidsPage} />} />
               <Route path="/auction" element={<PrivateRoute Component={ListingSearchPage} />} />
               <Route path="/auction/details/:id" element={<PrivateRoute Component={ListingDetailsPage} />} />
               <Route path="/products/select" element={<PrivateRoute Component={ProductSelectionPage} />} />

@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
 
       <Container>
       {/* Main Content */}
-        <Box as="main" flex="1" pt={{ base: "70px", md: user !== null && user.company.status === "approved" ? "110px" : "80px" }}>
+        <Box as="main" flex="1" pt={{ base: "70px", md: user !== null && user?.company?.status === "approved" ? "150px" : "80px" }}>
         {children}
         <WidthPlaceholder columns={6} boxCount={1} />
       </Box>

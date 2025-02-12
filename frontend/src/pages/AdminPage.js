@@ -134,7 +134,7 @@ const AdminPage = () => {
               <HStack justifyContent="space-between" alignItems="center">
                 <Box>
                   <Text fontWeight="bold">{company.name}</Text>
-                  <Text fontSize="sm">Email: {company.contact_email}</Text>
+                  <Text fontSize="sm">Admin Email: {company.admin_user.email}</Text>
                   <Text fontSize="sm">Role: {company.roles}</Text>
                   <Badge
                     colorScheme={

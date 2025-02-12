@@ -54,11 +54,11 @@ useEffect(() => {
 }, [fetchListings]);
 
   return (
-    <Box minH="90vh" p={6}>
+    <Box minH="90vh">
       {/* Sticky Search Bar */}
       <Box position="sticky" top="0" bg="white" zIndex="base" p={4} shadow="sm">
         <Flex justify="center" align="center" w="100%">
-            <Box w="100%" maxW="1600px">
+            <Box w="100%" maxW="1200px">
               <Flex align="center">
                   <IconButton
                   display={{ base: "block", md: "none" }}
@@ -79,7 +79,7 @@ useEffect(() => {
 
 
       {/* Sidebar for larger screens */}
-      <Flex maxW="1600px" mx="auto">
+      <Flex maxW="1200px" mx="auto">
         <Box
           display={{ base: "none", md: "block" }}
           w="250px"

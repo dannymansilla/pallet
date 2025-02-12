@@ -26,13 +26,13 @@ const LoginPage = () => {
       if (user.is_superuser) {
         navigate("/admin");
       }
-      else if (user.company.status === "pending") {
+      else if (user?.company?.status === "pending") {
         navigate("/profile");
-      } else if (user.company.roles === "buyer") {
+      } else if (user?.company?.roles === "buyer") {
         navigate("/buyer-dashboard");
-      } else if (user.company.roles === "seller") {
+      } else if (user?.company?.roles === "seller") {
         navigate("/seller-dashboard");
-      } else if (user.company.roles === "both") {
+      } else if (user?.company?.roles === "both") {
         navigate("/seller-dashboard");
       }
       toast({
