@@ -18,7 +18,7 @@ from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-env_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..', '.env'))
+env_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '.env'))
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # env_path = os.path.join(BASE_DIR, '.env')  # Adjust the path if your .env is elsewhere
 print("env_path DIR: " + env_path)
@@ -43,6 +43,9 @@ SECRET_KEY = 'django-insecure-_ui9yh=3)e(@-yy6syz+atfs+pz@k@^dgd#!vh%4dw7y_eg+v5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 PROMETHEUS_EXPORT_MIGRATIONS = False
 
 ALLOWED_HOSTS = [
@@ -56,6 +59,12 @@ ALLOWED_HOSTS = [
 
 # Application definition
 
+# Celery Configuration
+CELERY_BROKER_URL = "redis://pallet-redis-1:6379/0"  # Redis as the broker
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -68,6 +77,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'palletapp',
     'rest_framework_simplejwt.token_blacklist',
+    'django_celery_beat',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -91,6 +101,10 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+# Frontend URL for generating invite links
+FRONTEND_URL = "https://hiaiden.com"
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -203,3 +217,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Email Settings (Update as per your provider)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # Change for Mailtrap or SendGrid
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "daniel@hiaiden.com"  # Change to your actual email
+EMAIL_HOST_PASSWORD = "fqro uyum gimw ompz"  # Use an App Password if using Gmail
+DEFAULT_FROM_EMAIL = "Aiden <daniel@hiaiden.com>"  # Change if needed
