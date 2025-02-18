@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
-  Heading,
   Tabs,
   TabList,
   TabPanels,
@@ -45,7 +44,6 @@ const ManageListingsPage = () => {
 
   const bgColor = useColorModeValue("white", "gray.800");
   const cardBg = useColorModeValue("white", "gray.700");
-  const textColor = useColorModeValue("gray.700", "gray.200");
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
