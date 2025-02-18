@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 
 # User and Company Models
 class Company(models.Model):
@@ -60,10 +61,42 @@ class Product(models.Model):
     cases_per_pallet = models.PositiveIntegerField()
     certifications = models.JSONField(blank=True, null=True)
     expiration_date = models.DateField(blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    image = models.ImageField(
+        upload_to="product_images/", 
+        blank=True, 
+        null=True, 
+        default="product_images/default.png"  # 👈 Set default image
+    )
 
     def __str__(self):
         return self.name
     
+
+class NetworkRequest(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+
+    buyer_company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="network_requests")
+    seller_company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="incoming_requests")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.buyer_company.name} -> {self.seller_company.name} ({self.status})"
+    
+class PendingInvite(models.Model):
+    seller = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="sent_invites")
+    company_name = models.CharField(max_length=255)
+    contact_email = models.EmailField()
+    status = models.CharField(max_length=10, choices=[("pending", "Pending"), ("accepted", "Accepted")], default="pending")
+    invited_on = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"Invite to {self.company_name} ({self.contact_email})"
     
 class AuctionCycle(models.Model):
     start_date = models.DateField()  # Start of the month

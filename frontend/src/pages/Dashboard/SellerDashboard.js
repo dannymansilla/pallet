@@ -42,6 +42,7 @@ const SellerDashboard = () => {
   const { isOpen, onOpen, onClose } = useDisclosure(); // Modal control
   const [loadingBids, setLoadingBids] = useState(false);
   const [errors, setErrors] = useState([]); // To track errors
+  const [retryCount, setRetryCount] = useState(0);
 
   const bgColor = useColorModeValue("white", "gray.800");
   const cardBg = useColorModeValue("white", "gray.700");
@@ -63,6 +64,7 @@ const SellerDashboard = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
       try {
         const responses = await Promise.allSettled([
@@ -71,10 +73,13 @@ const SellerDashboard = () => {
           getAuctionPerformance(),
         ]);
 
+        if (!isMounted) return;
+
         // Handle Active Listings
         if (responses[0].status === "fulfilled") {
           setActiveListings(responses[0].value.data);
         } else {
+          console.warn("Failed to fetch active listings.");
           setErrors((prev) => [...prev, "Failed to fetch active listings."]);
         }
 
@@ -82,6 +87,7 @@ const SellerDashboard = () => {
         if (responses[1].status === "fulfilled") {
           setQueuedListings(responses[1].value.data);
         } else {
+          console.warn("Failed to fetch queued listings.");
           setErrors((prev) => [...prev, "Failed to fetch queued listings."]);
         }
 
@@ -89,19 +95,28 @@ const SellerDashboard = () => {
         if (responses[2].status === "fulfilled") {
           setPerformance(responses[2].value.data);
         } else {
+          console.warn("Failed to fetch auction performance.");
           setErrors((prev) => [...prev, "Failed to fetch auction performance."]);
         }
+
+        // Retry if there's an error (but only a few times)
+        if (retryCount < 3 && responses.some((res) => res.status === "rejected")) {
+          setTimeout(() => setRetryCount(retryCount + 1), 2000 * (retryCount + 1));
+        }
       } catch (err) {
-        console.error("Error fetching seller data:", err);
+        console.error("Unexpected error while fetching data:", err);
         setErrors((prev) => [...prev, "Unexpected error while fetching data."]);
-        console.logs("errors:", errors);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [errors]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [retryCount]);
 
   if (loading) {
     return (
@@ -113,9 +128,9 @@ const SellerDashboard = () => {
 
   return (
     <Box bg={bgColor} minH="100vh" p={6}>
-      <Heading mb={6} color={textColor}>
+      {/* <Heading mb={6} color={textColor}>
         Seller Dashboard
-      </Heading>
+      </Heading> */}
 
       {/* Display errors */}
       {errors.length > 0 && (
@@ -210,14 +225,18 @@ const SellerDashboard = () => {
                 <Tbody>
                   {bids.map((bid) => (
                     <Tr key={bid.id}>
-                      <Td>{bid.buyer.name}</Td>
+                      {/* <Td>{bid.buyer.name}</Td> */}
+                      <Td>Discount Mart</Td>
                       <Td>${bid.price_per_unit}</Td>
                       <Td>{bid.quantity}</Td>
                       <Td>{new Date(bid.timestamp).toLocaleString()}</Td>
                       <Td>
-                        <Badge colorScheme={bid.is_winning_bid ? "green" : "red"}>
-                          {bid.is_winning_bid ? "Winning" : "Outbid"}
+                      <Badge colorScheme={bid.is_winning_bid ? "green" : "green"}>
+                          {bid.is_winning_bid ? "Winning" : "Winning"}
                         </Badge>
+                        {/* <Badge colorScheme={bid.is_winning_bid ? "green" : "red"}>
+                          {bid.is_winning_bid ? "Winning" : "Outbid"}
+                        </Badge> */}
                       </Td>
                     </Tr>
                   ))}

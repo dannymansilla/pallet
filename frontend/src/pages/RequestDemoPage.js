@@ -11,8 +11,8 @@ const RequestDemoPage = () => {
 
   // Construct Calendly URL with pre-filled email (if provided)
   const calendlyUrl = email
-    ? `https://calendly.com/daniel-hiaiden?email=${encodeURIComponent(email)}`
-    : "https://calendly.com/daniel-hiaiden";
+    ? `https://calendly.com/jake-hiaiden/30min?email=${encodeURIComponent(email)}`
+    : "https://calendly.com/jake-hiaiden/30min";
 
   return (
     <Box bg="white" minH="100vh" py={16}>

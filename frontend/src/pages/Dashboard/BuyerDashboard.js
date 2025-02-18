@@ -21,14 +21,14 @@ const BuyerDashboard = () => {
   const [loadingListings, setLoadingListings] = useState(true);
   const [loadingBids, setLoadingBids] = useState(true);
   const bgColor = useColorModeValue("white", "gray.800");
-  const textColor = useColorModeValue("gray.700", "gray.200");
+  const textColor = useColorModeValue("black");
 
   // Fetch suggested auctions
   useEffect(() => {
     const fetchSuggestedListings = async () => {
       try {
         const response = await getAvailableListings({ limit: 3 });
-        setSuggestedListings(response.data);
+        setSuggestedListings(response.data.slice(0, 3));
       } catch (err) {
         console.error("Error fetching suggested listings:", err);
       } finally {
@@ -56,16 +56,16 @@ const BuyerDashboard = () => {
   }, []);
 
   return (
-    <Box bg={bgColor} minH="90vh" p={6} maxW="1400px">
-      <Heading mb={6} color={textColor}>
+    <Box bg={bgColor} minH="90vh" p={6} maxW="1200px">
+      {/* <Heading mb={6} color={textColor}>
         Buyer Dashboard
-      </Heading>
-
-      <Divider mt={8} mb={6} />
+      </Heading> */}
+{/* 
+      <Divider mt={8} mb={6} /> */}
 
       {/* Suggested Auctions Section */}
       <Heading as="h3" size="lg" mb={4} color={textColor}>
-        Featured Listings
+        Recommended Listings
       </Heading>
       {loadingListings ? (
         <Spinner size="xl" />

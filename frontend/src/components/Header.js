@@ -27,21 +27,13 @@ const Header = () => {
   const { user, logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const companyName = storedUser?.company?.name || "Profile";
+
   // Define the main navigation links so we can reuse them in both desktop and mobile views.
   const mainNavLinks = (
     <>
-      <Link
-        as={NavLink}
-        to="/team"
-        style={({ isActive }) =>
-          isActive
-            ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-            : { color: "black", padding: "8px 12px" }
-        }
-        _hover={{ textDecoration: "underline" }}
-      >
-        About Us
-      </Link>
+      
 
       {user ? (
         <>
@@ -55,7 +47,7 @@ const Header = () => {
             }
             _hover={{ textDecoration: "underline" }}
           >
-            Profile
+            {companyName}
           </Link>
           <Button onClick={logout} bg="black" color="white" _hover={{ bg: "gray.800" }}>
             Logout
@@ -63,6 +55,18 @@ const Header = () => {
         </>
       ) : (
         <>
+        <Link
+            as={NavLink}
+            to="/team"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
+                : { color: "black", padding: "8px 12px" }
+            }
+            _hover={{ textDecoration: "underline" }}
+          >
+            About Us
+          </Link>
           <Link
             as={NavLink}
             to="/requestdemo"
@@ -87,13 +91,13 @@ const Header = () => {
   // Define role-specific navigation links.
   const roleNavLinks = (
     <>
-      {(user?.company.roles.includes("buyer") || user?.company.roles.includes("both")) && (
+      {(user?.company?.roles.includes("buyer") || user?.company?.roles.includes("both")) && (
         <>
           <NavLink
             to="/buyer-dashboard"
             style={({ isActive }) =>
               isActive
-                ? { color: "black", padding: "4px 6px" }
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
                 : { color: "black", padding: "4px 6px" }
             }
           >
@@ -110,18 +114,28 @@ const Header = () => {
             Auctions
           </NavLink>
           <NavLink
-            to="/current-bids"
+            to="/buyer/mybids"
             style={({ isActive }) =>
               isActive
                 ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
                 : { color: "black", padding: "4px 6px" }
             }
           >
-            Current Bids
+            My Bids
+          </NavLink>
+          <NavLink
+            to="/buyer-trucks"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
+            }
+          >
+            Truck History
           </NavLink>
         </>
       )}
-      {(user?.company.roles.includes("seller") || user?.company.roles.includes("both")) && (
+      {(user?.company?.roles.includes("seller") || user?.company?.roles.includes("both")) && (
         <>
           <NavLink
             to="/seller-dashboard"
@@ -133,7 +147,7 @@ const Header = () => {
           >
             Seller Dashboard
           </NavLink>
-          <NavLink
+          {/* <NavLink
             to="/products/select"
             style={({ isActive }) =>
               isActive
@@ -142,7 +156,7 @@ const Header = () => {
             }
           >
             Create Listing
-          </NavLink>
+          </NavLink> */}
           <NavLink
             to="/seller/manage-listings"
             style={({ isActive }) =>
@@ -163,6 +177,16 @@ const Header = () => {
           >
             Manage Network
           </NavLink>
+          <NavLink
+            to="/auction-trucks"
+            style={({ isActive }) =>
+              isActive
+                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
+                : { color: "black", padding: "4px 6px" }
+            }
+          >
+            Manage Trucks
+          </NavLink>
         </>
       )}
     </>
@@ -171,7 +195,7 @@ const Header = () => {
   return (
     <Box position="fixed" top="0" left="0" width="100%" zIndex="10" bg="white">
       {/* Main Header */}
-      <Flex maxW="1400px" mx="auto" align="center" p={4}>
+      <Flex maxW="1200px" mx="auto" align="center" p={4}>
         <Flex align="center">
           {/* Logo Image */}
           <Image
@@ -219,7 +243,7 @@ const Header = () => {
             <VStack spacing={4} align="start">
               {mainNavLinks}
               {/* If the user is approved, include the role-specific links */}
-              {user !== null && user.company.status === "approved" && (
+              {user !== null && user?.company?.status === "approved" && (
                 <>
                   <Divider />
                   {roleNavLinks}
@@ -231,11 +255,11 @@ const Header = () => {
       </Drawer>
 
       {/* Role-Specific Horizontal Navigation (visible only on desktop) */}
-      {user !== null && user.company.status === "approved" && (
+      {user !== null && user?.company?.status === "approved" && (
         <Box display={{ base: "none", md: "block" }} pb={2}>
           <Divider borderBottom="1px solid black" />
           <Box bg="brand.background_color" py={2}>
-            <Flex maxW="1400px" mx="auto" px={6} align="center">
+            <Flex maxW="1200px" mx="auto" px={4} align="center">
               <HStack spacing={8}>{roleNavLinks}</HStack>
             </Flex>
           </Box>

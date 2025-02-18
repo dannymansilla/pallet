@@ -26,8 +26,14 @@ export const AuthProvider = ({ children }) => {
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      navigate("/");
     }
   }, [navigate]); // Add 'navigate' as a dependency
+
+  setLogoutHandler(logout);
 
   useEffect(() => {
     setLogoutHandler(logout);
@@ -57,12 +63,14 @@ export const AuthProvider = ({ children }) => {
   const refresh = async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) throw new Error("No refresh token available");
+
       const { data } = await API.post(endpoints.refresh, { refresh: refreshToken });
       setToken(data.access);
       localStorage.setItem("token", data.access);
     } catch (err) {
       console.error("Token refresh failed:", err);
-      logout();
+      logout(); // 🔹 Ensure logout is called if refresh fails
     }
   };
 

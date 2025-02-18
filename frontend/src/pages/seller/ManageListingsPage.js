@@ -31,6 +31,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { getCurrentListings, getQueuedListings, deleteListing, updateListing } from "../../services/api";
+import { bulkUploadListings } from "../../services/api";
 
 const ManageListingsPage = () => {
   const [currentListings, setCurrentListings] = useState([]);
@@ -67,6 +68,32 @@ const ManageListingsPage = () => {
       setLoading(false);
     }
 }, [toast]); 
+
+  const handleBulkUpload = async () => {
+    setLoading(true);
+    try {
+      await bulkUploadListings();
+      toast({
+        title: "Listings Imported Successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Refresh the listings after upload
+      fetchListings();
+    } catch (error) {
+      toast({
+        title: "Error Uploading Listings",
+        description: "Failed to import listings. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (listingId) => {
     try {
@@ -164,7 +191,7 @@ const ManageListingsPage = () => {
               onClick={() => openModal(listing)}
               _hover={{ cursor: "pointer", bg: "gray.100" }}
             >
-              <Td>{listing.product?.name || listing.name || "N/A"}</Td>
+              <Td>{listing?.product?.name || listing?.name || "N/A"}</Td>
               <Td>{listing.quantity_available}</Td>
               <Td>${listing.minimum_selling_price}</Td>
               <Td>
@@ -186,18 +213,18 @@ const ManageListingsPage = () => {
   );
 
   return (
-    <Box bg={bgColor} minH="100vh" py={6}>
-      <Heading mb={6} color={textColor}>
+    <Box bg={bgColor} minH="100vh" px={6}>
+      {/* <Heading mb={6} color={textColor}>
         Manage Listings
-      </Heading>
+      </Heading> */}
 
       <Tabs variant="soft-rounded" colorScheme="blue">
-        <TabList>
+        <TabList py={6}>
           <Tab>Current Listings</Tab>
           <Tab>Queued Listings</Tab>
         </TabList>
 
-        <TabPanels>
+        <TabPanels py={6}>
           <TabPanel>
             {renderTable(currentListings)}
           </TabPanel>
@@ -218,7 +245,7 @@ const ManageListingsPage = () => {
               selectedListing && (
                 <Box>
                   <Text>
-                    <strong>Name:</strong> {selectedListing.product?.name || "N/A"}
+                    <strong>Name:</strong> {selectedListing?.product?.name || selectedListing?.name || "N/A"} 
                   </Text>
                   <Text>
                     <strong>Quantity:</strong> {selectedListing.quantity_available}
@@ -274,6 +301,16 @@ const ManageListingsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <Box display="flex" justifyContent="flex-end" m={6}>
+        <Button 
+          colorScheme="blue" 
+          onClick={handleBulkUpload} 
+          isLoading={loading}
+        >
+          Import Listings
+        </Button>
+      </Box>
+
     </Box>
   );
 };

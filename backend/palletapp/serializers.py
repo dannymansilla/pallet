@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AuctionCycle, Company, Product, Listing, Bid
+from .models import AuctionCycle, Company, PendingInvite, Product, Listing, Bid
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.utils.timezone import now
@@ -75,6 +75,11 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
         model = Company
         fields = ["address", "contact_email", "contact_phone"]
 
+class PendingInviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PendingInvite
+        fields = ["company_name", "contact_email", "status", "invited_on"]
+
     
 class CompanyRegistrationSerializer(serializers.Serializer):
     company_name = serializers.CharField(max_length=255)
@@ -119,51 +124,81 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
+        if user.is_superuser:
+            company_data = None  # Superusers do not need a company
+        else:
+            if not hasattr(user, "company") or user.company is None:
+                raise serializers.ValidationError("User must be associated with an approved company.")
+            company_data = {
+                "status": user.company.status,
+                "roles": user.company.roles,
+                "name": user.company.name  # ✅ Add the company name here
+            }
+
         # Add custom claims
         token['username'] = user.username
         token['email'] = user.email
         token['is_superuser'] = user.is_superuser
-        token['company'] = {
-            "status": user.company.status,
-            "roles": user.company.roles
-        } if hasattr(user, 'company') else None
+        token["company"] = company_data 
 
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
 
+        # If user is a superuser, do not require a company
+        if self.user.is_superuser:
+            company_data = None
+        else:
+            if not hasattr(self.user, "company") or self.user.company is None:
+                raise serializers.ValidationError("User must be associated with an approved company.")
+            company_data = {
+                "status": self.user.company.status,
+                "roles": self.user.company.roles,
+                "name": self.user.company.name  # ✅ Fix: Include company name in the response data
+            }
+
         # Attach user details to the response
-        data['user'] = {
+        data["user"] = {
             "id": self.user.id,
             "username": self.user.username,
             "email": self.user.email,
             "is_superuser": self.user.is_superuser,
-            "company": {
-                "status": self.user.company.status,
-                "roles": self.user.company.roles
-            } if hasattr(self.user, 'company') else None
+            "company": company_data
         }
         return data
 
-class CompanySerializer(serializers.ModelSerializer):
-    network = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Company.objects.all(), required=False
-    )
-    class Meta:
-        model = Company
-        fields = '__all__'
-        read_only_fields = ['terms_accepted']
-
+    
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['admin_email', 'admin_password']
+        fields = ["username", "email"]  # Only valid fields
+
+class CompanySerializer(serializers.ModelSerializer):
+    admin_user = serializers.SerializerMethodField()  # Use SerializerMethodField for flexibility
+    network = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Company.objects.all(), required=False
+    )
+
+    class Meta:
+        model = Company
+        fields = "__all__"
+        read_only_fields = ["terms_accepted"]
+
+    def get_admin_user(self, instance):
+        """Safely fetch the first user associated with the company"""
+        admin = instance.users.first()  # Call .first() properly
+        return AdminUserSerializer(admin).data if admin else None
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+        extra_kwargs = {"company": {"read_only": True}}
+
+class BulkProductSerializer(serializers.ListSerializer):
+    """Allows bulk uploading multiple products in a single API call"""
+    child = ProductSerializer()
 
 class ListingSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
@@ -223,6 +258,7 @@ class AuctionCycleSerializer(serializers.ModelSerializer):
 class BidSerializer(serializers.ModelSerializer):
     listing = serializers.SerializerMethodField()
     listing_id = serializers.IntegerField(write_only=True)
+
     class Meta:
         model = Bid
         fields = [
@@ -233,43 +269,37 @@ class BidSerializer(serializers.ModelSerializer):
             "timestamp",
             "is_winning_bid",
             "buyer",
-            "listing",  # New field for listing details
+            "listing",
         ]
         read_only_fields = ["buyer"]
 
     def get_listing(self, obj):
+        """Return structured listing details including auction status and highest bid."""
         listing = obj.listing
         return {
             "id": listing.id,
             "product_name": listing.product.name,
             "auction_end_date": listing.auction_cycle.end_date,
-            "current_highest_bid": (
-                listing.bids.order_by("-price_per_unit").first().price_per_unit
-                if listing.bids.exists()
-                else None
-            ),
+            "auction_status": listing.auction_cycle.status,
+            "current_highest_bid": listing.bids.order_by("-price_per_unit").first().price_per_unit if listing.bids.exists() else None,
             "quantity_available": listing.quantity_available,
         }
 
     def validate(self, data):
+        """Validate bid input including auction status and buyer authorization."""
         listing = Listing.objects.filter(id=data["listing_id"]).first()
-        
         buyer = self.context["request"].user.company
 
-        # Validate auction cycle status
         if listing.auction_cycle.status != "open":
             raise serializers.ValidationError("You can only bid on listings in active auction cycles.")
 
-        # Validate buyer is in the seller's network
         seller = listing.created_by.company
         if buyer not in seller.network.all():
             raise serializers.ValidationError("You are not authorized to bid on this listing.")
 
-        # Validate quantity
         if data["quantity"] > listing.quantity_available:
             raise serializers.ValidationError("Bid quantity exceeds available quantity.")
-        
-        data["listing"] = listing
 
+        data["listing"] = listing
         return data
 

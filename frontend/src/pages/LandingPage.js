@@ -13,16 +13,22 @@ import {
   Input,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import uploadIcon from '../images/Upload_no_title.png';
+import uploadIcon from '../images/upload_customers.png';
 import downloadIcon from '../images/Download_no_title.png';
 import first_feature from '../images/first_feature.png';
 import second_feature from '../images/second_feature.png';
 import third_feature from '../images/third_feature.png';
 import Lottie from 'lottie-react'; // Import the Lottie component
 import globeAnimation from '../assets/aiden_globe.json'; // Update with your Lottie JSON file name
-import aidenlogo from "../images/aiden_logo.png";
+// import aidenlogo from "../images/aiden_logo.png";
 import upload_icon from "../images/upload_icon.png";
+import pulls_product_data from "../images/pallet.png";
 import download_icon from "../images/download_icon.png";
+import barcode_listings from "../images/barcode_listings.png";
+import contact_customers from "../images/contact_customers.png";
+import collects_bids from "../images/collects_bids.png";
+import build_trucks from "../images/build_trucks.png";
+import generate_pos from "../images/generate_pos.png";
 import posthog from 'posthog-js';
 // import SubtleBackground from '../components/SubtleBackground';
 
@@ -70,35 +76,35 @@ const LandingPage = () => {
 
   const features = [
     {
-      title: '1. You upload UPCs',
+      title: '1. Upload Customers',
       icon: upload_icon,
     },
     {
-      title: '2. Pulls in product info',
-      icon: aidenlogo,
+      title: '2. Pulls in product data',
+      icon: pulls_product_data,
     },
     {
       title: '3. Creates listings',
-      icon: aidenlogo,
+      icon: barcode_listings,
     },
     {
       title: '4. Contacts customers',
-      icon: aidenlogo,
+      icon: contact_customers,
     },
     {
       title: '5. Collects bids',
-      icon: aidenlogo,
+      icon: collects_bids,
     },
     {
       title: '6. Builds trucks',
-      icon: aidenlogo,
+      icon: build_trucks,
     },
     {
       title: '7. Generates POs',
-      icon: aidenlogo,
+      icon: generate_pos,
     },
     {
-      title: '8. You receive POs',
+      title: '8. Download POs',
       icon: download_icon,
     },
   ];

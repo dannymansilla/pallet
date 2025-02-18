@@ -1,8 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
-from .models import AuctionCycle, Company, Product, Listing, Bid
-from .serializers import AuctionCycleSerializer, CompanySerializer, CustomTokenObtainPairSerializer, ProductSerializer, ListingSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
+from .models import AuctionCycle, Company, NetworkRequest, PendingInvite, Product, Listing, Bid
+from .serializers import AuctionCycleSerializer, CompanySerializer, CustomTokenObtainPairSerializer, PendingInviteSerializer, ProductSerializer, ListingSerializer, BidSerializer, RegisterSerializer, CompanyRegistrationSerializer
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from rest_framework.exceptions import PermissionDenied
@@ -18,7 +19,10 @@ from django.utils import timezone
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.db.models import Sum, Count, Q, Max, F
 from django.utils.timezone import now
-
+from django.db import transaction
+from django.core.mail import send_mail
+from django.conf import settings
+from fuzzywuzzy import process
 
 User = get_user_model()
 
@@ -475,6 +479,77 @@ class CompanyViewSet(viewsets.ModelViewSet):
 
         seller_company.network.remove(buyer_company)
         return Response({"message": "Buyer removed from your network."}, status=200)
+    
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def request_network_access(self, request):
+        """
+        Allows a buyer to request access to a seller's network.
+        """
+        buyer = request.user.company
+        seller_id = request.data.get("seller_company")
+
+        if not buyer:
+            return Response({"error": "You are not associated with a company."}, status=400)
+
+        seller = get_object_or_404(Company, id=seller_id)
+
+        # Check if already in network
+        if buyer in seller.network.all():
+            return Response({"error": "Already in seller's network."}, status=400)
+
+        # Check if a pending request exists
+        existing_request = NetworkRequest.objects.filter(buyer_company=buyer, seller_company=seller, status="pending").first()
+        if existing_request:
+            return Response({"error": "Request already pending."}, status=400)
+
+        # Create request
+        NetworkRequest.objects.create(buyer_company=buyer, seller_company=seller, status="pending")
+
+        return Response({"message": "Request sent successfully."}, status=201)
+    
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def handle_network_request(self, request):
+        """
+        Allows a seller to approve or reject a buyer's request to join their network.
+        """
+        seller = request.user.company
+        request_id = request.data.get("request_id")
+        action = request.data.get("action")  # "approve" or "reject"
+
+        if not seller:
+            return Response({"error": "You are not associated with a company."}, status=400)
+
+        network_request = get_object_or_404(NetworkRequest, id=request_id, seller_company=seller)
+
+        if network_request.status != "pending":
+            return Response({"error": "Request already processed."}, status=400)
+
+        if action == "approve":
+            # Add buyer to seller's network
+            seller.network.add(network_request.buyer_company)
+            network_request.status = "approved"
+        elif action == "reject":
+            network_request.status = "rejected"
+        else:
+            return Response({"error": "Invalid action."}, status=400)
+
+        network_request.save()
+        return Response({"message": f"Request {action}d successfully."}, status=200)
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def pending_requests(self, request):
+        """
+        Fetches all pending network requests for the logged-in seller.
+        """
+        seller = request.user.company
+
+        if not seller:
+            return Response({"error": "You are not associated with a company."}, status=400)
+
+        requests = NetworkRequest.objects.filter(seller_company=seller, status="pending")
+        data = [{"id": req.id, "buyer_company": req.buyer_company.name, "timestamp": req.timestamp} for req in requests]
+
+        return Response(data, status=200)
 
     
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
@@ -505,12 +580,173 @@ class CompanyViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response({"message": "Company updated successfully."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def bulk_upload_buyers(self, request):
+        """
+        Allows sellers to upload a list of buyers in bulk.
+        - Matches by email first
+        - Fuzzy matches company names
+        - Sends invitations to new buyers and logs them in pending invitations table
+        """
+        seller_company = request.user.company
+        buyers = request.data.get("buyers", [])
+
+        if not buyers:
+            return Response({"error": "No buyers provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        added_to_network = []
+        invited_buyers = []
+        warnings = []
+
+        with transaction.atomic():  # Ensure atomic transactions
+            for buyer in buyers:
+                email = buyer.get("contact_email")
+                company_name = buyer.get("company_name")
+
+                # Step 1: Try to find the buyer by email
+                existing_user = User.objects.filter(email=email).first()
+                if existing_user and existing_user.company:
+                    # Add to seller's network if not already added
+                    if existing_user.company not in seller_company.network.all():
+                        seller_company.network.add(existing_user.company)
+                        added_to_network.append({
+                            "company_name": existing_user.company.name,
+                            "contact_email": email,
+                            "status": "added"
+                        })
+                    continue  # Skip to the next buyer
+
+                # Step 2: No email match, try fuzzy matching by company name
+                existing_company = self.fuzzy_match_company(company_name)
+                if existing_company:
+                    # Warn about possible duplicate
+                    warnings.append({
+                        "company_name": company_name,
+                        "contact_email": email,
+                        "reason": f"Possible duplicate found: '{existing_company.name}' already exists."
+                    })
+                    continue  # Skip creating a new company
+
+                # Step 3: No match found, create a new company and invite the buyer
+                new_company = Company.objects.create(name=company_name, roles="buyer")
+                new_user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    company=new_company,
+                    is_active=False  # Keep inactive until they accept the invite
+                )
+
+                # 🔥 **NEW: Create Pending Invitation**
+                pending_invite = PendingInvite.objects.create(
+                    seller=seller_company,
+                    company_name=company_name,
+                    contact_email=email,
+                    status="pending"
+                )
+
+                # Send email invitation
+                self.send_invite_email(email, company_name, seller_company.name)
+
+                invited_buyers.append({
+                    "company_name": company_name,
+                    "contact_email": email,
+                    "status": "invited",
+                    "pending_invite_id": pending_invite.id  # Include for debugging
+                })
+
+        return Response({
+            "added_to_network": added_to_network,
+            "invited_buyers": invited_buyers,
+            "warnings": warnings
+        }, status=status.HTTP_200_OK)
+
+    def fuzzy_match_company(self, company_name):
+        """
+        Attempts to match an uploaded company name with existing companies using fuzzy logic.
+        Returns the best-matching company or None.
+        """
+        existing_companies = Company.objects.values_list("name", flat=True)
+        match, score = process.extractOne(company_name, existing_companies)
+
+        if score > 85:  # Adjust sensitivity as needed
+            return Company.objects.filter(name=match).first()
+
+        return None
+
+    def send_invite_email(self, email, buyer_company, seller_company):
+        """
+        Sends an email invite to a new buyer.
+        """
+        subject = f"Invitation to join Aiden Marketplace"
+        message = (
+            f"Hello,\n\n"
+            f"{seller_company} has invited your company, {buyer_company}, to join Aiden Marketplace.\n"
+            f"Click the link below to sign up:\n\n"
+            # f"{settings.FRONTEND_URL}/register?email={email}\n\n"
+            f"{settings.FRONTEND_URL}\n\n"
+            f"Best,\nAiden Team"
+        )
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def pending_invites(self, request):
+        """
+        Fetch all pending invitations sent by the seller.
+        """
+        seller_company = request.user.company
+
+        if not seller_company:
+            return Response({"detail": "You are not associated with a company."}, status=400)
+
+        pending_invites = PendingInvite.objects.filter(seller=seller_company, status="pending")
+        serializer = PendingInviteSerializer(pending_invites, many=True)
+
+        return Response(serializer.data, status=200)
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated, IsSeller]
+
+    @action(detail=False, methods=["post"])
+    def bulk_upload(self, request):
+        """
+        API endpoint to bulk upload products.
+        The uploaded products will automatically be linked to the seller's company.
+        """
+        if not request.user.company:
+            return Response({"error": "You are not associated with a company."}, status=status.HTTP_403_FORBIDDEN)
+
+        products_data = request.data  # List of products
+        
+        # Ensure company is set on each product upon creation
+        products = []
+        for product_data in products_data:
+            product = Product(
+                name=product_data["name"],
+                category=product_data.get("category", ""),
+                description=product_data["description"],
+                brand=product_data["brand"],
+                gtin=product_data["gtin"],
+                length=product_data["length"],
+                width=product_data["width"],
+                height=product_data["height"],
+                weight=product_data["weight"],
+                units_per_case=product_data["units_per_case"],
+                cases_per_pallet=product_data["cases_per_pallet"],
+                certifications=product_data.get("certifications", None),
+                expiration_date=product_data.get("expiration_date", None),
+                image=product_data.get("image", "product_images/default.png"),
+                company=request.user.company  # ✅ Assign company here at model level
+            )
+            products.append(product)
+
+        with transaction.atomic():  # Ensures all or nothing is committed
+            Product.objects.bulk_create(products)
+
+        return Response({"message": "Products uploaded successfully!"}, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=["get"])
     def search(self, request):
@@ -549,6 +785,62 @@ class ListingViewSet(viewsets.ModelViewSet):
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer
     permission_classes = [IsAuthenticated, HasAcceptedTerms]
+
+    @action(detail=False, methods=["post"])
+    def batch_upload(self, request):
+        """
+        Allows batch uploading of listings via an ERP system.
+        - Accepts GTIN instead of product_id.
+        - Automatically assigns the correct product and auction cycle.
+        - Saves all listings in a single database transaction.
+        """
+        data = request.data
+        listings_data = data.get("listings", [])
+        auction_cycle_id = data.get("auction_cycle_id")
+
+        if not listings_data:
+            return Response({"error": "No listings provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch or determine the correct auction cycle
+        if auction_cycle_id:
+            try:
+                auction_cycle = AuctionCycle.objects.get(id=auction_cycle_id)
+            except AuctionCycle.DoesNotExist:
+                return Response({"error": "Invalid auction cycle ID."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            auction_cycle = AuctionCycle.objects.filter(status="listing").order_by("start_date").first()
+            if not auction_cycle:
+                return Response({"error": "No valid auction cycles available."}, status=status.HTTP_400_BAD_REQUEST)
+
+        listings_to_create = []
+        for listing in listings_data:
+            gtin = listing.get("gtin")
+            if not gtin:
+                return Response({"error": "Each listing must have a GTIN."}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                product = Product.objects.get(gtin=gtin)
+            except Product.DoesNotExist:
+                return Response({"error": f"Product with GTIN {gtin} not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Create a new listing instance but don't save it yet
+            new_listing = Listing(
+                product=product,
+                quantity_available=listing["quantity_available"],
+                minimum_selling_price=listing["minimum_selling_price"],
+                warehouse_location=listing["warehouse_location"],
+                shipping_instructions=listing.get("shipping_instructions", ""),
+                is_active=True,
+                created_by=request.user,
+                auction_cycle=auction_cycle
+            )
+            listings_to_create.append(new_listing)
+
+        # Save all listings in one atomic transaction
+        with transaction.atomic():
+            Listing.objects.bulk_create(listings_to_create)
+
+        return Response({"message": "Batch listings uploaded successfully!"}, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
             # Check if auction_cycle_id is provided
@@ -589,6 +881,8 @@ class ListingViewSet(viewsets.ModelViewSet):
         """
         listing = self.get_object()
         user_company = request.user.company
+        seller_company = listing.created_by.company
+        is_in_network = user_company in seller_company.network.all()
 
         # Check if the user is associated with a company
         if not user_company:
@@ -597,13 +891,12 @@ class ListingViewSet(viewsets.ModelViewSet):
         # Allow sellers to access their own listings
         if listing.created_by.company == user_company:
             return super().retrieve(request, *args, **kwargs)
+        
+        response = super().retrieve(request, *args, **kwargs)
+        response.data["is_in_network"] = is_in_network 
 
         # Allow buyers to access listings if in the seller's network
-        seller_company = listing.created_by.company
-        if user_company in seller_company.network.all():
-            return super().retrieve(request, *args, **kwargs)
-
-        raise PermissionDenied("You are not allowed to access this listing.")
+        return response
     
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def active(self, request):
@@ -692,22 +985,38 @@ class BidViewSet(viewsets.ModelViewSet):
         serializer.save(buyer=self.request.user.company)
 
     def get_queryset(self):
-        """
-        Returns bids associated with the authenticated user's company by default.
-        Supports filtering by auction via the 'auction_id' query parameter and
-        enhanced filtering for contextual data.
-        """
+        """Fetch bids associated with the authenticated user's company, with optional filtering."""
         user_company = self.request.user.company
         auction_id = self.request.query_params.get("auction_id")
+        status_filter = self.request.query_params.get("status")
 
-        # Filter bids by the user's company
         queryset = self.queryset.filter(buyer=user_company)
 
-        # If auction_id is provided, filter further by the auction
         if auction_id:
             queryset = queryset.filter(listing__auction_cycle__id=auction_id)
 
+        if status_filter:
+            if status_filter == "won":
+                queryset = queryset.filter(is_winning_bid=True)
+            elif status_filter == "lost":
+                queryset = queryset.filter(is_winning_bid=False, listing__auction_cycle__status="closed")
+
         return queryset
+
+    @action(detail=False, methods=["get"])
+    def my_bids(self, request):
+        """Fetch all bids for the authenticated buyer, categorized as active, won, and lost."""
+        user_company = request.user.company
+
+        active_bids = self.queryset.filter(buyer=user_company, listing__auction_cycle__status="open")
+        won_bids = self.queryset.filter(buyer=user_company, is_winning_bid=True)
+        lost_bids = self.queryset.filter(buyer=user_company, is_winning_bid=False, listing__auction_cycle__status="closed")
+
+        return Response({
+            "active": BidSerializer(active_bids, many=True).data,
+            "won": BidSerializer(won_bids, many=True).data,
+            "lost": BidSerializer(lost_bids, many=True).data
+        })
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)

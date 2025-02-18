@@ -17,13 +17,19 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Input,
   NumberInput,
   NumberInputField,
   useDisclosure,
+  FormControl, 
+  FormLabel, 
+  FormHelperText, 
+  InputLeftElement,
+  InputGroup,
+  Icon 
 } from "@chakra-ui/react";
 import { getListingDetails } from "../../services/api";
-import { placeBid } from "../../services/api";
+import { placeBid, requestToJoinNetwork } from "../../services/api";
+import { FaDollarSign, FaBoxOpen } from "react-icons/fa";
 
 const ListingDetailsPage = () => {
   const { id } = useParams();
@@ -86,14 +92,13 @@ const ListingDetailsPage = () => {
   const {
     product,
     quantity_available,
-    minimum_selling_price,
     warehouse_location,
     shipping_instructions,
     auction_cycle,
   } = listing;
 
   return (
-    <Box minH="100vh" w="100%" maxW="1400px" mx="auto" py={6}>
+    <Box minH="100vh" w="100%" maxW="1200px" mx="auto" p={4}>
   <Flex direction={["column", "row"]} gap={6} align="flex-start">
     {/* Product Details (Left) */}
     <Box flex="1">
@@ -129,9 +134,6 @@ const ListingDetailsPage = () => {
             </Text>
           </ListItem>
           <ListItem>
-            <Text>Minimum Selling Price: ${minimum_selling_price}</Text>
-          </ListItem>
-          <ListItem>
             <Text>Quantity Available: {quantity_available}</Text>
           </ListItem>
         </List>
@@ -165,28 +167,51 @@ const ListingDetailsPage = () => {
     </Box>
 
     {/* Image (Right) */}
-    <Box flex="1" bg="gray.200" rounded="lg" shadow="md" overflow="hidden" py={10}>
+    <Box
+      flex="1"
+      bg="gray.200"
+      rounded="lg"
+      shadow="md"
+      overflow="hidden"
+      width="100%" // Ensures full width responsiveness
+      maxW="500px" // Limits max width for large screens
+      minH="auto" // Ensures dynamic height
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
       {product.image ? (
         <Image
           src={product.image}
           alt={product.name}
-          objectFit="cover"
-          w="100%"
-          h="100%"
+          objectFit="contain"
+          width="100%" // Adjusts dynamically
+          height="auto" // Keeps correct aspect ratio
+          display="block"
+          mx="auto"
+          aspectRatio="1/1" // Ensures it scales proportionally
         />
       ) : (
-        <Text color="gray.500" fontSize="lg" textAlign="center" py={20}>
+        <Text color="gray.500" fontSize="lg" textAlign="center" py={10}>
           No Image Available
         </Text>
       )}
     </Box>
+
+
   </Flex>
 
   {/* Place Bid and Back Buttons */}
   <Flex px={6} mt={8} gap={4}>
-    <Button colorScheme="blue" onClick={onOpen} px={6}>
-      Place Bid
-    </Button>
+    {listing.is_in_network ? (
+      <Button colorScheme="blue" onClick={onOpen} px={6}>
+        Place Bid
+      </Button>
+    ) : (
+      <Button colorScheme="green" onClick={() => requestToJoinNetwork(product.company)} px={6}>
+        Request to Join Seller's Network
+      </Button>
+    )}
     <Button px={6} colorScheme="teal" onClick={() => navigate("/auction")}>
       Back to Listings
     </Button>
@@ -199,22 +224,47 @@ const ListingDetailsPage = () => {
       <ModalHeader>Place Your Bid</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
-        <Text mb={4}>Minimum Bid: ${minimum_selling_price}</Text>
-        <Input
-          placeholder="50.00"
-          value={bidAmount}
-          onChange={(e) => setBidAmount(e.target.value)}
-          mb={4}
-        />
-        <NumberInput
-          min={1}
-          max={quantity_available}
-          value={bidQuantity}
-          onChange={(valueString) => setBidQuantity(Number(valueString))}
-        >
-          <NumberInputField placeholder="500" />
-        </NumberInput>
+        {/* Bid Amount Input */}
+        <FormControl mb={4}>
+          <FormLabel fontWeight="medium">Bid Amount ($)</FormLabel>
+          <InputGroup w="100%">
+            <InputLeftElement pointerEvents="none">
+              <Icon as={FaDollarSign} color="gray.500" />
+            </InputLeftElement>
+            <NumberInput
+              min={listing.minimum_selling_price}
+              value={bidAmount}
+              onChange={(valueString) => setBidAmount(valueString)}
+              clampValueOnBlur={false}
+              w="100%"
+            >
+              <NumberInputField pl="10" placeholder="Enter bid amount" />
+            </NumberInput>
+          </InputGroup>
+        </FormControl>
+
+        {/* Bid Quantity Input */}
+        <FormControl>
+          <FormLabel fontWeight="medium">Bid Quantity</FormLabel>
+          <InputGroup w="100%">
+            <InputLeftElement pointerEvents="none">
+              <Icon as={FaBoxOpen} color="gray.500" />
+            </InputLeftElement>
+            <NumberInput
+              min={1}
+              max={quantity_available}
+              value={bidQuantity}
+              onChange={(valueString) => setBidQuantity(Number(valueString))}
+              clampValueOnBlur={false}
+              w="100%"
+            >
+              <NumberInputField pl="10" placeholder="Enter quantity" />
+            </NumberInput>
+          </InputGroup>
+          <FormHelperText>Available: {quantity_available} units</FormHelperText>
+        </FormControl>
       </ModalBody>
+
       <ModalFooter>
         <Button colorScheme="blue" onClick={handlePlaceBid}>
           Submit Bid
@@ -225,6 +275,7 @@ const ListingDetailsPage = () => {
       </ModalFooter>
     </ModalContent>
   </Modal>
+
 </Box>
 
   );
