@@ -3,6 +3,10 @@ import itertools
 from math import floor
 import pulp
 
+# -----------------------------------------------------------------
+# DATA MODELS
+# -----------------------------------------------------------------
+
 class Listing:
     def __init__(self, listing_id, warehouse_id, length, width, height,
                  weight, available_qty, min_price, stackable):
@@ -30,6 +34,10 @@ class Truck:
         self.width = width     # total inside width
         self.height = height   # total inside height
         self.max_weight = max_weight
+
+# -----------------------------------------------------------------
+# SYNTHETIC DATA GENERATION
+# -----------------------------------------------------------------
 
 def generate_synthetic_data(num_listings=8, num_buyers=5, seed=42):
     """
@@ -84,6 +92,10 @@ def generate_synthetic_data(num_listings=8, num_buyers=5, seed=42):
     truck_config = Truck(length=636, width=100, height=110, max_weight=45000)
     return listings, bids, truck_config
 
+# -----------------------------------------------------------------
+# BID FILTERING
+# -----------------------------------------------------------------
+
 def filter_bids_min_price(listings, bids):
     """
     Exclude bids that fall below the listing's minimum price.
@@ -97,6 +109,10 @@ def filter_bids_min_price(listings, bids):
         else:
             excluded.append(b)
     return filtered, excluded
+
+# -----------------------------------------------------------------
+# VOLUME & CANDIDATE TRUCKLOAD BUILDING
+# -----------------------------------------------------------------
 
 def approximate_volume(listing_obj):
     """Approximate volume for pruning."""
@@ -160,6 +176,7 @@ def build_candidate_truckloads(listings, bids, truck, step_factor=10):
                 total_weight += lobj.weight * qty
                 total_volume += approximate_volume(lobj) * qty
 
+            # Basic pruning checks
             if sum(listing_qty.values()) == 0:
                 continue
             if total_weight > truck.max_weight:
@@ -175,12 +192,23 @@ def build_candidate_truckloads(listings, bids, truck, step_factor=10):
             })
     return candidate_truckloads
 
-def check_bin_packing_feasibility(candidate, listing_map, truck):
+# -----------------------------------------------------------------
+# 3D BIN-PACKING FEASIBILITY CHECK
+# -----------------------------------------------------------------
+
+def check_bin_packing_feasibility_3d(candidate, listing_map, truck):
     """
-    Naive 2D bin packing approach. Returns:
+    A naive 3D bin packing approach that:
+      - Sorts pallets (items) by footprint area (length*width), largest first.
+      - Tries to place each pallet on the floor (z=0) if space is available.
+      - If the pallet is stackable AND an existing pallet on the floor
+        (or stacked) can support it (same length & width, space left in height),
+        place it on top of that pallet.
+
+    Returns:
       feasible (bool),
-      placement layout (list of (y_offset, x_offset, z_offset, item)),
-      total_weight
+      placement_layout (list of (x_offset, y_offset, z_offset, item_dict)),
+      total_weight,
       leftover_volume (approx)
     """
     listing_qty = candidate["listing_qty"]
@@ -196,8 +224,9 @@ def check_bin_packing_feasibility(candidate, listing_map, truck):
                 "stackable": l.stackable,
                 "weight": l.weight
             })
-    # Sort by area desc
-    items.sort(key=lambda x: x["length"] * x["width"], reverse=True)
+
+    # Sort items by (area desc), then height desc
+    items.sort(key=lambda x: (x["length"] * x["width"], x["height"]), reverse=True)
 
     total_weight = sum(i["weight"] for i in items)
     if total_weight > truck.max_weight:
@@ -205,83 +234,119 @@ def check_bin_packing_feasibility(candidate, listing_map, truck):
 
     truck_floor_area = truck.length * truck.width
     truck_volume = truck_floor_area * truck.height
+
+    placed_positions = []  # list of (x, y, z, item)
     used_volume = 0
 
-    placed_positions = []
+    # We'll track the "floor rows" in a simplistic way:
+    # Each row will have:
+    #   - x_offset: how far along the length we are
+    #   - used_width: how wide we've filled in this row so far
+    #   - max_height_in_row: the tallest pallet in this row (for floor-level items)
+    #
+    # In a more advanced approach, you'd do a real 2D or 3D bin packing algorithm.
     rows = []
-    current_length_used = 0
+    current_x_offset = 0
 
     for item in items:
         item_volume = item["length"] * item["width"] * item["height"]
-        placed_item = False
+        item_placed = False
 
-        # Try to place in existing row
+        # Try to place the item in an existing row on the floor (z=0)
         for row in rows:
             if row["used_width"] + item["width"] <= truck.width:
-                # Check stacking possibility
-                stacked_spot = None
-                if item["stackable"]:
-                    for spot in row["stack_spots"]:
-                        if (spot["length"] == item["length"] and
-                            spot["width"] == item["width"] and
-                            spot["current_height"] + item["height"] <= truck.height):
-                            stacked_spot = spot
+                # Check if we can stack it on top of an existing pallet in this row
+                # (Only if item is stackable, and the base pallet is stackable,
+                #  and footprints match.)
+                stacked_on = None
+                for pp in row["placed_on_floor"]:
+                    # pp is (x_offset, y_offset, z_offset, item_dict)
+                    base_item = pp[3]
+                    if (base_item["stackable"] and item["stackable"] and
+                            base_item["length"] == item["length"] and
+                            base_item["width"] == item["width"]):
+                        # The new z will be base_item's top
+                        new_z = pp[2] + base_item["height"]
+                        if new_z + item["height"] <= truck.height:
+                            stacked_on = pp
                             break
-                if stacked_spot:
-                    z_start = stacked_spot["current_height"]
-                    stacked_spot["current_height"] += item["height"]
-                    placed_positions.append((row["y_offset"], row["used_width"], z_start, item))
+
+                if stacked_on:
+                    # Place on top of stacked_on
+                    base_pp_x, base_pp_y, base_pp_z, base_item = stacked_on
+                    new_z = base_pp_z + base_item["height"]
+                    placed_positions.append((row["x_offset"], row["used_width"], new_z, item))
+                    used_volume += item_volume
+                    row["used_width"] += item["width"]
+                    item_placed = True
+                    break
                 else:
-                    placed_positions.append((row["y_offset"], row["used_width"], 0, item))
-                    if item["stackable"]:
-                        row["stack_spots"].append({
-                            "length": item["length"],
-                            "width": item["width"],
-                            "current_height": item["height"]
-                        })
-
-                row["used_width"] += item["width"]
-                if not item["stackable"]:
-                    if item["height"] > row["row_max_height"]:
-                        row["row_max_height"] = item["height"]
-                        if row["row_max_height"] > truck.height:
+                    # Place on the floor if there's still capacity in row width
+                    placed_positions.append((row["x_offset"], row["used_width"], 0, item))
+                    used_volume += item_volume
+                    row["used_width"] += item["width"]
+                    row["placed_on_floor"].append(
+                        (row["x_offset"], row["used_width"] - item["width"], 0, item)
+                    )
+                    # Update row height if needed
+                    if item["height"] > row["max_height_in_row"]:
+                        row["max_height_in_row"] = item["height"]
+                        if row["max_height_in_row"] > truck.height:
                             return False, placed_positions, total_weight, None
-                used_volume += item_volume
-                placed_item = True
-                break
+                    item_placed = True
+                    break
 
-        if not placed_item:
-            # start new row
-            if rows:
-                current_length_used += max(r["row_max_height"] for r in rows[-1:])
-            if current_length_used + item["length"] > truck.length:
+        # If not placed in an existing row, try starting a new row
+        if not item_placed:
+            # Check if there's enough length left for a new row
+            if current_x_offset + item["length"] > truck.length:
+                # Not enough length for a new row
                 return False, placed_positions, total_weight, None
 
+            # Make a new row
             new_row = {
-                "y_offset": current_length_used,
+                "x_offset": current_x_offset,
                 "used_width": 0,
-                "row_max_height": 0,
-                "stack_spots": []
+                "max_height_in_row": 0,
+                "placed_on_floor": []  # track items on the floor in this row
             }
             rows.append(new_row)
-            placed_positions.append((new_row["y_offset"], new_row["used_width"], 0, item))
-            new_row["used_width"] += item["width"]
-            if item["stackable"]:
-                new_row["stack_spots"].append({
-                    "length": item["length"],
-                    "width": item["width"],
-                    "current_height": item["height"]
-                })
-            else:
-                new_row["row_max_height"] = item["height"]
-                if new_row["row_max_height"] > truck.height:
-                    return False, placed_positions, total_weight, None
+            # Place the item on the floor (z=0)
+            placed_positions.append((new_row["x_offset"], new_row["used_width"], 0, item))
             used_volume += item_volume
+            new_row["placed_on_floor"].append(
+                (new_row["x_offset"], new_row["used_width"], 0, item)
+            )
+            new_row["used_width"] += item["width"]
+            if item["height"] > new_row["max_height_in_row"]:
+                new_row["max_height_in_row"] = item["height"]
+                if new_row["max_height_in_row"] > truck.height:
+                    return False, placed_positions, total_weight, None
+
+            item_placed = True
+
+            # Advance x_offset for future rows only after we fill up this row
+            # in terms of length. This is a naive approach: once the row is 'done'
+            # we move to the next row. We'll do that after we've placed all we can.
+            # For simplicity, we won't do it immediately here.
+
+    # After placing all items, let's finalize the used length:
+    # The used length is basically the last row's x_offset + the tallest item in that row
+    # but we'll do it more simply:
+    final_row_x = 0
+    for row in rows:
+        row_length = row["x_offset"] + row["max_height_in_row"]
+        if row_length > final_row_x:
+            final_row_x = row_length
+
+    # If final_row_x > truck.length, not feasible
+    # (though in this naive approach, we tried to check it earlier)
+    if final_row_x > truck.length:
+        return False, placed_positions, total_weight, None
 
     leftover_volume = truck_volume - used_volume
     if leftover_volume < 0:
-        # Shouldn't happen in naive approach, but just in case
-        leftover_volume = None
+        leftover_volume = None  # indicates we overfilled
 
     return True, placed_positions, total_weight, leftover_volume
 
@@ -342,7 +407,6 @@ def solve_phase2_min_leftover(feasible_combinations, listings, best_revenue):
         x2[c_id] = pulp.LpVariable(f"x2_{c_id}", cat=pulp.LpBinary)
 
     # Minimize leftover space
-    # leftover_volume stored in c["leftover_volume"]
     phase2_model += pulp.lpSum([
         c["leftover_volume"] * x2[c["id"]]
         for c in feasible_combinations
@@ -372,6 +436,8 @@ def solve_phase2_min_leftover(feasible_combinations, listings, best_revenue):
 
     return chosen_phase2, pulp.value(phase2_model.objective)
 
+# -----------------------------------------------------------------
+# MAIN
 # -----------------------------------------------------------------
 
 def main():
@@ -409,7 +475,7 @@ def main():
     candidate_truckloads = build_candidate_truckloads(listings, filtered_bids, truck_config, step_factor=20)
     print(f"Candidate truckloads (after pruning & stepping): {len(candidate_truckloads)}")
 
-    # 4) Bin-packing feasibility check, compute leftover
+    # 4) Bin-packing feasibility check (3D)
     listing_map = {l.id: l for l in listings}
     feasible_combinations = []
     combo_id = 1
@@ -417,7 +483,7 @@ def main():
     truck_volume = truck_floor_area * truck_config.height
 
     for c in candidate_truckloads:
-        feasible, layout, total_weight, leftover_volume = check_bin_packing_feasibility(c, listing_map, truck_config)
+        feasible, layout, total_weight, leftover_volume = check_bin_packing_feasibility_3d(c, listing_map, truck_config)
         if feasible and leftover_volume is not None:
             new_c = dict(c)
             new_c["id"] = combo_id
@@ -427,21 +493,21 @@ def main():
             feasible_combinations.append(new_c)
             combo_id += 1
 
-    print(f"Feasible combos after bin packing: {len(feasible_combinations)}")
+    print(f"Feasible combos after 3D bin packing: {len(feasible_combinations)}")
 
     if not feasible_combinations:
         print("No feasible combinations found. Exiting.")
         return
 
     # -------------------------------
-    #  PHASE 1: Maximize Revenue
+    # PHASE 1: Maximize Revenue
     # -------------------------------
     model1, solver1, chosen_phase1, best_revenue = solve_phase1_max_revenue(feasible_combinations, listings)
     print(f"\nPHASE 1 (Max Revenue) => Best Revenue = ${best_revenue:,.2f}")
     print(f"Chosen combos in phase 1: {len(chosen_phase1)}")
 
     # -------------------------------
-    #  PHASE 2: Among max-revenue, minimize leftover
+    # PHASE 2: Among max-revenue, minimize leftover
     # -------------------------------
     chosen_phase2, best_leftover = solve_phase2_min_leftover(feasible_combinations, listings, best_revenue)
     print(f"PHASE 2 (Minimize leftover) => leftover volume = {best_leftover:,.2f}")
@@ -462,15 +528,19 @@ def main():
         q_str = ", ".join([f"{lid}:{qty}" for lid, qty in c["listing_qty"].items()])
         print(f"  Truckload {c['id']}: Buyer={buyer_id}, Warehouse={wh_id}, "
               f"Revenue=${rev:.2f}, leftoverVol={leftover:.2f}, Pallets=({q_str}), WtUsed={c['total_weight']}")
-        layout_preview = c["layout"][:3]
-        for idx, (ly, lx, lz, item) in enumerate(layout_preview, start=1):
+        layout_preview = c["layout"][:]  # show first few pallets
+        for idx, (px, py, pz, item) in enumerate(layout_preview, start=1):
             print(f"    Pallet #{idx} -> listing={item['listing_id']}, "
-                  f"pos=({ly:.1f},{lx:.1f}), stacked={lz}, "
+                  f"pos=({px:.1f},{py:.1f},{pz:.1f}), "
                   f"size=({item['length']}x{item['width']}x{item['height']}), "
                   f"stackable={item['stackable']}")
-        if len(c["layout"]) > 3:
-            print(f"    ... {len(c['layout'])-3} more pallets ...")
+        # if len(c["layout"]) > 5:
+        #     print(f"    ... {len(c['layout'])-5} more pallets ...")
         print()
+
+# -----------------------------------------------------------------
+# ENTRY POINT
+# -----------------------------------------------------------------
 
 if __name__ == "__main__":
     main()
