@@ -67,22 +67,17 @@ const Header = () => {
           >
             About Us
           </Link>
-          <Link
+          <Button
             as={NavLink}
             to="/requestdemo"
-            style={({ isActive }) => ({
-              background: isActive ? "#3182ce" : "transparent",
-              color: isActive ? "white" : "black",
-              borderRadius: isActive ? "8px" : "none",
-              padding: "8px 12px",
-            })}
-            _hover={{ textDecoration: "underline" }}
+            variant="logo_accent"
           >
             Talk to Sales
-          </Link>
-          <Button as={NavLink} to="/login">
-            Login
           </Button>
+
+          {/* <Button as={NavLink} to="/login">
+            Login
+          </Button> */}
         </>
       )}
     </>
@@ -193,7 +188,7 @@ const Header = () => {
   );
 
   return (
-    <Box position="fixed" top="0" left="0" width="100%" zIndex="10" bg="white">
+    <Box position="fixed" top="0" left="0" width="100%" zIndex="9999" bg="white">
       {/* Main Header */}
       <Flex maxW="1200px" mx="auto" align="center" p={4}>
         <Flex align="center">
@@ -231,7 +226,7 @@ const Header = () => {
         />
       </Flex>
 
-      <Divider borderBottom="1px solid #999" />
+      {/* <Divider borderBottom="1px solid #999" /> */}
 
       {/* Mobile Drawer Navigation */}
       <Drawer placement="right" onClose={onClose} isOpen={isOpen}>

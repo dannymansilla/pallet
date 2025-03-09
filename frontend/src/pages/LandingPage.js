@@ -7,9 +7,9 @@ import {
   Text,
   Button,
   VStack,
+  Container,
   Image,
   SimpleGrid,
-  Circle,
   Input,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -25,12 +25,9 @@ import upload_icon from "../images/upload_icon.png";
 import pulls_product_data from "../images/pallet.png";
 import download_icon from "../images/download_icon.png";
 import barcode_listings from "../images/barcode_listings.png";
-import contact_customers from "../images/contact_customers.png";
 import collects_bids from "../images/collects_bids.png";
 import build_trucks from "../images/build_trucks.png";
-import generate_pos from "../images/generate_pos.png";
 import posthog from 'posthog-js';
-// import SubtleBackground from '../components/SubtleBackground';
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
@@ -76,60 +73,36 @@ const LandingPage = () => {
 
   const features = [
     {
-      title: '1. Upload Customers',
+      title: 'Upload Customers',
+      description: 'Quickly import your customer data.',
       icon: upload_icon,
     },
     {
-      title: '2. Pulls in product data',
+      title: 'Pull Product Data',
+      description: 'Automatically fetch inventory.',
       icon: pulls_product_data,
     },
     {
-      title: '3. Creates listings',
+      title: 'Generate Listings',
+      description: 'Listings automatically created.',
       icon: barcode_listings,
     },
     {
-      title: '4. Contacts customers',
-      icon: contact_customers,
-    },
-    {
-      title: '5. Collects bids',
+      title: 'Collect Bids',
+      description: 'Seamlessly gather bids from interested buyers.',
       icon: collects_bids,
     },
     {
-      title: '6. Builds trucks',
+      title: 'Build Trucks',
+      description: 'Efficiently organize orders to optimize revenue.',
       icon: build_trucks,
     },
     {
-      title: '7. Generates POs',
-      icon: generate_pos,
-    },
-    {
-      title: '8. Download POs',
+      title: 'Download Purchase Orders',
+      description: 'Generate and manage POs directly within Aiden.',
       icon: download_icon,
     },
   ];
-
-  const FeatureCard = ({ icon, title, description }) => (
-    
-    <VStack
-      spacing={4}
-      p={6}
-      bg="white"
-      borderRadius="md"
-      boxShadow="sm"
-      align="center"
-      textAlign="center"
-      transition="transform 0.3s"
-      _hover={{ transform: 'translateY(-4px)' }}
-    >
-      <Circle size="60px" bg="transparent" color="white" display="flex" justifyContent="center" alignItems="center">
-        <Image src={icon} alt={title} boxSize="60px" objectFit="contain" /> 
-    </Circle>
-      <Heading as="h3" size="md" color="gray.800">
-        {title}
-      </Heading>
-    </VStack>
-  );
 
   const AnimatedLogoOverlay = () => {
     return (
@@ -218,7 +191,7 @@ const LandingPage = () => {
           left="-15%"
           width={{ base: '350px', md: '350px' }} // Responsive sizes
           height="auto"
-          zIndex={3} // Ensures this PNG is on top of the SVG
+          zIndex={10} // Ensures this PNG is on top of the SVG
         />
   
         {/* Download Icon (bottom right) */}
@@ -230,7 +203,7 @@ const LandingPage = () => {
           right="-15%"
           width={{ base: '350px', md: '350px' }} // Responsive sizes
           height="auto"
-          zIndex={3} // Ensures this PNG is on top of the SVG
+          zIndex={10} // Ensures this PNG is on top of the SVG
         />
       </Box>
     );
@@ -241,7 +214,6 @@ const LandingPage = () => {
   return (
     <Box bg="transparent" color="black" minW="100vw">
       {/* Background */}
-      {/* {showLottie && <SubtleBackground />} */}
       <Flex
         position="relative"  // This container will serve as the positioning reference
         minH="95vh"
@@ -249,6 +221,7 @@ const LandingPage = () => {
         justify="center"
         overflow="hidden"
       >
+        {/* <SubtleBackground /> */}
         {/* Hero Section */}
         <Flex
           align="center"
@@ -269,22 +242,31 @@ const LandingPage = () => {
           >
             <Heading
               fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
-              fontWeight="bold"
+              fontWeight="extrabold"
               color="black"
               letterSpacing="-2px"
               lineHeight="1.2"
             >
               Automate excess inventory sales
             </Heading>
+
             <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
-            Aiden is the only excess inventory solution that maximizes sales volume, price and speed — while reducing manual work by 90%.
+              Aiden is the only excess inventory solution that maximizes sales volume, price, and speed — while reducing manual work by 90%.
             </Text>
-            <Box width="100%">
+
+            <Box width="100%" px={{ base: "10", md: "0" }}> 
               <Flex
                 as="form"
-                direction={{ base: "column", md: "row" }}
+                direction="row"
                 align="center"
-                justify="center"
+                justify="space-between"
+                maxW="500px"
+                border="2px solid"
+                borderColor="gray.400"
+                borderRadius="md"
+                shadow="xl"
+                bg="white"
+                p={1}
               >
                 <Input
                   placeholder="youremail@company.com"
@@ -293,30 +275,31 @@ const LandingPage = () => {
                   size="lg"
                   fontSize="lg"
                   h="60px"
-                  bg="white"
-                  p={4}
-                  border="2px solid" 
-                  borderColor="gray.400" 
-                  borderRadius="md"
-                  _hover={{ borderColor: "gray.500" }}
-                  _focus={{ bg: "white", borderColor: "teal.500", borderWidth: "2px" }}
+                  bg="transparent"
+                  border="none"
+                  borderRadius="none"
+                  _hover={{ border: "none" }}
+                  _focus={{ outline: "none", boxShadow: "none" }}
                   flex="1"
                 />
+
                 <Button
                   as={RouterLink}
                   to={`/requestdemo?email=${encodeURIComponent(email)}`}
                   colorScheme="teal"
                   size="lg"
-                  shadow="md"
-                  _hover={{ bg: "teal.400" }}
-                  mt={{ base: 4, md: 0 }}
-                  ml={{ md: 4 }}
+                  h="54px"
+                  px={6}
+                  borderRadius="md"
+                  variant="logo_accent"
+                  shadow="sm"
                 >
                   Talk to Sales
                 </Button>
               </Flex>
             </Box>
           </VStack>
+
           {/* Replace the Image with the Lottie Animation */}
           <Box
             flex="1"
@@ -337,39 +320,64 @@ const LandingPage = () => {
       </Flex>
 
       {/* Key Features Section */}
-      <Box bg="black" minH="80vh" color="white" display="flex" flexDirection="column" justifyContent="center">
-        <Box maxW="1200px" mx="auto" width="100%" px={{ base: 10, md: 12 }} py={{ base: 10, md: 0 }}>
-          <Box mb={12} alignSelf="flex-start">
-            <Heading fontSize="3xl" textAlign="left">
-              How It Works
-            </Heading>
-          </Box>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
-            {features.map((feature, index) => (
-              <FeatureCard key={index} {...feature} />
-            ))}
-          </SimpleGrid>
+      <Box py={20} bg="gray.50">
+      <Flex direction="column" align="center">
+        <Box mb={12}>
+          <Heading size="2xl" textAlign="center" mb={2}>
+            How Aiden Works
+          </Heading>
+          <Text color="gray.600" textAlign="center">Your workflow simplified into a seamless process.</Text>
         </Box>
-      </Box>
+
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
+          {features.map((step, index) => (
+            <Flex key={index} direction="column" align="center" textAlign="center">
+              <Box
+                bg="white"
+                color="white"
+                w={16}
+                h={16}
+                m={4}
+                borderRadius="full"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                boxShadow="md"
+              >
+                <Image src={step.icon} boxSize={8} />
+              </Box>
+              <Heading size="md" my={2}>
+                {step.title}
+              </Heading>
+              <Text color="gray.600">{step.description}</Text>
+            </Flex>
+          ))}
+        </SimpleGrid>
+        </Flex>
+    </Box>
+
+    {/* <Box>
+      <TruckAnimation />
+    </Box> */}
 
       {/* Features Showcase Section */}
-      <Box bg="brand.background_color" py={20} px={{ base: 6, md: 12 }}>
-        <Box maxW="1200px" mx="auto" py={20} px={{ base: 4, md: 8 }}>
-          <SimpleGrid columns={1} spacing={16}>
+      <Box bg="brand.background" py={20} px={{ base: 6, md: 12 }}>
+        <Container maxW="7xl">
+          <VStack spacing={16}>
             {[
               {
-                title: 'Reduce manual work by 90%',
-                description: 'Aiden pulls in product data, creates listings, contacts customers, collects bids, calculates the best sales for revenue, and generates transaction documents. Just upload your UPCs and wait to receive a purchase order.',
+                title: 'Reduce Manual Work by 90%',
+                description: 'Aiden handles everything from product data and listings to customer interactions, bids, and purchase orders. Simply upload UPCs, and Aiden does the rest.',
                 image: first_feature,
               },
               {
-                title: 'Maximize sales volume, price, and speed',
-                description: 'Marketplace solutions require manual work and force you to choose between sales volume, price and speed. Aiden maximizes sales volume, price and speed while reducing manual work by over 90%.',
+                title: 'Maximize Sales Volume, Price & Speed',
+                description: 'Forget the trade-offs. Aiden uses smart automation to maximize your sales metrics, achieving better outcomes with minimal manual effort.',
                 image: second_feature,
               },
               {
-                title: 'Improve margins by up to 1%',
-                description: 'By maximizing sales volume, price and speed, Aiden cuts your carrying costs, reduces waste and increases revenue - resulting in a margin improvement of up to 1%. Let Aiden automatically save you millions.',
+                title: 'Improve Margins by up to 1%',
+                description: 'Lower carrying costs and reduced waste translate into higher revenue and margins. Let Aiden drive efficiency and profitability automatically.',
                 image: third_feature,
               },
             ].map((feature, index) => (
@@ -377,46 +385,39 @@ const LandingPage = () => {
                 key={index}
                 direction={{ base: 'column', md: index % 2 === 0 ? 'row' : 'row-reverse' }}
                 align="center"
-                spacing={8}
-                p={{ base: 6, md: 5 }}
+                bg="white"
+                boxShadow="md"
+                borderRadius="xl"
+                overflow="hidden"
+                p={8}
+                w="100%"
               >
-                <Box
-                  flex="1"
-                  bg="white"
-                  rounded="lg"
-                  // shadow="lg"
-                  overflow="hidden"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  mr={{ md: index % 2 === 0 ? 12 : 0 }}
-                  ml={{ md: index % 2 !== 0 ? 12 : 0 }}
-                  mb={{ base: 6, md: 0 }}
-                  p={{ base: 6, md: 5 }}
-                >
-                  <img
+                <Box flex="1" p={4}>
+                  <Image
                     src={feature.image}
                     alt={feature.title}
-                    style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                    borderRadius="lg"
+                    objectFit="cover"
+                    boxShadow="none"
                   />
                 </Box>
-                <Box flex="1" textAlign={{ base: 'center', md: 'left' }}>
-                  <Heading fontSize={{ base: '2xl', md: '3xl' }} mb={6} color="black">
+                <Box flex="1" p={4} textAlign={{ base: 'center', md: 'left' }}>
+                  <Heading fontSize={{ base: '2xl', md: '3xl' }} mb={4}>
                     {feature.title}
                   </Heading>
-                  <Text fontSize={{ base: 'lg', md: 'xl' }} color="black">
+                  <Text fontSize={{ base: 'md', md: 'lg' }} color="gray.600">
                     {feature.description}
                   </Text>
                 </Box>
               </Flex>
             ))}
-          </SimpleGrid>
-        </Box>
+          </VStack>
+        </Container>
       </Box>
 
       {/* Call-to-Action Section */}
-      <Box bg="brand.background_color" textAlign="center" py={4} px={{ base: 6, md: 12 }}>
-        <Heading fontSize="3xl" mb={4} color="black">
+      <Box bg="white" py={20} textAlign="center" px={{ base: 6, md: 12 }}>
+        <Heading fontSize="3xl" m={4} color="black">
           Ready to Join?
         </Heading>
         <Button
@@ -425,7 +426,8 @@ const LandingPage = () => {
           colorScheme="blue"
           size="lg"
           shadow="lg"
-          _hover={{ bg: 'blue.300' }}
+          // _hover={{ bg: 'blue.300' }}
+          variant={'logo_accent'}
         >
           Talk to Sales
         </Button>

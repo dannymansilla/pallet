@@ -13,7 +13,7 @@ const WidthPlaceholder = ({ columns = 6, boxCount = 1 }) => {
                 key={index}
                 visibility="hidden"
                 p={6}
-                bg="white"
+                bg="brand.background"
                 borderRadius="md"
                 shadow="md"
               >
