@@ -81,7 +81,7 @@ const AboutUs = () => {
 
       {/* Our Founders Section */}
       <Box
-        minH="95vh"
+        minH="80vh"
         bg="white"
         display="flex"
         flexDirection="column"
