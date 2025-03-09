@@ -30,6 +30,7 @@ import ListingSearchPage from "./pages/auction/ListingSearchPage";
 import ListingDetailsPage from "./pages/auction/ListingDetailsPage";
 import RequestDemoPage from "./pages/RequestDemoPage";
 import { checkTokenValidity } from "./services/api";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,7 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Router>
+      <ScrollToTop />
         <AuthProvider>
           <Layout> {/* Header, Sidebar, and Footer are managed within Layout */}
             <Routes>
