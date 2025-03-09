@@ -23,6 +23,9 @@ const Footer = () => {
           <Link as={RouterLink} to="/onboarding/accept-terms" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Terms of Service
           </Link>
+          <Link as={RouterLink} to="/home" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
+            Landing Page
+          </Link>
           {/* <Link as={RouterLink} to="/contact" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Contact Us
           </Link> */}
