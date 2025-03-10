@@ -6,12 +6,21 @@ import {
   Text,
   Button,
   VStack,
+  Image,
   Input,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import Lottie from "lottie-react";
 import globeAnimation from "../assets/aiden_globe.json";
 import posthog from "posthog-js";
+import Hero_Automate from "../images/Hero_Automate.png";
+import Manual_Work from "../images/Manual_Work.png";
+import Brand_Equity from "../images/Brand_Equity.png";
+import Carrying_Costs from "../images/Carrying_Costs.png";
+import Accelerate_Innovation from "../images/Accelerate_Innovation.png";
+import Recovery_Rate from "../images/Recovery_Rate.png";
+import Optimization from "../images/Optimization.png";
+import Enterprise from "../images/Enterprise.png";
 
 const Home = () => {
   const [email, setEmail] = useState("");
@@ -90,16 +99,16 @@ const Home = () => {
     },
   ];
 
-    // Layer Three Data
+    // Layer Three Data (Now PNG Images instead of text)
     const layerThreeData = [
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
-        { heading: ` `, text: ` ` },
+        { image: Hero_Automate },
+        { image: Manual_Work },
+        { image: Brand_Equity },
+        { image: Carrying_Costs },
+        { image: Accelerate_Innovation },
+        { image: Recovery_Rate },
+        { image: Optimization },
+        { image: Enterprise },
       ];
 
   const AnimatedLogoOverlay = () => (
@@ -229,8 +238,8 @@ const Home = () => {
         width="100%"
         height="100%"
         zIndex="20"
-        pointerEvents="none" // so it doesn't block interactions
-        display={{ base: "none", md: "block" }} 
+        pointerEvents="none"
+        display={{ base: "none", md: "block" }}
       >
         <Box px={6} maxW="1200px" mx="auto">
           {layerThreeData.map((section, index) => (
@@ -247,39 +256,21 @@ const Home = () => {
             >
               {/* Left Column: Empty */}
               <Box flex="1" />
-              {/* Right Column: Content */}
+              {/* Right Column: Content with Image */}
               <Box
                 flex="1"
                 display="flex"
                 flexDirection="column"
                 height="100%"
+                justifyContent="center"
+                alignItems="center"
               >
-                {/* Top half with header and text aligned to the bottom */}
-                <Box
-                  flex="1"
-                  display="flex"
-                  flexDirection="column"
-                  justifyContent="flex-end"
-                  textAlign="Center"
-                >
-                  <Heading
-                    fontSize={{ base: "3xl", md: "5xl" }}
-                    fontWeight="extrabold"
-                    color="black"
-                    letterSpacing="-1px"
-                  >
-                    {section.heading}
-                  </Heading>
-                  <Text
-                    fontSize={{ base: "md", md: "lg" }}
-                    color="gray.700"
-                    mt={4}
-                  >
-                    {section.text}
-                  </Text>
-                </Box>
-                {/* Bottom half (empty or for additional content) */}
-                <Box flex="1" />
+                <Image
+                  src={section.image}
+                  alt={`Layer Three Image ${index + 1}`}
+                  maxW="250px"
+                  height="auto"
+                />
               </Box>
             </Flex>
           ))}
