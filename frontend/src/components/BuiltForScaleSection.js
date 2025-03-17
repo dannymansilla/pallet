@@ -69,7 +69,7 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top={{ base: "10%", md: "10%" }}
-              left={{ base: "10%", md: "15%" }}
+              left={{ base: "2%", md: "15%" }}
               w={{ base: "250px", md: "350px" }}
               h={{ base: "250px", md: "350px" }}
               borderRadius="50%"
@@ -109,7 +109,7 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top="10%"
-              left={{ base: "45%", md: "41%" }}
+              left={{ base: "37%", md: "41%" }}
               w={{ base: "250px", md: "350px" }}
               h={{ base: "250px", md: "350px" }}
               borderRadius="50%"
@@ -149,7 +149,7 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top="45%"
-              left={{ base: "28%", md: "28%" }}
+              left={{ base: "20%", md: "28%" }}
               w={{ base: "250px", md: "350px" }}
               h={{ base: "250px", md: "350px" }}
               borderRadius="50%"
