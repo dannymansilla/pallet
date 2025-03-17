@@ -16,12 +16,10 @@ import {
   DrawerBody,
   VStack,
   useDisclosure,
-  Image, // Import the Image component
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import aidenlogo from "../images/aiden_logo.png";
 import Lottie from 'lottie-react'; 
 import globeAnimation from '../assets/aiden_globe.json';
 
