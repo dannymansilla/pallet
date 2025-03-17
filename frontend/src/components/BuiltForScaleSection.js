@@ -69,9 +69,9 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top={{ base: "10%", md: "10%" }}
-              left={{ base: "5%", md: "15%" }}
-              w={{ base: "300px", md: "350px" }}
-              h={{ base: "300px", md: "350px" }}
+              left={{ base: "10%", md: "15%" }}
+              w={{ base: "250px", md: "350px" }}
+              h={{ base: "250px", md: "350px" }}
               borderRadius="50%"
               bg="rgba(253, 186, 116, 0.3)"
               mixBlendMode="multiply"
@@ -109,9 +109,9 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top="10%"
-              left={{ base: "35%", md: "41%" }}
-              w={{ base: "300px", md: "350px" }}
-              h={{ base: "300px", md: "350px" }}
+              left={{ base: "45%", md: "41%" }}
+              w={{ base: "250px", md: "350px" }}
+              h={{ base: "250px", md: "350px" }}
               borderRadius="50%"
               bg="rgba(125, 179, 255, 0.3)"
               mixBlendMode="multiply"
@@ -149,9 +149,9 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top="45%"
-              left={{ base: "20%", md: "28%" }}
-              w={{ base: "300px", md: "350px" }}
-              h={{ base: "300px", md: "350px" }}
+              left={{ base: "28%", md: "28%" }}
+              w={{ base: "250px", md: "350px" }}
+              h={{ base: "250px", md: "350px" }}
               borderRadius="50%"
               bg="rgba(119, 221, 119, 0.3)"
               mixBlendMode="multiply"
@@ -176,6 +176,7 @@ export default function BuiltForScaleSection() {
           {/* 4) LOGO in the center */}
           <Box
             position="absolute"
+            display={{ base: 'none', md: 'block' }}
             // top="56%"
             top={{ base: '55%', md: '56%' }}
             left={{ base: "48%", md: "50%" }}
