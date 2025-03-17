@@ -2,7 +2,7 @@
 import React from 'react';
 import { Box, Flex, Heading, VStack, Text, Image, Stack } from '@chakra-ui/react';
 import founder1 from '../images/jake_profile.jpg';
-import founder2 from '../images/danny_profile.jpg';
+import founder2 from '../images/danny.jpg';
 
 const founders = [
   {

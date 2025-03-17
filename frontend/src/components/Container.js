@@ -6,7 +6,7 @@ const Container = ({ children }) => {
     <Box 
       mx="auto" 
       w="100%" 
-      maxW="1200px" 
+      maxW="1400px" 
       px={{ base: 4, md: 8 }}
       display="flex"
       flexDirection="column"

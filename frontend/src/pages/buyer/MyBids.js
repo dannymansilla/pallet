@@ -19,7 +19,7 @@ const MyBidsPage = () => {
   }, []);
 
   return (
-    <Box minH="100vh" w="100%" maxW="1200px" mx="auto" py={6}>
+    <Box minH="100vh" w="100%" maxW="1400px" mx="auto" py={6}>
       <Heading mb={4}>My Bids</Heading>
       <Text mb={4} fontSize="lg" fontWeight="medium">Track your current and past bids across auctions.</Text>
 

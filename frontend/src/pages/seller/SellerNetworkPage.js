@@ -168,7 +168,7 @@ const SellerNetworkPage = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           flex="1"
-          maxW="1200px"
+          maxW="1400px"
         />
         <Button
           onClick={handleSearch}

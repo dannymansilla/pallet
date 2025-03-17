@@ -73,7 +73,7 @@ const ProductSelectionPage = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             flex="1"
-            maxW="1200px"
+            maxW="1400px"
           />
           <Button
             onClick={handleSearch}
