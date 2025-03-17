@@ -4,11 +4,13 @@ import {
   Heading,
   Text,
   Tooltip,
+  Image,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Lottie from 'lottie-react'; 
 import globeAnimation from '../assets/aiden_globe.json';
+import vennDiagram from '../images/venn.png'
 
 // We'll create a motion-enabled Box for easy hover scaling.
 const MotionBox = motion(Box);
@@ -45,7 +47,7 @@ export default function BuiltForScaleSection() {
       </Box>
 
       {/* 2) Outer container with max-width matching the heading */}
-      <Box maxW="800px" mx="auto" mb="50px">
+      <Box maxW="800px" mx="auto" mb="50px" display={{ base: 'none', md: 'block' }}>
         {/* 3) Relative container for our circles so they overlap properly */}
         <Box
           position="relative"
@@ -192,6 +194,19 @@ export default function BuiltForScaleSection() {
             />
           </Box>
         </Box>
+      </Box>
+      <Box maxW="800px" mx="auto" mb="50px" display={{ base: 'block', md: 'none' }}>
+        <Image
+          src={vennDiagram}
+          alt={"venn diagram"}
+          objectFit="contain"
+          width="100%" // Adjusts dynamically
+          maxW={"400px"}
+          height="auto" // Keeps correct aspect ratio
+          display="block"
+          mx="auto"
+          aspectRatio="1/1" // Ensures it scales proportionally
+        />
       </Box>
     </Box>
   );

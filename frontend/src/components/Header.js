@@ -214,11 +214,11 @@ const Header = () => {
             _hover={{ textDecoration: "none" }}
             ml="5px"
           >
-            <span style={{ marginRight: "-1px" }}>a</span>
-            <span style={{ marginRight: "-2px" }}>i</span>
+            <span style={{ marginRight: "-3px" }}>a</span>
+            <span style={{ marginRight: "-4px" }}>i</span>
             <span>d</span>
-            <span style={{ marginLeft: "-0px" }}>e</span>
-            <span style={{ marginLeft: "-0px" }}>n</span>
+            <span style={{ marginLeft: "-1px" }}>e</span>
+            <span style={{ marginLeft: "-1px" }}>n</span>
           </Heading>
         </Flex>
         {/* Desktop Navigation (hidden on mobile) */}
