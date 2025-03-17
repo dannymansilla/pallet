@@ -50,10 +50,10 @@ export default function BuiltForScaleSection() {
         <Box
           position="relative"
           mx="auto"
-          w="100%"      // Full width of the container
-          h="500px"     // Increase/decrease as needed
+          w="100%"         // Full width of the container
+          h="500px"        // Increase/decrease as needed
         >
-          {/* VOLUME Circle */}
+          {/* VOLUME Circle (Top-Left) */}
           <Tooltip
             hasArrow
             placement="top"
@@ -69,11 +69,11 @@ export default function BuiltForScaleSection() {
             <MotionBox
               position="absolute"
               top={{ base: "10%", md: "10%" }}
-              left={{ base: "2%", md: "15%" }}
-              w={{ base: "250px", md: "350px" }}
-              h={{ base: "250px", md: "350px" }}
+              left={{ base: "15%", md: "15%" }} 
+              w={{ base: "200px", md: "350px" }}
+              h={{ base: "200px", md: "350px" }}
               borderRadius="50%"
-              bg="rgba(253, 186, 116, 0.3)"
+              bg="rgba(253, 186, 116, 0.3)" 
               mixBlendMode="multiply"
               cursor="pointer"
               display="flex"
@@ -93,7 +93,7 @@ export default function BuiltForScaleSection() {
             </MotionBox>
           </Tooltip>
 
-          {/* PRICE Circle */}
+          {/* PRICE Circle (Top-Center) */}
           <Tooltip
             hasArrow
             placement="top"
@@ -108,10 +108,12 @@ export default function BuiltForScaleSection() {
           >
             <MotionBox
               position="absolute"
-              top="10%"
-              left={{ base: "37%", md: "41%" }}
-              w={{ base: "250px", md: "350px" }}
-              h={{ base: "250px", md: "350px" }}
+              // Keep same top for alignment with Volume
+              top={{ base: "10%", md: "10%" }}
+              left="40%"
+              transform={{ base: "translateX(-50%)", md: "translateX(-50%)" }}
+              w={{ base: "200px", md: "350px" }}
+              h={{ base: "200px", md: "350px" }}
               borderRadius="50%"
               bg="rgba(125, 179, 255, 0.3)"
               mixBlendMode="multiply"
@@ -133,7 +135,7 @@ export default function BuiltForScaleSection() {
             </MotionBox>
           </Tooltip>
 
-          {/* SPEED Circle */}
+          {/* SPEED Circle (Bottom) */}
           <Tooltip
             label="We sell your surplus fast, speeding up cash flow & clearing space."
             hasArrow
@@ -148,10 +150,10 @@ export default function BuiltForScaleSection() {
           >
             <MotionBox
               position="absolute"
-              top="45%"
-              left={{ base: "20%", md: "28%" }}
-              w={{ base: "250px", md: "350px" }}
-              h={{ base: "250px", md: "350px" }}
+              top={{ base: "30%", md: "45%" }} 
+              left={{ base: "30%", md: "28%" }} 
+              w={{ base: "200px", md: "350px" }}
+              h={{ base: "200px", md: "350px" }}
               borderRadius="50%"
               bg="rgba(119, 221, 119, 0.3)"
               mixBlendMode="multiply"
@@ -173,22 +175,21 @@ export default function BuiltForScaleSection() {
             </MotionBox>
           </Tooltip>
 
-          {/* 4) LOGO in the center */}
+          {/* LOGO in the center (Displayed on md+ only) */}
           <Box
             position="absolute"
             display={{ base: 'none', md: 'block' }}
-            // top="56%"
             top={{ base: '55%', md: '56%' }}
             left={{ base: "48%", md: "50%" }}
             transform="translate(-50%, -50%)"
-            zIndex={10}           // Ensure logo sits above circles
-            w="100px"             // Adjust to control logo size
+            zIndex={10} 
+            w="100px"
           >
             <Lottie
-            animationData={globeAnimation}
-            loop
-            style={{ width: '100%', height: '100%' }}
-          />
+              animationData={globeAnimation}
+              loop
+              style={{ width: '100%', height: '100%' }}
+            />
           </Box>
         </Box>
       </Box>
