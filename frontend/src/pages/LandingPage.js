@@ -102,110 +102,120 @@ const LandingPage = () => {
           overflow="hidden"
         >
           <VStack
-            spacing={8}
-            align={{ base: 'center', md: 'flex-start' }}
-            maxW="850px"
-            textAlign={{ base: 'center', md: 'left' }}
-            p={{ base: 8, md: 10 }}
-          >
-            {/* Title */}
-            <Heading
-              fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
-              fontWeight="extrabold"
-              color="black"
-              letterSpacing="-2px"
-              lineHeight="1.2"
-            >
-              Automate your excess inventory sales
-            </Heading>
+  spacing={8}
+  align={{ base: 'center', md: 'flex-start' }}
+  maxW="850px"
+  textAlign={{ base: 'center', md: 'left' }}
+  p={{ base: 8, md: 10 }}
+>
+  {/* Title */}
+  <Heading
+    fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
+    fontWeight="extrabold"
+    color="black"
+    letterSpacing="-2px"
+    lineHeight="1.2"
+  >
+    Automate your excess inventory sales
+  </Heading>
 
-            {/* Subtitle */}
-            <Text maxW="650px" fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
-              Aiden is the only excess inventory solution that maximizes sales volume,
-              price, and speed — while reducing manual work by 90%.
-            </Text>
+  {/* Subtitle */}
+  <Text maxW="650px" fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
+    Aiden is the only excess inventory solution that maximizes sales volume,
+    price, and speed — while reducing manual work by 90%.
+  </Text>
 
-            {/* Form Container */}
-            <Box width="100%" px={{ base: '10', md: '0' }}>
-              <Flex
-                as="form"
-                direction="row"
-                align="center"
-                justify="space-between"
-                maxW="600px"
-                border="1px solid"
-                borderColor="gray.400"
-                borderRadius="lg"
-                shadow="none"
-                bg="white"
-                p={1}
-                h="60px"
-              >
-                <Input
-                  placeholder="What's your work email?"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  size="lg"
-                  fontSize="lg"
-                  h="60px"
-                  bg="transparent"
-                  border="none"
-                  borderRadius="none"
-                  _hover={{ border: 'none' }}
-                  _focus={{ outline: 'none', boxShadow: 'none' }}
-                  flex="1"
-                />
+  {/* Desktop Form & Mobile Button */}
+  <Box width="100%" px={{ base: 10, md: 0 }}>
+    {/* Desktop-Only Form */}
+    <Box display={{ base: 'none', md: 'block' }}>
+      <Flex
+        as="form"
+        direction="row"
+        align="center"
+        justify="space-between"
+        maxW="600px"
+        border="1px solid"
+        borderColor="gray.400"
+        borderRadius="lg"
+        shadow="none"
+        bg="white"
+        p={1}
+        h="60px"
+      >
+        <Input
+          placeholder="What's your work email?"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          size="lg"
+          fontSize="lg"
+          h="60px"
+          bg="transparent"
+          border="none"
+          borderRadius="none"
+          _hover={{ border: 'none' }}
+          _focus={{ outline: 'none', boxShadow: 'none' }}
+          flex="1"
+        />
 
-                <Button
-                  as={RouterLink}
-                  to={`/requestdemo?email=${encodeURIComponent(email)}`}
-                  // Adjust your color scheme or variant as needed
-                  variant="logo_accent"
-                  size="lg"
-                  h="50px"
-                  px={6}
-                  borderRadius="lg"
-                  shadow="sm"
-                >
-                  Talk to Sales
-                </Button>
-              </Flex>
-            
+        <Button
+          as={RouterLink}
+          to={`/requestdemo?email=${encodeURIComponent(email)}`}
+          variant="logo_accent"
+          size="lg"
+          h="50px"
+          px={6}
+          borderRadius="lg"
+          shadow="sm"
+        >
+          Talk to Sales
+        </Button>
+      </Flex>
+    </Box>
 
-            {/* Three Check Marks Below the Form */}
-            <Flex
-              direction={{ base: 'column', md: 'row' }}
-              align={{ base: 'center', md: 'flex-start' }}
-              justify={{ base: 'center', md: 'flex-start' }}
-              gap={{ base: 3, md: 6 }}
-              mt={6}
-            >
-              {/* 1st check item */}
-              <Flex align="center">
-                <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
-                <Text color="gray.600" fontSize="sm">
-                  Enterprise scale
-                </Text>
-              </Flex>
+    {/* Mobile-Only Button */}
+    <Box display={{ base: 'block', md: 'none' }} mt={4}>
+      <Button
+        as={RouterLink}
+        to="/requestdemo"
+        variant="logo_accent"
+        size="lg"
+        h="50px"
+        px={6}
+        borderRadius="lg"
+        shadow="sm"
+      >
+        Talk to Sales
+      </Button>
+    </Box>
 
-              {/* 2nd check item */}
-              <Flex align="center">
-                <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
-                <Text color="gray.600" fontSize="sm">
-                  Fully automated
-                </Text>
-              </Flex>
+    {/* Check Marks */}
+    <Flex
+      direction={{ base: 'column', md: 'row' }}
+      align={{ base: 'center', md: 'flex-start' }}
+      justify={{ base: 'center', md: 'flex-start' }}
+      gap={{ base: 3, md: 6 }}
+      mt={6}
+    >
+      {/* 1st check item */}
+      <Flex align="center">
+        <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
+        <Text color="gray.600" fontSize="sm">Enterprise scale</Text>
+      </Flex>
+      {/* 2nd check item */}
+      <Flex align="center">
+        <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
+        <Text color="gray.600" fontSize="sm">Fully automated</Text>
+      </Flex>
+      {/* 3rd check item */}
+      <Flex align="center">
+        <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
+        <Text color="gray.600" fontSize="sm">Optimized sales</Text>
+      </Flex>
+    </Flex>
+  </Box>
+</VStack>
 
-              {/* 3rd check item */}
-              <Flex align="center">
-                <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
-                <Text color="gray.600" fontSize="sm">
-                  Optimized sales
-                </Text>
-              </Flex>
-            </Flex>
-            </Box>
-          </VStack>
 
           {/* Replace the Image with the Lottie Animation */}
           <Box
