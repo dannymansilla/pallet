@@ -213,6 +213,15 @@ const LandingPage = () => {
         <Text color="gray.600" fontSize="sm">Optimized sales</Text>
       </Flex>
     </Flex>
+
+    {/* Mobile-Only Button */}
+    <Box display={{ base: 'block', md: 'none' }} mt={4}>
+      <Lottie
+        animationData={globeAnimation}
+        loop
+        style={{ width: '150px', height: '100%'}}
+      />
+    </Box>
   </Box>
 </VStack>
 
