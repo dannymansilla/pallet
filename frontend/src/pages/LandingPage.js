@@ -126,7 +126,7 @@ const LandingPage = () => {
             </Text>
 
             {/* Desktop Form & Mobile Button */}
-            <Box width="100%" px={{ base: 10, md: 0 }}>
+            <Box width="100%" px={{ base: 0, md: 0 }}>
               {/* Desktop-Only Form */}
               <Box display={{ base: 'none', md: 'block' }}>
                 <Flex
@@ -174,7 +174,7 @@ const LandingPage = () => {
               </Box>
 
               {/* Mobile-Only Button */}
-              <Box display={{ base: 'block', md: 'none' }} mt={4}>
+              <Box display={{ base: 'block', md: 'none' }} mt={4} width="100%">
               <Flex
                   as="form"
                   direction="row"
@@ -188,6 +188,7 @@ const LandingPage = () => {
                   bg="white"
                   p={1}
                   h="60px"
+                  width="100%"
                 >
                   <Input
                     placeholder="What's your work email?"
@@ -196,6 +197,7 @@ const LandingPage = () => {
                     size="lg"
                     fontSize="lg"
                     h="60px"
+                    width="100%"
                     bg="transparent"
                     border="none"
                     borderRadius="none"
