@@ -54,7 +54,7 @@ export default function BuiltForGrowthSection() {
             borderRadius="lg"
             objectFit="cover"
             width="auto"
-            height={{ base: "200px", sm: "400px", md: "400px", lg: "500px" }}
+            height={{ base: "100px", sm: "400px", md: "400px", lg: "500px" }}
             mx="auto"
           />
         </Box>
