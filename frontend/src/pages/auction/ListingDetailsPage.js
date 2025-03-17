@@ -98,7 +98,7 @@ const ListingDetailsPage = () => {
   } = listing;
 
   return (
-    <Box minH="100vh" w="100%" maxW="1200px" mx="auto" p={4}>
+    <Box minH="100vh" w="100%" maxW="1400px" mx="auto" p={4}>
   <Flex direction={["column", "row"]} gap={6} align="flex-start">
     {/* Product Details (Left) */}
     <Box flex="1">

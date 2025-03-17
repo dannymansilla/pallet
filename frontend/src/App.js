@@ -5,7 +5,6 @@ import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme/theme"; // Ensure you have your custom theme file
 import Layout from "./components/Layout";
 import LandingPage from "./pages/LandingPage";
-import Home from "./pages/Home";
 import TeamPage from "./pages/TeamPage";
 // import ContactPage from "./pages/ContactPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -45,7 +44,6 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
-              <Route path="/home" element={<Home />} />
               <Route path="/team" element={<TeamPage />} />
               <Route path="/requestdemo" element={<RequestDemoPage />} />
               {/* <Route path="/contact" element={<ContactPage />} /> */}

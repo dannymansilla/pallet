@@ -58,7 +58,7 @@ useEffect(() => {
       {/* Sticky Search Bar */}
       <Box position="sticky" top="0" bg="white" zIndex="base" p={4} shadow="sm">
         <Flex justify="center" align="center" w="100%">
-            <Box w="100%" maxW="1200px">
+            <Box w="100%" maxW="1400px">
               <Flex align="center">
                   <IconButton
                   display={{ base: "block", md: "none" }}
@@ -79,7 +79,7 @@ useEffect(() => {
 
 
       {/* Sidebar for larger screens */}
-      <Flex maxW="1200px" mx="auto">
+      <Flex maxW="1400px" mx="auto">
         <Box
           display={{ base: "none", md: "block" }}
           w="250px"

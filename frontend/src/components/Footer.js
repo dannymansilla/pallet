@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <Box bg="brand.background_color" p={4} boxShadow="sm">
       <Flex
-        maxW="1200px"
+        maxW="1400px"
         mx="auto"
         justify={{ base: 'center', md: 'space-between' }}
         align="center"
@@ -22,9 +22,6 @@ const Footer = () => {
           </Link>
           <Link as={RouterLink} to="/onboarding/accept-terms" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Terms of Service
-          </Link>
-          <Link as={RouterLink} to="/home" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
-            Landing Page
           </Link>
           {/* <Link as={RouterLink} to="/contact" mx={2} color="black" fontSize="sm" _hover={{ color: 'brand.600' }}>
             Contact Us

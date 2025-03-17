@@ -4,6 +4,8 @@ import '@fontsource/dm-serif-display';
 import '@fontsource/dm-sans/400.css'; // Regular (default)
 import '@fontsource/dm-sans/700.css'; // Bold
 import '@fontsource/dm-sans/800.css'; 
+import '@fontsource/dm-mono';
+
 
 const theme = extendTheme({
   fonts: {

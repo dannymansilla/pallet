@@ -146,7 +146,7 @@ const Home = () => {
         left="50%"
         transform="translateX(-50%)"
         width="100%"
-        maxW="1200px"
+        maxW="1400px"
         align="center"
         justify="space-between"
         px={{ base: "10", md: "6" }}
@@ -259,7 +259,7 @@ const Home = () => {
         pointerEvents="none" // so it doesn't block interactions
         display={{ base: "none", md: "block" }} 
       >
-        <Box px={6} maxW="1200px" mx="auto">
+        <Box px={6} maxW="1400px" mx="auto">
           {layerThreeData.map((section, index) => (
             <Flex
               key={index}
@@ -322,7 +322,7 @@ const Home = () => {
       {/* Main Content & ThirdLayer are wrapped in a relative container so that the ThirdLayer scrolls normally */}
       <Box position="relative">
         {/* Main Content (Layer 2) */}
-        <Box maxW="1200px" mx="auto" px={{ base: "10", md: "6" }}>
+        <Box maxW="1400px" mx="auto" px={{ base: "10", md: "6" }}>
           {layerTwoData.map((section, index) => (
             <Flex
               key={index}

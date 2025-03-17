@@ -56,7 +56,7 @@ const BuyerDashboard = () => {
   }, []);
 
   return (
-    <Box bg={bgColor} minH="90vh" p={6} maxW="1200px">
+    <Box bg={bgColor} minH="90vh" p={6} maxW="1400px">
       {/* <Heading mb={6} color={textColor}>
         Buyer Dashboard
       </Heading> */}

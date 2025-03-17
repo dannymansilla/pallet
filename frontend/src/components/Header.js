@@ -22,6 +22,8 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import aidenlogo from "../images/aiden_logo.png";
+import Lottie from 'lottie-react'; 
+import globeAnimation from '../assets/aiden_globe.json';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -188,26 +190,37 @@ const Header = () => {
   );
 
   return (
-    <Box position="fixed" top="0" left="0" width="100%" zIndex="9999" bg="white">
+    <Box position="fixed" top="0" left="0" width="100%" zIndex="9999" bg="white" px={{ base: 8, md: 12 }}> 
       {/* Main Header */}
-      <Flex maxW="1200px" mx="auto" align="center" p={4}>
+      <Flex maxW="1400px" mx="auto" align="center" py={4}>
         <Flex align="center">
           {/* Logo Image */}
-          <Image
+          <Lottie
+            animationData={globeAnimation}
+            loop
+            style={{ width: '40px', height: '100%'}}
+          />
+          {/* <Image
             src={aidenlogo} // Replace with your logo path or URL
             alt="Aiden Logo"
             boxSize="40px"
             mr={2}
-          />
+          /> */}
           <Heading
             as={NavLink}
             to="/"
             size="lg"
             fontFamily="logo"
             letterSpacing="-2px"
+            display="inline-block" 
             _hover={{ textDecoration: "none" }}
+            ml="5px"
           >
-            aiden
+            <span style={{ marginRight: "-1px" }}>a</span>
+            <span style={{ marginRight: "-2px" }}>i</span>
+            <span>d</span>
+            <span style={{ marginLeft: "-0px" }}>e</span>
+            <span style={{ marginLeft: "-0px" }}>n</span>
           </Heading>
         </Flex>
         {/* Desktop Navigation (hidden on mobile) */}
@@ -254,7 +267,7 @@ const Header = () => {
         <Box display={{ base: "none", md: "block" }} pb={2}>
           <Divider borderBottom="1px solid black" />
           <Box bg="brand.background_color" py={2}>
-            <Flex maxW="1200px" mx="auto" px={4} align="center">
+            <Flex maxW="1400px" mx="auto" px={4} align="center">
               <HStack spacing={8}>{roleNavLinks}</HStack>
             </Flex>
           </Box>
