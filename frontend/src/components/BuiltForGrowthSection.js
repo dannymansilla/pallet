@@ -38,7 +38,7 @@ export default function BuiltForGrowthSection() {
         {/* Image Container with Dynamic Hover Effect */}
         <Box
           width="100%"
-          height={{ base: "100px", sm: "400px", md: "400px", lg: "500px" }}
+          height={{ base: "200px", sm: "400px", md: "400px", lg: "500px" }}
           mx="auto"
           bg={bg}
           transition="background 0.5s ease" // Smooth gradient transition
@@ -54,7 +54,7 @@ export default function BuiltForGrowthSection() {
             borderRadius="lg"
             objectFit="cover"
             width="auto"
-            height={{ base: "100px", sm: "400px", md: "400px", lg: "400px" }}
+            height={{ base: "200px", sm: "400px", md: "400px", lg: "400px" }}
             mx="auto"
           />
         </Box>
