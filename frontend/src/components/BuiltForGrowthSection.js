@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import minimize_costs from '../images/minimize_costs.png';
 import maximize_recovery from '../images/maximize_recovery.png';
-import accelerate_innovation from '../images/accelerate_innovation.png';
+import accelerate_innovation from '../images/accelerate_innovations.png';
 import eliminate_waste from '../images/eliminate_waste.png';
 
 export default function BuiltForGrowthSection() {
