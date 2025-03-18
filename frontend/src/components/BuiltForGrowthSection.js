@@ -70,7 +70,7 @@ export default function BuiltForGrowthSection() {
   };
 
   return (
-    <Box as="section" py={{ base: 10, md: 16 }} px={{ base: 8, md: 12 }} bg={bg}>
+    <Box as="section" py={{ base: 10, md: 16 }} px={{ base: 8, md: 24 }} bg={bg}>
       <Container maxW="8xl">
         {/* Section Heading */}
         <Box textAlign="left" mb={{ base: 8, md: 24 }} pb={10}>

@@ -23,7 +23,7 @@ export default function TimelineSection() {
     <Box
       as="section"
       py={{ base: 10, md: 16, lg: 24, xl: 32 }}
-      px={{ base: 8, md: 12 }}
+      px={{ base: 8, md: 24 }}
     >
       {/* 1) Intro Text */}
       <Box textAlign="center" maxW="800px" mx="auto" mb={{ base: 8, md: 12 }}>

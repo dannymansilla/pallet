@@ -17,7 +17,7 @@ export default function BottomCTA() {
   mb={{ base: 8, md: 12 }}
 >
   {/* Outer Box with bigger base padding */}
-  <Box px={{ base: 8, md: 12 }}> 
+  <Box px={{ base: 8, md: 24 }}> 
     <Flex
       w="full"
       maxW="1400px"
