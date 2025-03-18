@@ -88,6 +88,7 @@ const LandingPage = () => {
         align="center"
         justify="center"
         overflow="hidden"
+        px={"24px"}
       >
         {/* <SubtleBackground /> */}
         {/* Hero Section */}
@@ -96,7 +97,7 @@ const LandingPage = () => {
           justify="space-between"
           direction={{ base: "column", md: "row" }}
           minH="95vh" // Full viewport height
-          px={{ base: 6, md: 0 }}
+          px={{ base: 6, md: 10 }}
           py={{ base: 10, md: 0 }}
           position="relative"
           overflow="hidden"
@@ -106,7 +107,7 @@ const LandingPage = () => {
             align={{ base: 'center', md: 'flex-start' }}
             maxW="850px"
             textAlign={{ base: 'left', md: 'left' }}
-            p={{ base: 8, md: 10 }}
+            p={{ base: 8, md: 5 }}
           >
             {/* Title */}
             <Heading
