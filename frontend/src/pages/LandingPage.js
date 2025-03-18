@@ -88,7 +88,8 @@ const LandingPage = () => {
         align="center"
         justify="center"
         overflow="hidden"
-        px={"24px"}
+        // px={24}
+        px={{ base: 0, md: 24 }}
       >
         {/* <SubtleBackground /> */}
         {/* Hero Section */}
@@ -97,7 +98,7 @@ const LandingPage = () => {
           justify="space-between"
           direction={{ base: "column", md: "row" }}
           minH="95vh" // Full viewport height
-          px={{ base: 6, md: 10 }}
+          px={{ base: 10, md: 0 }}
           py={{ base: 10, md: 0 }}
           position="relative"
           overflow="hidden"
@@ -107,11 +108,11 @@ const LandingPage = () => {
             align={{ base: 'center', md: 'flex-start' }}
             maxW="850px"
             textAlign={{ base: 'left', md: 'left' }}
-            p={{ base: 8, md: 5 }}
+            py={{ base: 8, md: 5 }}
           >
             {/* Title */}
             <Heading
-              fontSize={{ base: '3xl', md: '5xl', lg: '6xl' }}
+              fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }}
               fontWeight="extrabold"
               color="black"
               letterSpacing="-2px"
@@ -175,7 +176,7 @@ const LandingPage = () => {
               </Box>
 
               {/* Mobile-Only Button */}
-              <Box display={{ base: 'block', md: 'none' }} mt={4} width="100%">
+              <Box display={{ base: 'block', md: 'none' }} px={{ base: 5, md: 0 }} mt={4} width="100%">
               <Flex
                   as="form"
                   direction="row"

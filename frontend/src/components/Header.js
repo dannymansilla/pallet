@@ -188,7 +188,7 @@ const Header = () => {
   );
 
   return (
-    <Box position="fixed" top="0" left="0" width="100%" zIndex="9999" bg="white" px={{ base: 8, md: 24 }}> 
+    <Box position="fixed" top="0" left="0" width="100%" zIndex="9999" bg="white" px={{ base: 8, md: 10, lg: 24 }}> 
       {/* Main Header */}
       <Flex maxW="1400px" mx="auto" align="center" py={4}>
         <Flex align="center">
@@ -209,7 +209,7 @@ const Header = () => {
             to="/"
             size="lg"
             fontFamily="logo"
-            letterSpacing="-2px"
+            letterSpacing="-1px"
             display="inline-block" 
             _hover={{ textDecoration: "none" }}
             ml="5px"
