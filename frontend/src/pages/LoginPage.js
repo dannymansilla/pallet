@@ -29,9 +29,9 @@ const LoginPage = () => {
       else if (user?.company?.status === "pending") {
         navigate("/profile");
       } else if (user?.company?.roles === "buyer") {
-        navigate("/buyer-dashboard");
+        navigate("/dashboard");
       } else if (user?.company?.roles === "seller") {
-        navigate("/seller-dashboard");
+        navigate("/dashboard");
       } else if (user?.company?.roles === "both") {
         navigate("/seller-dashboard");
       }

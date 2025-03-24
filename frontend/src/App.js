@@ -15,21 +15,25 @@ import { AuthProvider } from "./context/AuthContext";
 import CompanyRegistration from "./pages/Onboarding/CompanyRegistration";
 import AcceptTerms from "./pages/Onboarding/AcceptTerms";
 import AdminPage from "./pages/AdminPage";
-import SellerDashboard from "./pages/Dashboard/SellerDashboard";
-import BuyerDashboard from "./pages/Dashboard/BuyerDashboard";
-import UnifiedDashboard from "./pages/Dashboard/UnifiedDashboard";
+import SellerPage from "./pages/buyer/SellerPage";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import ProductSelectionPage from "./pages/auction/ProductSelectionPage";
 import ListingCreationPage from "./pages/auction/ListingCreationPage";
 import SellerNetworkPage from "./pages/seller/SellerNetworkPage";
 import AuctionTrucksPage from "./pages/seller/AuctionTruckPage";
 import BuyerTruckPage from "./pages/buyer/BuyerTruckPage";
 import ManageListingsPage from "./pages/seller/ManageListingsPage";
-import MyBidsPage from "./pages/buyer/MyBids";
+import MyBidsPage from "./pages/buyer/MyBidsPage";
 import ListingSearchPage from "./pages/auction/ListingSearchPage";
 import ListingDetailsPage from "./pages/auction/ListingDetailsPage";
 import RequestDemoPage from "./pages/RequestDemoPage";
 import { checkTokenValidity } from "./services/api";
 import ScrollToTop from "./components/ScrollToTop";
+import ProductDetailPage from "./components/ProductDetailPage";
+import ChatWidget from "./components/ChatWidget";
+import NotificationsPage from "./pages/NotificationsPage";
+import ListingPage from "./pages/seller/ListingPage";
+import SellerProductPage from "./pages/seller/SellerProductPage";
 
 function App() {
   useEffect(() => {
@@ -51,14 +55,17 @@ function App() {
               <Route path="/details" element={<ProductDetails />} />
               <Route path="/onboarding/register" element={<CompanyRegistration />} />
               <Route path="/onboarding/accept-terms" element={<AcceptTerms />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/sellerpage" element={<SellerPage />} />
+              <Route path="/productdetailpage" element={<ProductDetailPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/seller/listings" element={<ListingPage />} />
+              <Route path="/seller/listings/:listingId" element={<SellerProductPage />} />
 
               {/* Private Routes */}
               <Route path="/profile" element={<PrivateRoute Component={ProfilePage} />} />
-              <Route path="/buyer-dashboard" element={<PrivateRoute Component={BuyerDashboard} />} />
-              <Route path="/seller-dashboard" element={<PrivateRoute Component={SellerDashboard} />} />
               <Route path="/auction-trucks" element={<PrivateRoute Component={AuctionTrucksPage} />} />
               <Route path="/buyer-trucks" element={<PrivateRoute Component={BuyerTruckPage} />} />
-              <Route path="/unified-dashboard" element={<PrivateRoute Component={UnifiedDashboard} />} />
               <Route path="/seller/network" element={<PrivateRoute Component={SellerNetworkPage} />} />
               <Route path="/seller/manage-listings" element={<PrivateRoute Component={ManageListingsPage} />} />
               <Route path="/buyer/mybids" element={<PrivateRoute Component={MyBidsPage} />} />
@@ -68,6 +75,7 @@ function App() {
               <Route path="/listings/create" element={<PrivateRoute Component={ListingCreationPage} />} />
               <Route path="/admin" element={<PrivateRoute Component={AdminPage} />} />
             </Routes>
+            <ChatWidget />
           </Layout>
         </AuthProvider>
       </Router>

@@ -5,12 +5,13 @@ import '@fontsource/dm-sans/400.css'; // Regular (default)
 import '@fontsource/dm-sans/700.css'; // Bold
 import '@fontsource/dm-sans/800.css'; 
 import '@fontsource/dm-mono';
+import '@fontsource/inter';
 
 
 const theme = extendTheme({
   fonts: {
-    heading: `'DM Sans', sans-serif`,
-    body: `'DM Sans', sans-serif`,
+    heading: `'Inter', sans-serif`,
+    body: `'Inter', sans-serif`,
     logo: 'DM Mono, monospace',
   },
   colors: {

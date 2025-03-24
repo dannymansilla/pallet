@@ -5,23 +5,16 @@ import {
   Heading,
   Link,
   Button,
-  HStack,
-  Divider,
   IconButton,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerBody,
-  VStack,
+  Divider,
   useDisclosure,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Lottie from 'lottie-react'; 
-import globeAnimation from '../assets/aiden_globe.json';
+import Lottie from "lottie-react";
+import globeAnimation from "../assets/aiden_globe.json";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -30,187 +23,128 @@ const Header = () => {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const companyName = storedUser?.company?.name || "Profile";
 
-  // Define the main navigation links so we can reuse them in both desktop and mobile views.
-  const mainNavLinks = (
+  // Logged-out nav
+  const loggedOutNav = (
     <>
-      
+      <Link
+        as={NavLink}
+        to="/team"
+        style={({ isActive }) =>
+          isActive
+            ? {
+                background: "#3182ce",
+                color: "white",
+                borderRadius: "8px",
+                padding: "8px 12px",
+              }
+            : { color: "black", padding: "8px 12px" }
+        }
+        _hover={{ textDecoration: "underline" }}
+      >
+        About Us
+      </Link>
 
-      {user ? (
-        <>
-          <Link
-            as={NavLink}
-            to="/profile"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
-            }
-            _hover={{ textDecoration: "underline" }}
-          >
-            {companyName}
-          </Link>
-          <Button onClick={logout} bg="black" color="white" _hover={{ bg: "gray.800" }}>
-            Logout
-          </Button>
-        </>
-      ) : (
-        <>
-        <Link
-            as={NavLink}
-            to="/team"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "8px 12px" }
-                : { color: "black", padding: "8px 12px" }
-            }
-            _hover={{ textDecoration: "underline" }}
-          >
-            About Us
-          </Link>
-          <Button
-            as={NavLink}
-            to="/requestdemo"
-            variant="logo_accent"
-          >
-            Talk to Sales
-          </Button>
+      <Link
+        as={NavLink}
+        to="/requestdemo"
+        variant="logo_accent"
+        style={({ isActive }) =>
+          isActive
+            ? {
+                background: "#3182ce",
+                color: "white",
+                borderRadius: "8px",
+                padding: "8px 12px",
+              }
+            : { color: "black", padding: "8px 12px" }
+        }
+        _hover={{ textDecoration: "underline" }}
+      >
+        Talk to Sales
+      </Link>
 
-          {/* <Button as={NavLink} to="/login">
-            Login
-          </Button> */}
-        </>
-      )}
+      <Button as={NavLink} to="/login">
+        Login
+      </Button>
     </>
   );
 
-  // Define role-specific navigation links.
-  const roleNavLinks = (
+  // Logged-in nav
+  const loggedInNav = (
     <>
-      {(user?.company?.roles.includes("buyer") || user?.company?.roles.includes("both")) && (
-        <>
-          <NavLink
-            to="/buyer-dashboard"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Buyer Dashboard
-          </NavLink>
-          <NavLink
-            to="/auction"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Auctions
-          </NavLink>
-          <NavLink
-            to="/buyer/mybids"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            My Bids
-          </NavLink>
-          <NavLink
-            to="/buyer-trucks"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Truck History
-          </NavLink>
-        </>
-      )}
-      {(user?.company?.roles.includes("seller") || user?.company?.roles.includes("both")) && (
-        <>
-          <NavLink
-            to="/seller-dashboard"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Seller Dashboard
-          </NavLink>
-          {/* <NavLink
-            to="/products/select"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Create Listing
-          </NavLink> */}
-          <NavLink
-            to="/seller/manage-listings"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Manage Listings
-          </NavLink>
-          <NavLink
-            to="/seller/network"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Manage Network
-          </NavLink>
-          <NavLink
-            to="/auction-trucks"
-            style={({ isActive }) =>
-              isActive
-                ? { background: "#3182ce", color: "white", borderRadius: "8px", padding: "4px 6px" }
-                : { color: "black", padding: "4px 6px" }
-            }
-          >
-            Manage Trucks
-          </NavLink>
-        </>
-      )}
+      <Link
+        as={NavLink}
+        to="/profile"
+        style={({ isActive }) =>
+          isActive
+            ? {
+                background: "#3182ce",
+                color: "white",
+                borderRadius: "8px",
+                padding: "8px 12px",
+              }
+            : { color: "black", padding: "8px 12px" }
+        }
+        _hover={{ textDecoration: "underline" }}
+      >
+        {companyName}
+      </Link>
+
+      <NotificationsDropdown />
+
+      <Button
+        onClick={logout}
+        bg="black"
+        color="white"
+        _hover={{ bg: "gray.800" }}
+        ml={2}
+      >
+        Logout
+      </Button>
     </>
   );
+
+  // Determine layout styles based on logged-in state
+  const isLoggedIn = Boolean(user);
+
+  // We'll override maxW, margins, and padding:
+  // - Logged out: center content, max width 1400px, auto margin
+  // - Logged in: full width, small horizontal padding
+  const containerStyles = {
+    maxW: isLoggedIn ? "100%" : "1400px",
+    mx: isLoggedIn ? 0 : "auto",
+    px: isLoggedIn ? 4 : 0, // some horizontal padding when full width
+  };
 
   return (
-    <Box position="fixed" top="0" left="0" width="100%" zIndex="9999" bg="white" px={{ base: 8, md: 10, lg: 24 }}> 
-      {/* Main Header */}
-      <Flex maxW="1400px" mx="auto" align="center" py={4}>
+    <Box
+      position="fixed"
+      top="0"
+      left="0"
+      width="100%"
+      zIndex="9999"
+      bg="white"
+      boxShadow="sm"
+    >
+      <Flex
+        {...containerStyles}
+        align="center"
+        py={3}
+        justify="space-between"
+      >
+        {/* Left side: Aiden Logo and Name */}
         <Flex align="center">
-          {/* Logo Image */}
           <Lottie
             animationData={globeAnimation}
             loop
-            style={{ width: '40px', height: '100%'}}
+            style={{ width: "40px", height: "40px" }}
           />
-          {/* <Image
-            src={aidenlogo} // Replace with your logo path or URL
-            alt="Aiden Logo"
-            boxSize="40px"
-            mr={2}
-          /> */}
           <Heading
             as={NavLink}
             to="/"
             size="lg"
             fontFamily="logo"
             letterSpacing="-1px"
-            display="inline-block" 
             _hover={{ textDecoration: "none" }}
             ml="5px"
           >
@@ -221,57 +155,25 @@ const Header = () => {
             <span style={{ marginLeft: "-1px" }}>n</span>
           </Heading>
         </Flex>
-        {/* Desktop Navigation (hidden on mobile) */}
-        <Flex ml="auto" gap={4} align="center" display={{ base: "none", md: "flex" }}>
-          {mainNavLinks}
+
+        {/* Right side nav links */}
+        <Flex align="center" gap={4} display={{ base: "none", md: "flex" }}>
+          {isLoggedIn ? loggedInNav : loggedOutNav}
         </Flex>
-        {/* Mobile Hamburger Button (visible only on mobile) */}
+
+        {/* Mobile hamburger for main nav (optional drawer) */}
         <IconButton
           aria-label="Open Menu"
-          backgroundColor={"black"}
+          bg="black"
           icon={<HamburgerIcon />}
           size="lg"
           onClick={onOpen}
-          ml="auto" // Using ml="auto" here aligns the button to the far right in mobile view
           display={{ base: "flex", md: "none" }}
         />
       </Flex>
 
-      {/* <Divider borderBottom="1px solid #999" /> */}
-
-      {/* Mobile Drawer Navigation */}
-      <Drawer placement="right" onClose={onClose} isOpen={isOpen}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader>Menu</DrawerHeader>
-          <DrawerBody>
-            <VStack spacing={4} align="start">
-              {mainNavLinks}
-              {/* If the user is approved, include the role-specific links */}
-              {user !== null && user?.company?.status === "approved" && (
-                <>
-                  <Divider />
-                  {roleNavLinks}
-                </>
-              )}
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Role-Specific Horizontal Navigation (visible only on desktop) */}
-      {user !== null && user?.company?.status === "approved" && (
-        <Box display={{ base: "none", md: "block" }} pb={2}>
-          <Divider borderBottom="1px solid black" />
-          <Box bg="brand.background_color" py={2}>
-            <Flex maxW="1400px" mx="auto" px={4} align="center">
-              <HStack spacing={8}>{roleNavLinks}</HStack>
-            </Flex>
-          </Box>
-          <Divider borderBottom="1px solid black" />
-        </Box>
-      )}
+      {/* Divider across the bottom of the header */}
+      <Divider borderBottom="1px solid #999" w="100vw" mx="calc(-50vw + 50%)" />
     </Box>
   );
 };

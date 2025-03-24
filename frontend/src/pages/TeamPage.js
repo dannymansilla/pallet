@@ -34,7 +34,7 @@ const AboutUs = () => {
         textAlign="center"
         px={4}
       >
-        <Box maxW="1000px" textAlign={"left"}>
+        <Box maxW="1400px" textAlign={"left"}>
           <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={10} color="black">
             Turning Excess into Opportunity
           </Heading>
@@ -67,7 +67,7 @@ const AboutUs = () => {
         textAlign="center"
         px={4}
       >
-        <Box maxW="1000px" textAlign={"left"}>
+        <Box maxW="1400px" textAlign={"left"}>
           <Heading fontSize={{ base: '3xl', md: '5xl' }} fontWeight="bold" mb={4} color="white" py={5}>
             Our Story
           </Heading>
@@ -81,7 +81,7 @@ const AboutUs = () => {
 
       {/* Our Founders Section */}
       <Box
-        minH="80vh"
+        minH="90vh"
         bg="white"
         display="flex"
         flexDirection="column"
@@ -90,7 +90,7 @@ const AboutUs = () => {
         py={10}
       >
         {/* Container for Founders Section */}
-        <Box maxW="1000px" mx="auto">
+        <Box maxW="1400px" mx="auto">
           {/* Left-aligned Heading */}
           <Heading
             fontSize={{ base: '3xl', md: '5xl' }}

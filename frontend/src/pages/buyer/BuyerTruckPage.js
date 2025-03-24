@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Heading,
-  Text,
   Accordion,
   AccordionItem,
   AccordionButton,
@@ -15,88 +14,403 @@ import {
   Th,
   Td,
   useColorModeValue,
+  Input,
+  Button,
+  useToast,
 } from "@chakra-ui/react";
-import { fetchBuyerTrucks } from "../../services/api"; // Mock API call
 
-const BuyerTrucksPage = ({ buyerId }) => {
-  const [buyerData, setBuyerData] = useState(null);
-  const bgColor = useColorModeValue("white", "gray.700");
+/** 
+ * SAMPLE DATA: 
+ * Each month has an array of orders.
+ * Each order has:
+ *   seller, orderId, numTrucks, totalValue, paymentDue, isPaid, items[]
+ * The 'items' array is used for the subtable.
+ */
+const sampleMonthsData = [
+  {
+    month: "2025-03", // most recent
+    orders: [
+      {
+        seller: "Henkel",
+        orderId: "O-1001",
+        numTrucks: 2,
+        totalValue: 15000,
+        paymentDue: "2025-03-15",
+        isPaid: false,
+        items: [
+          {
+            brand: "Persil",
+            productName: "Persil Detergent",
+            pricePerPallet: 2500,
+            pallets: 2,
+          },
+          {
+            brand: "Persil",
+            productName: "Persil Tabs",
+            pricePerPallet: 2000,
+            pallets: 1,
+          },
+        ],
+      },
+      {
+        seller: "P&G",
+        orderId: "O-1002",
+        numTrucks: 3,
+        totalValue: 22000,
+        paymentDue: "2025-03-20",
+        isPaid: true,
+        items: [
+          {
+            brand: "Tide",
+            productName: "Tide Pods",
+            pricePerPallet: 2200,
+            pallets: 4,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    month: "2025-02",
+    orders: [
+      {
+        seller: "Unilever",
+        orderId: "O-2001",
+        numTrucks: 1,
+        totalValue: 12000,
+        paymentDue: "2025-02-28",
+        isPaid: false,
+        items: [
+          {
+            brand: "Dove",
+            productName: "Dove Soap",
+            pricePerPallet: 1800,
+            pallets: 3,
+          },
+          {
+            brand: "Dove",
+            productName: "Dove Body Wash",
+            pricePerPallet: 2000,
+            pallets: 2,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    month: "2025-01",
+    orders: [
+      {
+        seller: "Henkel",
+        orderId: "O-3001",
+        numTrucks: 2,
+        totalValue: 4000,
+        paymentDue: "2025-01-15",
+        isPaid: true,
+        items: [
+          {
+            brand: "Persil",
+            productName: "Persil Liquid",
+            pricePerPallet: 1900,
+            pallets: 2,
+          },
+        ],
+      },
+      {
+        seller: "Unilever",
+        orderId: "O-3002",
+        numTrucks: 1,
+        totalValue: 3000,
+        paymentDue: "2025-01-25",
+        isPaid: false,
+        items: [
+          {
+            brand: "Dove",
+            productName: "Dove Lotion",
+            pricePerPallet: 1500,
+            pallets: 2,
+          },
+        ],
+      },
+    ],
+  },
+];
 
-  useEffect(() => {
-    const loadTrucks = async () => {
-      try {
-        const response = await fetchBuyerTrucks(buyerId);
-        setBuyerData(response.data);
-      } catch (error) {
-        console.error("Failed to fetch buyer trucks", error);
-      }
-    };
-    loadTrucks();
-  }, [buyerId]);
-
-  if (!buyerData) {
-    return <Text>Loading your awarded trucks...</Text>;
-  }
-
-  const { buyer_summary, trucks } = buyerData;
+/** 
+ * Subtable of awarded items that appear when an order row is expanded:
+ * brand, productName, pricePerPallet, # pallets, totalValue
+ */
+const AwardedItemsSubtable = ({ items }) => {
+  // We calculate totalValue on the fly.
+  const withTotals = items.map((it) => ({
+    ...it,
+    totalValue: it.pricePerPallet * it.pallets,
+  }));
 
   return (
-    <Box bg={bgColor} p={6} minH="100vh">
-      {/* Buyer Summary */}
-      <Heading mb={4}>Your Awarded Trucks</Heading>
-      <Box bg="gray.100" p={4} borderRadius="lg" mb={6}>
-        <Text fontSize="lg"><strong>Buyer Name:</strong> {buyer_summary.buyer_name}</Text>
-        <Text fontSize="lg"><strong>Auction Closed:</strong> {buyer_summary.auction_closed}</Text>
-        <Text fontSize="lg"><strong>Total Trucks Awarded:</strong> {buyer_summary.total_trucks}</Text>
-        <Text fontSize="lg"><strong>Total Units Purchased:</strong> {buyer_summary.total_units.toLocaleString()}</Text>
-        <Text fontSize="lg"><strong>Total Spend:</strong> ${buyer_summary.total_spent.toLocaleString()}</Text>
-      </Box>
-
-      {/* Truck Breakdown Section */}
-      <Heading size="lg" mb={4}>Your Trucks</Heading>
-      <Accordion allowMultiple>
-        {trucks.map((truck, index) => (
-          <AccordionItem key={truck.truck_id}>
-            <h2>
-              <AccordionButton _expanded={{ bg: "blue.500", color: "white" }}>
-                <Box flex="1" textAlign="left">
-                  🚛 <strong>Truck {index + 1} → {truck.destination}</strong>
-                  <Text ml={4} fontSize="sm"><strong>Weight:</strong> {truck.truck_weight.toLocaleString()} lbs</Text>
-                  <Text ml={4} fontSize="sm"><strong>Total Cost:</strong> ${truck.truck_total_cost.toLocaleString()}</Text>
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>Product</Th>
-                    <Th>Quantity</Th>
-                    <Th>Pallets</Th>
-                    <Th>Weight</Th>
-                    <Th>SKU</Th>
-                    <Th>Unit Price</Th>
-                    <Th>Total Price</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {truck.items.map((item) => (
-                    <Tr key={item.sku}>
-                      <Td>{item.name}</Td>
-                      <Td>{item.quantity.toLocaleString()}</Td>
-                      <Td>{item.pallets}</Td>
-                      <Td>{item.weight.toLocaleString()} lbs</Td>
-                      <Td>{item.sku}</Td>
-                      <Td>${item.awarded_price_per_unit.toFixed(2)}</Td>
-                      <Td>${item.total_price.toLocaleString()}</Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </AccordionPanel>
-          </AccordionItem>
+    <Table variant="simple" size="sm" mt={2}>
+      <Thead>
+        <Tr bg={useColorModeValue("gray.50", "gray.700")}>
+          <Th>Brand</Th>
+          <Th>Product Name</Th>
+          <Th isNumeric>Price / Pallet</Th>
+          <Th isNumeric># Pallets</Th>
+          <Th isNumeric>Total Value</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {withTotals.map((item, idx) => (
+          <Tr key={idx}>
+            <Td>{item.brand}</Td>
+            <Td>{item.productName}</Td>
+            <Td isNumeric>${item.pricePerPallet.toLocaleString()}</Td>
+            <Td isNumeric>{item.pallets}</Td>
+            <Td isNumeric>${item.totalValue.toLocaleString()}</Td>
+          </Tr>
         ))}
+      </Tbody>
+    </Table>
+  );
+};
+
+/**
+ * A reusable subcomponent for a filterable/sortable table of orders. 
+ * Each row can be expanded to show the AwardedItemsSubtable.
+ */
+const OrdersTable = ({ orders }) => {
+  const toast = useToast();
+  const expandedBg = useColorModeValue("gray.50", "gray.800");
+
+  // 1) Define columns for the order summary
+  const columns = [
+    { key: "seller", label: "Seller", isNumeric: false, width: "15%" },
+    { key: "orderId", label: "Order ID", isNumeric: false, width: "15%" },
+    { key: "numTrucks", label: "# Trucks", isNumeric: true, width: "10%" },
+    { key: "totalValue", label: "Total Value", isNumeric: true, width: "15%" },
+    { key: "paymentDue", label: "Payment Due", isNumeric: false, width: "15%" },
+    { key: "isPaid", label: "Payment Status", isNumeric: false, width: "15%" },
+  ];
+
+  // 2) "initialData" for the table
+  const initialData = orders.map((o) => ({ ...o }));
+
+  // 3) State for filters
+  const [filters, setFilters] = useState(
+    columns.reduce((acc, col) => ({ ...acc, [col.key]: "" }), {})
+  );
+
+  // 4) Sort state
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortOrder, setSortOrder] = useState(null);
+
+  // 5) Expanded row (for showing items subtable)
+  const [expandedRow, setExpandedRow] = useState(null);
+
+  const handleFilterChange = (colKey, value) => {
+    setFilters((prev) => ({ ...prev, [colKey]: value }));
+  };
+
+  // Filtering
+  const filterRows = (data) =>
+    data.filter((row) =>
+      columns.every((col) => {
+        const cellValue = String(row[col.key] || "").toLowerCase();
+        const filterValue = filters[col.key].toLowerCase().trim();
+        if (!filterValue) return true;
+        return cellValue.includes(filterValue);
+      })
+    );
+
+  // Sorting
+  const sortRows = (data) => {
+    if (!sortColumn) return data;
+    const colDef = columns.find((c) => c.key === sortColumn);
+
+    return [...data].sort((a, b) => {
+      let aVal = a[sortColumn];
+      let bVal = b[sortColumn];
+      if (colDef.isNumeric) {
+        aVal = Number(aVal);
+        bVal = Number(bVal);
+        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+      } else {
+        const compare = String(aVal).localeCompare(String(bVal));
+        return sortOrder === "asc" ? compare : -compare;
+      }
+    });
+  };
+
+  const handleSort = (colKey) => {
+    if (sortColumn === colKey) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(colKey);
+      setSortOrder("asc");
+    }
+  };
+
+  const filtered = filterRows(initialData);
+  const finalData = sortRows(filtered);
+
+  // Toggle expanded row
+  const toggleExpandRow = (orderId) => {
+    setExpandedRow((prev) => (prev === orderId ? null : orderId));
+  };
+
+  // Payment handler
+  const handlePay = () => {
+    toast({
+      title: "Payment",
+      description: "Payments coming soon!",
+      status: "info",
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
+  return (
+    <Table variant="simple" tableLayout="fixed" width="100%">
+      <Thead>
+        <Tr>
+          <Th width="5%"></Th>
+          {columns.map((col) => (
+            <Th
+              key={col.key}
+              width={col.width}
+              isNumeric={col.isNumeric}
+              cursor="pointer"
+              onClick={() => handleSort(col.key)}
+            >
+              {col.label}
+              {sortColumn === col.key && (sortOrder === "asc" ? " ↑" : " ↓")}
+            </Th>
+          ))}
+        </Tr>
+        {/* Filter row */}
+        <Tr>
+          <Td />
+          {columns.map((col) => (
+            <Td key={`${col.key}-filter`} width={col.width} isNumeric={col.isNumeric}>
+              <Input
+                size="xs"
+                placeholder="Filter..."
+                value={filters[col.key]}
+                onChange={(e) => handleFilterChange(col.key, e.target.value)}
+              />
+            </Td>
+          ))}
+        </Tr>
+      </Thead>
+      <Tbody>
+        {finalData.map((order) => {
+          const isExpanded = expandedRow === order.orderId;
+
+          return (
+            <React.Fragment key={order.orderId}>
+              {/* Row for the order summary */}
+              <Tr
+                _hover={{ bg: "gray.50", cursor: "pointer" }}
+                onClick={() => toggleExpandRow(order.orderId)}
+              >
+                {/* Truck Icon + Expand indicator */}
+                <Td>
+                  🚛 {isExpanded ? "▾" : "▸"}
+                </Td>
+                <Td>{order.seller}</Td>
+                <Td>{order.orderId}</Td>
+                <Td isNumeric>{order.numTrucks}</Td>
+                <Td isNumeric>${order.totalValue.toLocaleString()}</Td>
+                <Td>{order.paymentDue}</Td>
+                {/* Payment Status Cell */}
+                <Td>
+                  {order.isPaid ? (
+                    "Completed"
+                  ) : (
+                    <Button colorScheme="blue" size="sm" onClick={handlePay}>
+                      Pay
+                    </Button>
+                  )}
+                </Td>
+              </Tr>
+
+              {/* Sub-row for the awarded items (only if expanded) */}
+              {isExpanded && (
+                <Tr>
+                  <Td colSpan={columns.length + 1} bg={expandedBg}>
+                    <Box p={2}>
+                      <Heading size="sm" mb={2}>
+                        Awarded Items
+                      </Heading>
+                      <AwardedItemsSubtable items={order.items} />
+                    </Box>
+                  </Td>
+                </Tr>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </Tbody>
+    </Table>
+  );
+};
+
+/**
+ * Main page: an Accordion of months (most recent up top).
+ * The user can expand each month, which shows the OrdersTable.
+ * Then each row in the table can be expanded to show awarded items.
+ */
+const BuyerTrucksPage = () => {
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+
+  // Sort months descending => the first item is the most recent
+  const sortedMonths = [...sampleMonthsData].sort((a, b) =>
+    b.month.localeCompare(a.month)
+  );
+
+  // We'll default to opening the first index (the most recent).
+  const defaultOpenIndices = [0];
+
+  return (
+    <Box p={4} minH="85vh">
+      <Heading size="lg" mb={6}>
+        Your Trucks By Month
+      </Heading>
+
+      <Accordion allowMultiple defaultIndex={defaultOpenIndices}>
+        {sortedMonths.map((monthObj) => {
+          // Convert "2025-03" -> "March 2025"
+          const [year, mon] = monthObj.month.split("-");
+          const date = new Date(+year, +mon - 1);
+          const monthLabel = date.toLocaleString("default", {
+            month: "long",
+            year: "numeric",
+          });
+
+          return (
+            <AccordionItem
+              key={monthObj.month}
+              mb={4}
+              border="1px solid"
+              borderColor={borderColor}
+              borderRadius="md"
+            >
+              <h2>
+                <AccordionButton px={4} py={2}>
+                  <Box flex="1" textAlign="left">
+                    <Heading size="md">{monthLabel}</Heading>
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+
+              <AccordionPanel px={4} pb={4}>
+                <Box overflowX="auto">
+                  <OrdersTable orders={monthObj.orders} />
+                </Box>
+              </AccordionPanel>
+            </AccordionItem>
+          );
+        })}
       </Accordion>
     </Box>
   );

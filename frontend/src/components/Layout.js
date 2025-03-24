@@ -1,33 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { Flex, Box } from "@chakra-ui/react";
 import Header from "./Header";
 import Footer from "./Footer";
-import Container from "./Container";
-import WidthPlaceholder from "./WidthPlaceholder";
+import SideNav from "./SideNav";
 import { useAuth } from "../context/AuthContext";
 
 const Layout = ({ children }) => {
-
   const { user } = useAuth();
+  const isApproved = user?.company?.status === 'approved';
+
+  // State for horizontal collapse
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // The side nav is 200px wide normally, 60px when collapsed
+  const sidebarWidth = isCollapsed ? 60 : 200;
 
   return (
     <Flex direction="column" minH="100vh">
-      {/* Header */}
+      {/* Header (fixed) */}
       <Box as="header" w="100%">
         <Header />
       </Box>
 
-      <Container>
-      {/* Main Content */}
-        <Box as="main" flex="1" pt={{ base: "70px", md: user !== null && user?.company?.status === "approved" ? "150px" : "80px" }}>
-        {children}
-        <WidthPlaceholder columns={6} boxCount={1} />
+      {/* SideNav (fixed left, top=70px in the component itself) */}
+      {/* Pass isCollapsed and the toggle callback */}
+      <Box>
+        {isApproved && (
+          <SideNav
+            user={user}
+            isCollapsed={isCollapsed}
+            onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+          />
+        )}
       </Box>
-      </Container>
-      
+
+      {/* Main Content Area */}
+      <Box
+        as="main"
+        flex="1"
+        pt="70px"
+        ml={isApproved ? `${sidebarWidth}px` : "0"}
+        transition="margin-left 0.2s ease"
+      >
+        {children}
+      </Box>
 
       {/* Footer */}
-      <Box as="footer" w="100%">
+      <Box as="footer"
+      flex="1"
+      pt="10px"
+      ml={isApproved ? `${sidebarWidth}px` : "0"}
+      transition="margin-left 0.2s ease">
         <Footer />
       </Box>
     </Flex>
