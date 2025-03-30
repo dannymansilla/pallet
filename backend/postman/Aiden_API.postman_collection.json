@@ -1,0 +1,323 @@
+{
+	"info": {
+		"_postman_id": "f2a3b1c4-d5e6-4f7g-8h9i-0j1k2l3m4n5o",
+		"name": "Aiden API",
+		"description": "Collection for testing Aiden API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"securePassword123!\",\n    \"company_name\": \"Test Company Inc\",\n    \"role\": \"buyer\",\n    \"tos_accepted\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/register/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "register"]
+						},
+						"description": "Register a new user with company information"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.access) {",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"}",
+									"if (jsonData.refresh) {",
+									"    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"daniel@hiaiden.com\",\n    \"password\": \"super_aiden_2727\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "login"]
+						},
+						"description": "Login with email and password to get JWT tokens"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.access) {",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/login/refresh/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "login", "refresh"]
+						},
+						"description": "Refresh access token using refresh token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/logout/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "logout"]
+						},
+						"description": "Logout and blacklist the refresh token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/profile/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "profile"]
+						},
+						"description": "Get user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"current_password\",\n    \"new_password\": \"new_password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/change-password/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "change-password"]
+						},
+						"description": "Change user password"
+					},
+					"response": []
+				},
+				{
+					"name": "Accept Terms",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/accept-terms/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "accept-terms"]
+						},
+						"description": "Accept terms of service"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "List All Organizations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/admin/organizations/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "admin", "organizations"]
+						},
+						"description": "List all organizations (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Pending Organizations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/admin/organizations/pending/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "admin", "organizations", "pending"]
+						},
+						"description": "List organizations pending approval (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Organization",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"approve\",\n    \"notes\": \"Organization approved after verification\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/admin/organizations/:org_id/approve/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "admin", "organizations", ":org_id", "approve"],
+							"variable": [
+								{
+									"key": "org_id",
+									"value": "1",
+									"description": "ID of the organization to approve/reject"
+								}
+							]
+						},
+						"description": "Approve or reject an organization (admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Admin User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newadmin@aidenproject.com\",\n    \"password\": \"secure_admin_password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/admin/create-admin/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "admin", "create-admin"]
+						},
+						"description": "Create a new admin user (admin only)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+} 
