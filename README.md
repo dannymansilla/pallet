@@ -20,55 +20,98 @@ This is a full-stack auction marketplace application built with React (frontend)
 
 ## Tech Stack
 
-- **Frontend**: React, React Router, Axios
+- **Frontend**: React, Chakra UI, React Router, Axios
 - **Backend**: Django, Django REST Framework, PostgreSQL
-- **Real-Time Communication**: Socket.io (for future development)
+- **Caching**: Redis
 - **Containerization**: Docker, Docker Compose
 
 ## Project Structure
 
 ```
-myproject/
+pallet/
 │
 ├── backend/                    # Django backend
-│   ├── palletproject/          # Main Django project folder
+│   ├── aidenproject/                # Main Django project configuration
 │   │   ├── __init__.py
-│   │   ├── settings.py         # Django settings (configure static, REST API, etc.)
-│   │   ├── urls.py             # Main URL configuration
+│   │   ├── settings.py        # Django settings
+│   │   ├── urls.py           # Main URL configuration
 │   │   ├── wsgi.py
 │   │   └── asgi.py
 │   │
-│   ├── palletapp/              # Django application folder
-│   │   ├── __init__.py
-│   │   ├── admin.py            # Admin panel configurations
-│   │   ├── apps.py
-│   │   ├── models.py           # Database models
-│   │   ├── views.py            # Views to handle requests
-│   │   ├── urls.py             # App-specific URL routing
-│   │   ├── serializers.py      # DRF serializers for models
-│   │   └── tests.py            # Unit tests
+│   ├── apps/                  # Django applications
+│   │   ├── accounts/         # User authentication and profiles
+│   │   │   ├── models.py     # User, Organization models
+│   │   │   ├── views.py      # Authentication views
+│   │   │   └── serializers.py
+│   │   │
+│   │   ├── auctions/         # Auction functionality
+│   │   │   ├── models.py     # SaleEvent, Listing, Bid models
+│   │   │   ├── views.py      # Auction views and metrics
+│   │   │   └── serializers.py
+│   │   │
+│   │   ├── integrations/     # Integrations management
+│   │   │   ├── models.py     # ERPIntegrations, IntegrationLog models
+│   │   │   ├── views.py      # Integrations views
+│   │   │   └── serializers.py
+│   │   │
+│   │   ├── inventory/        # Inventory management
+│   │   │   ├── models.py     # Product, Warehouse models
+│   │   │   ├── views.py      # Inventory views
+│   │   │   └── serializers.py
+│   │   │
+│   │   ├── notifications/    # Notifications management
+│   │   │   ├── models.py     # Notifications, Activity models
+│   │   │   ├── views.py      # Notifications views
+│   │   │   └── serializers.py
+│   │   │
+│   │   └── orders/          # Order processing
+│   │       ├── models.py     # Order, OrderLineItem models
+│   │       ├── views.py      # Order views
+│   │       └── serializers.py
 │   │
-│   ├── manage.py               # Django's command-line utility
-│   └── requirements.txt        # Python dependencies
+│   ├── manage.py             # Django's command-line utility
+│   └── requirements.txt      # Python dependencies
 │
-├── frontend/                   # React frontend
-│   ├── public/                 # Public files (index.html, icons, etc.)
-│   ├── src/                    # Main source folder for React
-│   │   ├── components/         # Reusable React components
-│   │   ├── pages/              # Page components (Home, Product, etc.)
-│   │   ├── hooks/              # Custom hooks
-│   │   ├── context/            # Context API for state management
-│   │   ├── services/           # API service files for interacting with the backend
-│   │   ├── App.js              # Main App component
-│   │   ├── index.js            # Entry point for React
-│   │   ├── routes.js           # Application routing configuration
-│   │   └── styles/             # Global and component-specific styles
+├── frontend/                 # React frontend
+│   ├── public/              # Public files
+│   ├── src/
+│   │   ├── components/      # Reusable React components
+│   │   │   ├── Layout/     # Layout components
+│   │   │   │   ├── Header.js
+│   │   │   │   ├── Footer.js
+│   │   │   │   ├── SideNav.js
+│   │   │   │   └── Layout.js
+│   │   │   │
+│   │   │   ├── Auth/       # Authentication components
+│   │   │   │   ├── LoginPage.js
+│   │   │   │   └── RegisterPage.js
+│   │   │   │
+│   │   │   ├── AdminPortal/    # Admin components
+│   │   │   │   └── AdminPage.js
+│   │   │   │
+│   │   │   ├── BuyerPortal/    # Buyer components
+│   │   │   │   ├── BuyerDashboard.js
+│   │   │   │   └── BidHistory.js
+│   │   │   │
+│   │   │   └── SellerPortal/   # Seller components
+│   │   │       ├── SellerDashboard.js
+│   │   │       └── ListingManager.js
+│   │   │
+│   │   ├── context/        # Context providers
+│   │   │   └── AuthContext.js
+│   │   │
+│   │   ├── services/       # API services
+│   │   │   ├── api.js
+│   │   │   └── endpoints.js
+│   │   │
+│   │   ├── App.js
+│   │   └── index.js
 │   │
-│   ├── package.json            # Frontend dependencies and scripts
-│   └── .env                    # Environment variables for the frontend
+│   ├── package.json
+│   └── .env
 │
-├── .gitignore                  # Files and directories to ignore in git
-└── docker-compose.yml          # For running Docker containers (optional)
+├── .gitignore
+└── docker-compose.yml       # Docker configuration
 ```
 
 ## Getting Started
@@ -92,27 +135,31 @@ cd pallet
 2. **Create Environment Files**:
 Create .env files for both the backend and frontend with the necessary environment variables.
 
-
 ### Running the Application
 
 1. **Build and Start the Application**:
 Run the following command from the root directory of the project:
 
-```
+```bash
 docker-compose up --build
 ```
 
-This command will build the Docker images and start the backend, frontend, and database services.
+This command will build and start:
+- Django backend (http://localhost:8000)
+- React frontend (http://localhost:3000)
+- PostgreSQL database
+- Redis cache
 
 2. **Access the Application**:
 * Frontend (React): http://localhost:3000
 * Backend (Django): http://localhost:8000
+* Admin Interface: http://localhost:8000/admin
   
 ### Stopping the Application
 
-To stop all running containers, use:
+To stop all running containers:
 
-```
+```bash
 docker-compose down
 ```
 
@@ -124,15 +171,21 @@ Create a .env file inside the backend folder with the following variables:
 ```
 DJANGO_SECRET_KEY=your_secret_key
 DEBUG=True
-DATABASE_URL=postgres://your_user:your_password@db:5432/your_database
+DB_NAME=palletdev
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_HOST=db
+DB_PORT=5432
 ```
 
 ### Frontend (.env file)
 Create a .env file inside the frontend folder with the following variables:
 
 ```
-REACT_APP_API_URL=http://localhost:8000
+REACT_APP_API_URL=http://localhost:8000/api
 ```
 
 ## Deployment
+
+[Deployment instructions to be added]
 
