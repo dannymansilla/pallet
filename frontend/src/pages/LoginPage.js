@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, error, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -21,20 +21,37 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login({ username, password });
+      await login({ email, password });
       const user = JSON.parse(localStorage.getItem("user"));
-      if (user.is_superuser) {
+      
+      // First check role and approval status
+      if (user.role === 'admin') {
         navigate("/admin");
       }
-      else if (user?.company?.status === "pending") {
+      else if (user.organization?.approval_status === "pending") {
         navigate("/profile");
-      } else if (user?.company?.roles === "buyer") {
-        navigate("/dashboard");
-      } else if (user?.company?.roles === "seller") {
-        navigate("/dashboard");
-      } else if (user?.company?.roles === "both") {
-        navigate("/seller-dashboard");
+        toast({
+          title: "Account Pending",
+          description: "Your account is pending approval. Please check back later.",
+          status: "warning",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
       }
+      // If approved, check organization type
+      else if (user.organization?.approval_status === "approved") {
+        if (user.role === 'buyer' || (user.organization?.is_buyer && !user.organization?.is_seller)) {
+          navigate("/dashboard");
+        } 
+        else if (user.role === 'seller' || (!user.organization?.is_buyer && user.organization?.is_seller)) {
+          navigate("/dashboard");
+        } 
+        else if (user.organization?.is_buyer && user.organization?.is_seller) {
+          navigate("/dashboard");
+        }
+      }
+
       toast({
         title: "Login successful!",
         description: "Redirecting...",
@@ -69,13 +86,13 @@ const LoginPage = () => {
           Login
         </Heading>
         <form onSubmit={handleSubmit}>
-          <FormControl id="username" isRequired mb={4}>
+          <FormControl id="email" isRequired mb={4}>
             <FormLabel>email</FormLabel>
             <Input
               type="text"
               placeholder="youremail@company.com"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </FormControl>
           <FormControl id="password" isRequired mb={6}>

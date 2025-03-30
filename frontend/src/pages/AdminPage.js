@@ -10,59 +10,56 @@ import {
   Badge,
   useToast,
 } from "@chakra-ui/react";
-import { getAllCompanies, approveCompany, rejectCompany } from "../services/api";
-import { useAuth } from "../context/AuthContext"; // Access user role from AuthContext
+import { getPendingCompanies, approveCompany, rejectCompany } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const AdminPage = () => {
-  const [companies, setCompanies] = useState([]);
+  const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
-  const { user } = useAuth(); // Access user data from context
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if the user is not a superuser
-    if (!user?.is_superuser) {
-      navigate("/unauthorized"); // Redirect to an unauthorized page
+    // Redirect if the user is not an admin
+    if (user?.role !== 'admin') {
+      navigate("/unauthorized");
       return;
     }
 
-    // Fetch companies if user is a superuser
-    const fetchCompanies = async () => {
+    // Fetch pending organizations if user is admin
+    const fetchOrganizations = async () => {
       try {
-        const response = await getAllCompanies(); // Fetch all companies with status
-        setCompanies(response.data);
+        const response = await getPendingCompanies();
+        setOrganizations(response.data);
       } catch (err) {
-        setError("Failed to fetch companies. Please try again later.");
+        setError("Failed to fetch organizations. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCompanies();
+    fetchOrganizations();
   }, [user, navigate]);
 
-  const handleApprove = async (companyId) => {
+  const handleApprove = async (orgId) => {
     try {
-      await approveCompany(companyId);
+      await approveCompany(orgId);
       toast({
-        title: "Company approved!",
-        description: "The company has been successfully approved.",
+        title: "Organization approved!",
+        description: "The organization has been successfully approved.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      setCompanies((prev) =>
-        prev.map((company) =>
-          company.id === companyId ? { ...company, status: "approved" } : company
-        )
-      );
+      // Remove the approved organization from the list
+      setOrganizations((prev) => prev.filter(org => org.id !== orgId));
     } catch (err) {
       toast({
         title: "Approval failed",
-        description: "An error occurred while approving the company.",
+        description: "An error occurred while approving the organization.",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -70,25 +67,22 @@ const AdminPage = () => {
     }
   };
 
-  const handleReject = async (companyId) => {
+  const handleReject = async (orgId) => {
     try {
-      await rejectCompany(companyId);
+      await rejectCompany(orgId);
       toast({
-        title: "Company rejected!",
-        description: "The company has been successfully rejected.",
+        title: "Organization rejected!",
+        description: "The organization has been successfully rejected.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      setCompanies((prev) =>
-        prev.map((company) =>
-          company.id === companyId ? { ...company, status: "rejected" } : company
-        )
-      );
+      // Remove the rejected organization from the list
+      setOrganizations((prev) => prev.filter(org => org.id !== orgId));
     } catch (err) {
       toast({
         title: "Rejection failed",
-        description: "An error occurred while rejecting the company.",
+        description: "An error occurred while rejecting the organization.",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -115,15 +109,15 @@ const AdminPage = () => {
   return (
     <Box p={8} minH="100vh" bg="gray.50">
       <Heading mb={6} textAlign="center">
-        Company Management
+        Pending Organizations
       </Heading>
-      {companies.length === 0 ? (
-        <Text textAlign="center">No companies found.</Text>
+      {organizations.length === 0 ? (
+        <Text textAlign="center">No pending organizations found.</Text>
       ) : (
         <VStack spacing={4}>
-          {companies.map((company) => (
+          {organizations.map((org) => (
             <Box
-              key={company.id}
+              key={org.id}
               p={4}
               bg="white"
               shadow="sm"
@@ -133,39 +127,33 @@ const AdminPage = () => {
             >
               <HStack justifyContent="space-between" alignItems="center">
                 <Box>
-                  <Text fontWeight="bold">{company.name}</Text>
-                  <Text fontSize="sm">Admin Email: {company.admin_user.email}</Text>
-                  <Text fontSize="sm">Role: {company.roles}</Text>
-                  <Badge
-                    colorScheme={
-                      company.status === "pending"
-                        ? "yellow"
-                        : company.status === "approved"
-                        ? "green"
-                        : "red"
-                    }
-                  >
-                    {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
+                  <Text fontWeight="bold">{org.name}</Text>
+                  <Text fontSize="sm">
+                    Type: {[
+                      org.is_buyer && 'Buyer',
+                      org.is_seller && 'Seller'
+                    ].filter(Boolean).join(', ')}
+                  </Text>
+                  <Badge colorScheme="yellow">
+                    Pending Approval
                   </Badge>
                 </Box>
-                {company.status === "pending" && (
-                  <HStack>
-                    <Button
-                      colorScheme="green"
-                      size="sm"
-                      onClick={() => handleApprove(company.id)}
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      colorScheme="red"
-                      size="sm"
-                      onClick={() => handleReject(company.id)}
-                    >
-                      Reject
-                    </Button>
-                  </HStack>
-                )}
+                <HStack>
+                  <Button
+                    colorScheme="green"
+                    size="sm"
+                    onClick={() => handleApprove(org.id)}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    colorScheme="red"
+                    size="sm"
+                    onClick={() => handleReject(org.id)}
+                  >
+                    Reject
+                  </Button>
+                </HStack>
               </HStack>
             </Box>
           ))}

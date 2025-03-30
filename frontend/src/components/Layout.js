@@ -7,7 +7,8 @@ import { useAuth } from "../context/AuthContext";
 
 const Layout = ({ children }) => {
   const { user } = useAuth();
-  const isApproved = user?.company?.status === 'approved';
+  const isApproved = user?.organization?.approval_status === 'approved';
+  const isAdmin = user?.role === 'admin';
 
   // State for horizontal collapse
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -25,7 +26,7 @@ const Layout = ({ children }) => {
       {/* SideNav (fixed left, top=70px in the component itself) */}
       {/* Pass isCollapsed and the toggle callback */}
       <Box>
-        {isApproved && (
+        {(isApproved && !isAdmin) && (
           <SideNav
             user={user}
             isCollapsed={isCollapsed}
@@ -39,18 +40,18 @@ const Layout = ({ children }) => {
         as="main"
         flex="1"
         pt="70px"
-        ml={isApproved ? `${sidebarWidth}px` : "0"}
+        ml={(isApproved && !isAdmin) ? `${sidebarWidth}px` : "0"}
         transition="margin-left 0.2s ease"
       >
         {children}
       </Box>
 
       {/* Footer */}
-      <Box as="footer"
-      flex="1"
-      pt="10px"
-      ml={isApproved ? `${sidebarWidth}px` : "0"}
-      transition="margin-left 0.2s ease">
+      <Box 
+        as="footer"
+        ml={(isApproved && !isAdmin) ? `${sidebarWidth}px` : "0"}
+        transition="margin-left 0.2s ease"
+      >
         <Footer />
       </Box>
     </Flex>

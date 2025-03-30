@@ -17,27 +17,37 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await logoutUser();
+      // First clear all auth-related state
       setToken(null);
       setUser(null);
+      
+      // Clear all localStorage items
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
+      
+      // Call API logout (but don't wait for it since we want UI to update immediately)
+      logoutUser().catch(console.error);
+      
+      // Force navigation to home page
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+      // Even if API call fails, ensure user is logged out locally
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
+      setToken(null);
+      setUser(null);
       navigate("/");
     }
-  }, [navigate]); // Add 'navigate' as a dependency
+  }, [navigate]);
 
   setLogoutHandler(logout);
 
   useEffect(() => {
     setLogoutHandler(logout);
-  }, [logout]); // Dependency array updated
+  }, [logout]);
 
   // Login Method
   const login = async (credentials) => {
@@ -70,7 +80,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", data.access);
     } catch (err) {
       console.error("Token refresh failed:", err);
-      logout(); // 🔹 Ensure logout is called if refresh fails
+      logout();
     }
   };
 
@@ -81,7 +91,7 @@ export const AuthProvider = ({ children }) => {
         token,
         isLoading,
         error,
-        isSuperuser: user?.is_superuser || false, // Expose superuser role
+        isSuperuser: user?.is_superuser || false,
         login,
         logout,
         refresh,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   SimpleGrid,
@@ -15,6 +15,10 @@ import {
   Td,
   Text,
   useColorModeValue,
+  Switch,
+  FormControl,
+  FormLabel,
+  Flex,
 } from "@chakra-ui/react";
 import {
   LineChart,
@@ -27,13 +31,14 @@ import {
   Legend
 } from "recharts";
 import { ArrowUpIcon, ArrowDownIcon } from "@chakra-ui/icons";
+import { getSellerMetrics, getMonthlyStats, getSellerDashboardTables } from "../../services/api";
 
 /**
  * 1) Updated sample data for top-level metrics (unchanged).
  */
 const sampleSellerStats = {
   customerEngagement: {
-    lastMonthActivePercent: 68, // e.g., 68% of the seller’s buyers were active
+    lastMonthActivePercent: 68, // e.g., 68% of the seller's buyers were active
     MoMChange: 5.2,            // e.g., up 5.2% from previous month
   },
   volume: {
@@ -146,16 +151,83 @@ const sampleBuyers = [
 const SellerDashboard = () => {
   const cardBg = useColorModeValue("white", "gray.800");
   const cardBorderColor = useColorModeValue("gray.200", "gray.700");
+  const [useSampleData, setUseSampleData] = useState(true);
+  const [metrics, setMetrics] = useState(null);
+  const [monthlyData, setMonthlyData] = useState(null);
+  const [tableData, setTableData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Compute any derived data for the Recovery Rate box
-  const { prevMonthListValue, prevMonthSoldValue } = sampleSellerStats.recoveryRate;
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!useSampleData) {
+        setLoading(true);
+        try {
+          const [metricsResponse, monthlyResponse, tablesResponse] = await Promise.all([
+            getSellerMetrics(),
+            getMonthlyStats(),
+            getSellerDashboardTables()
+          ]);
+          setMetrics(metricsResponse.data);
+          setMonthlyData(monthlyResponse.data);
+          setTableData(tablesResponse.data);
+          setError(null);
+        } catch (err) {
+          console.error("Failed to fetch data:", err);
+          setError("Failed to load data. Using sample data instead.");
+          setUseSampleData(true);
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [useSampleData]);
+
+  // Use either real or sample data
+  const currentMetrics = useSampleData ? sampleSellerStats : metrics;
+  const currentMonthlyData = useSampleData ? sampleMonthlyData : monthlyData;
+  const currentTableData = useSampleData ? {
+    recentAuctions: sampleAuctions,
+    topProducts: sampleProducts,
+    topBuyers: sampleBuyers
+  } : tableData;
+
+  // Compute recovery rate data
+  const { prevMonthListValue, prevMonthSoldValue } = currentMetrics?.recoveryRate || {};
   const recoveryPercent = ((prevMonthSoldValue / prevMonthListValue) * 100).toFixed(1);
   const difference = (prevMonthListValue - prevMonthSoldValue).toLocaleString();
 
   return (
     <Box p={6}>
-      {/* Page Title */}
-      <Heading mb={6}>Seller Dashboard</Heading>
+      {/* Page Title and Data Toggle */}
+      <Flex justify="space-between" align="center" mb={6}>
+        <Heading>Seller Dashboard</Heading>
+        <FormControl display="flex" alignItems="center" w="auto">
+          <FormLabel htmlFor="sample-data" mb="0" mr={2}>
+            Use Sample Data
+          </FormLabel>
+          <Switch
+            id="sample-data"
+            isChecked={useSampleData}
+            onChange={(e) => setUseSampleData(e.target.checked)}
+          />
+        </FormControl>
+      </Flex>
+
+      {/* Error Message if any */}
+      {error && (
+        <Box mb={6} p={4} bg="red.100" color="red.700" borderRadius="md">
+          {error}
+        </Box>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <Box mb={6} p={4} bg="blue.100" color="blue.700" borderRadius="md">
+          Loading data...
+        </Box>
+      )}
 
       {/* Key Metric Boxes */}
       <SimpleGrid columns={[1, 2, 4]} spacing="20px" mb={6}>
@@ -170,11 +242,11 @@ const SellerDashboard = () => {
           <Stat>
             <StatLabel>Customer Engagement</StatLabel>
             <StatNumber>
-              {sampleSellerStats.customerEngagement.lastMonthActivePercent}%
+              {currentMetrics?.customerEngagement?.lastMonthActivePercent}%
             </StatNumber>
             <StatHelpText>
               Active bidders last month
-              <MoMChangeIndicator change={sampleSellerStats.customerEngagement.MoMChange} />
+              <MoMChangeIndicator change={currentMetrics?.customerEngagement?.MoMChange} />
             </StatHelpText>
           </Stat>
         </Box>
@@ -188,14 +260,13 @@ const SellerDashboard = () => {
           p={4}
         >
           <Stat>
-            <StatLabel>Volume ({sampleSellerStats.volume.currentMonth})</StatLabel>
+            <StatLabel>Volume ({currentMetrics?.volume?.currentMonth})</StatLabel>
             <StatNumber>
-              $
-              {sampleSellerStats.volume.currentMonthListValue.toLocaleString()}
+              ${currentMetrics?.volume?.currentMonthListValue.toLocaleString()}
             </StatNumber>
             <StatHelpText>
               Total List Price Value
-              <MoMChangeIndicator change={sampleSellerStats.volume.MoMChange} />
+              <MoMChangeIndicator change={currentMetrics?.volume?.MoMChange} />
             </StatHelpText>
           </Stat>
         </Box>
@@ -212,8 +283,8 @@ const SellerDashboard = () => {
             <StatLabel>Recovery Rate</StatLabel>
             <StatNumber>{recoveryPercent}%</StatNumber>
             <StatHelpText>
-              ${prevMonthListValue.toLocaleString()} listed vs. $
-              {prevMonthSoldValue.toLocaleString()} sold
+              ${prevMonthListValue?.toLocaleString()} listed vs. $
+              {prevMonthSoldValue?.toLocaleString()} sold
               <br />
               (${difference} difference)
             </StatHelpText>
@@ -231,7 +302,7 @@ const SellerDashboard = () => {
           <Stat>
             <StatLabel>Carried Over</StatLabel>
             <StatNumber>
-              ${sampleSellerStats.carriedOverValue.toLocaleString()}
+              ${currentMetrics?.carriedOverValue?.toLocaleString()}
             </StatNumber>
             <StatHelpText>Into Current Month</StatHelpText>
           </Stat>
@@ -252,38 +323,35 @@ const SellerDashboard = () => {
         </Heading>
         <Box height="350px">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={sampleMonthlyData}>
+            <LineChart data={currentMonthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
               <Legend />
-              {/* 1) Total Listed Value */}
               <Line
                 type="monotone"
                 dataKey="listValue"
                 name="Total List Value"
-                stroke="#3182CE"    // Blue
+                stroke="#3182CE"
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 6 }}
               />
-              {/* 2) Sold List Value */}
               <Line
                 type="monotone"
                 dataKey="soldListValue"
                 name="Sold (List Value)"
-                stroke="#E53E3E"    // Red
+                stroke="#E53E3E"
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 6 }}
               />
-              {/* 3) Actual Sales */}
               <Line
                 type="monotone"
                 dataKey="actualSales"
                 name="Actual Sales"
-                stroke="#38A169"    // Green
+                stroke="#38A169"
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 6 }}
@@ -317,7 +385,7 @@ const SellerDashboard = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {sampleAuctions.map((auc) => (
+            {currentTableData?.recentAuctions?.map((auc) => (
               <Tr key={auc.auctionId}>
                 <Td>{auc.auctionId}</Td>
                 <Td>{auc.products}</Td>
@@ -326,7 +394,7 @@ const SellerDashboard = () => {
                 <Td>{auc.endDate}</Td>
                 <Td>
                   <Text
-                    color={auc.status === "Live" ? "green.500" : "gray.500"}
+                    color={auc.status === "Open" ? "green.500" : "gray.500"}
                   >
                     {auc.status}
                   </Text>
@@ -359,7 +427,7 @@ const SellerDashboard = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {sampleProducts.map((product) => (
+              {currentTableData?.topProducts?.map((product) => (
                 <Tr key={product.productId}>
                   <Td>{product.name}</Td>
                   <Td>${product.totalRevenue.toLocaleString()}</Td>
@@ -390,7 +458,7 @@ const SellerDashboard = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {sampleBuyers.map((buyer) => (
+              {currentTableData?.topBuyers?.map((buyer) => (
                 <Tr key={buyer.buyerId}>
                   <Td>{buyer.name}</Td>
                   <Td>{buyer.totalBids}</Td>

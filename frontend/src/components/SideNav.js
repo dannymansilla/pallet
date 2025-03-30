@@ -55,23 +55,18 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
   // Expand/collapse states
   const [showBuyerSection, setShowBuyerSection] = useState(true);
   const [showSellerSection, setShowSellerSection] = useState(true);
-
-  // New sections
   const [showYourSellers, setShowYourSellers] = useState(false);
   const [showMoreSellers, setShowMoreSellers] = useState(false);
 
   // If user not logged in or not approved, hide entire sidebar
-  if (!user || user?.company?.status !== 'approved') return null;
+  if (!user || user?.organization?.approval_status !== 'approved') return null;
 
-  // Roles
-  const hasBuyerRole =
-    user.company.roles.includes('buyer') || user.company.roles.includes('both');
-  const hasSellerRole =
-    user.company.roles.includes('seller') || user.company.roles.includes('both');
+  // Check roles based on both role field and organization settings
+  const isBuyer = user.role === 'buyer' || user.organization?.is_buyer;
+  const isSeller = user.role === 'seller' || user.organization?.is_seller;
 
-  // Grab the company name from localStorage
-  const storedUser = JSON.parse(localStorage.getItem('user'));
-  const companyName = storedUser?.company?.name || 'Profile';
+  // Get organization name from user context
+  const organizationName = user.organization?.name || 'Profile';
 
   // Adjust width if collapsed
   const sidebarWidth = isCollapsed ? '60px' : '200px';
@@ -110,9 +105,9 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
 
       <VStack align="stretch" spacing={1} p={4}>
         {/* If Buyer Role: Show Company Name Section */}
-        {hasBuyerRole && (
+        {isBuyer && (
           <>
-            {/* 1) Company Name Collapsible Section (was "Buyer") */}
+            {/* 1) Company Name Collapsible Section */}
             <Text
               fontWeight="bold"
               mt={2}
@@ -123,7 +118,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
               whiteSpace="nowrap"
               textOverflow="ellipsis"
             >
-              {isCollapsed ? companyName : companyName}
+              {isCollapsed ? organizationName.charAt(0) : organizationName}
             </Text>
 
             {/* Buyer sub-links */}
@@ -132,9 +127,6 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
                 <NavLink to="/dashboard" style={linkStyle}>
                   Marketplace
                 </NavLink>
-                {/* <NavLink to="/auction" style={linkStyle}>
-                  Auctions
-                </NavLink> */}
                 <NavLink to="/buyer/mybids" style={linkStyle}>
                   My Bids
                 </NavLink>
@@ -156,7 +148,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
               whiteSpace="nowrap"
               textOverflow="ellipsis"
             >
-              {isCollapsed ? 'Sellers' : 'Your Sellers'}
+              {isCollapsed ? 'S' : 'Your Sellers'}
             </Text>
 
             {!isCollapsed && showYourSellers && (
@@ -166,7 +158,6 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
                     <NavLink
                       key={seller.id}
                       to="/sellerpage"
-                      as={NavLink}
                       style={linkSellerStyle}
                     >
                       {seller.name}
@@ -188,7 +179,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
               whiteSpace="nowrap"
               textOverflow="ellipsis"
             >
-              {isCollapsed ? 'More' : 'More Sellers'}
+              {isCollapsed ? 'M' : 'More Sellers'}
             </Text>
 
             {!isCollapsed && showMoreSellers && (
@@ -198,14 +189,12 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
                     <NavLink
                       key={seller.id}
                       to="/sellerpage"
-                      as={NavLink}
                       style={linkSellerStyle}
                     >
                       {seller.name}
                     </NavLink>
                   ))}
                 </Box>
-
                 <Divider my={2} />
               </>
             )}
@@ -213,7 +202,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
         )}
 
         {/* If Seller Role: Show Seller Section */}
-        {hasSellerRole && (
+        {isSeller && (
           <>
             <Text
               fontWeight="bold"
@@ -225,7 +214,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
               whiteSpace="nowrap"
               textOverflow="ellipsis"
             >
-              {isCollapsed ? 'Seller' : 'Seller'}
+              {isCollapsed ? 'S' : 'Seller Portal'}
             </Text>
 
             {!isCollapsed && showSellerSection && (
@@ -236,9 +225,6 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
                 <NavLink to="/seller/listings" style={linkStyle}>
                   Listings
                 </NavLink>
-                {/* <NavLink to="/seller/manage-listings" style={linkStyle}>
-                  Manage Listings
-                </NavLink> */}
                 <NavLink to="/seller/network" style={linkStyle}>
                   Manage Network
                 </NavLink>

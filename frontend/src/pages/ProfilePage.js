@@ -12,6 +12,7 @@ import {
   VStack,
   Divider,
   useColorModeValue,
+  Badge,
 } from "@chakra-ui/react";
 
 const ProfilePage = () => {
@@ -58,8 +59,6 @@ const ProfilePage = () => {
     );
   }
 
-  const { user, company } = profile;
-
   return (
     <Flex
       direction="column"
@@ -77,40 +76,57 @@ const ProfilePage = () => {
         maxW="600px"
       >
         <Flex align="center" mb={6}>
-          <Avatar size="lg" name={user.username} />
+          <Avatar 
+            size="lg" 
+            name={profile.email} 
+            src={profile.avatar_url} 
+          />
           <VStack align="start" ml={4}>
             <Heading as="h2" size="md">
-              {user.username}
+              {profile.email}
             </Heading>
-            <Text color="gray.500">{user.email}</Text>
+            <Badge colorScheme="blue">{profile.role}</Badge>
           </VStack>
         </Flex>
 
         <Divider my={4} />
 
-        {company ? (
+        {profile.organization ? (
           <>
-            <Heading as="h3" size="sm" mb={2}>
-              Company Details
+            <Heading as="h3" size="sm" mb={4}>
+              Organization Details
             </Heading>
             <Box>
               <Text fontWeight="bold">Name:</Text>
-              <Text mb={2}>{company.name}</Text>
+              <Text mb={2}>{profile.organization.name}</Text>
+
+              <Text fontWeight="bold">Type:</Text>
+              <Flex gap={2} mb={2}>
+                {profile.organization.is_buyer && (
+                  <Badge colorScheme="green">Buyer</Badge>
+                )}
+                {profile.organization.is_seller && (
+                  <Badge colorScheme="purple">Seller</Badge>
+                )}
+              </Flex>
 
               <Text fontWeight="bold">Status:</Text>
-              <Text
+              <Badge
                 mb={2}
-                color={
-                  company.status === "pending" ? pendingStatusColor : approvedStatusColor
+                colorScheme={
+                  profile.organization.approval_status === "pending"
+                    ? "yellow"
+                    : "green"
                 }
               >
-                {company.status.charAt(0).toUpperCase() + company.status.slice(1)}
-              </Text>
+                {profile.organization.approval_status.charAt(0).toUpperCase() +
+                  profile.organization.approval_status.slice(1)}
+              </Badge>
 
-              {company.status === "pending" && (
+              {profile.organization.approval_status === "pending" && (
                 <Alert status="warning" mt={4}>
                   <AlertIcon />
-                  Your company is awaiting approval. Access will be granted once approved.
+                  Your organization is awaiting approval. You'll have full access once approved.
                 </Alert>
               )}
             </Box>
@@ -118,7 +134,7 @@ const ProfilePage = () => {
         ) : (
           <Alert status="info" mt={4}>
             <AlertIcon />
-            No company information associated with your account.
+            No organization information associated with your account.
           </Alert>
         )}
       </Box>

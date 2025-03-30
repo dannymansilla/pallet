@@ -20,8 +20,8 @@ const Header = () => {
   const { user, logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const storedUser = JSON.parse(localStorage.getItem("user"));
-  const companyName = storedUser?.company?.name || "Profile";
+  // Get organization name from user context instead of localStorage
+  const organizationName = user?.organization?.name || "Profile";
 
   // Logged-out nav
   const loggedOutNav = (
@@ -87,13 +87,16 @@ const Header = () => {
         }
         _hover={{ textDecoration: "underline" }}
       >
-        {companyName}
+        {organizationName}
       </Link>
 
       <NotificationsDropdown />
 
       <Button
-        onClick={logout}
+        onClick={() => {
+          logout();
+          onClose(); // Close any open menus
+        }}
         bg="black"
         color="white"
         _hover={{ bg: "gray.800" }}
@@ -158,10 +161,10 @@ const Header = () => {
 
         {/* Right side nav links */}
         <Flex align="center" gap={4} display={{ base: "none", md: "flex" }}>
-          {isLoggedIn ? loggedInNav : loggedOutNav}
+          {user ? loggedInNav : loggedOutNav}
         </Flex>
 
-        {/* Mobile hamburger for main nav (optional drawer) */}
+        {/* Mobile hamburger for main nav */}
         <IconButton
           aria-label="Open Menu"
           bg="black"

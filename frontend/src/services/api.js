@@ -410,34 +410,36 @@ export const registerUser = (data) => API.post(endpoints.register, data);
 
 // Register Company Service
 export const registerCompany = async (data) => {
-  const response = await API.post("/companies/register/", {
+  const response = await API.post(endpoints.companyRegister, {
+    email: data.adminEmail,
+    password: data.adminPassword,
     company_name: data.companyName,
-    admin_email: data.adminEmail,
-    admin_password: data.adminPassword,
-    roles: data.companyRole, // Preselected as buyer or seller
-    terms_accepted: data.termsAccepted, // Mandatory
+    role: data.companyRole,
+    tos_accepted: data.termsAccepted
   });
   return response.data;
 };
 
 
 
-// Approve a company
-export const approveCompany = (companyId) =>
-  API.post(`/companies/${companyId}/approve_company/`);
+// Admin Organization Management
+export const getAllCompanies = () => API.get(endpoints.adminListOrganizations);
 
-// Reject a company
-export const rejectCompany = (companyId) =>
-  API.post(`/companies/${companyId}/reject_company/`);
+export const getPendingCompanies = () => API.get(endpoints.adminPendingOrganizations);
 
-// Fetch pending companies
-export const getPendingCompanies = () =>
-  API.get("/companies/", {
-    params: { is_approved: false }, // Assuming backend supports filtering by this parameter
+export const approveCompany = async (orgId) => {
+  return API.post(endpoints.adminApproveOrganization(orgId), {
+    action: 'approve',
+    notes: 'Organization approved by admin'
   });
+};
 
-// Fetch all companies
-export const getAllCompanies = () => API.get("/companies/");
+export const rejectCompany = async (orgId) => {
+  return API.post(endpoints.adminApproveOrganization(orgId), {
+    action: 'reject',
+    notes: 'Organization rejected by admin'
+  });
+};
 
 export const searchProducts = (query) => {
   return API.get(`/products/search/?q=${query}`);
@@ -447,6 +449,9 @@ export const createListing = (listingData) => {
   return API.post("/listings/", listingData);
 };
 
-
+// Seller Dashboard Metrics
+export const getSellerMetrics = () => API.get("/auctions/seller/metrics/");
+export const getMonthlyStats = () => API.get("/auctions/monthly-stats/");
+export const getSellerDashboardTables = () => API.get("/auctions/dashboard-tables/");
 
 export {API};

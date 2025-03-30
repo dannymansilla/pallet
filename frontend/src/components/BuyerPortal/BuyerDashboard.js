@@ -125,8 +125,7 @@ const BuyerDashboard = () => {
   return (
     <Flex
       flexDirection="column"
-      minH="100vh"
-      bgGradient={pageBgGradient}
+      bg={pageBgGradient}
       p={[2, 2, 2]}
     >
       {/* PAGE HEADING */}
@@ -138,7 +137,6 @@ const BuyerDashboard = () => {
       <Box
         mb={6}
         p={4}
-        
         borderRadius="md"
         border="1px solid"
         borderColor={borderColor}
@@ -152,9 +150,8 @@ const BuyerDashboard = () => {
               key={seller.id}
               variant="outline"
               bg={accentBg}
-              // as={NavLink}
-              // to={`/seller/${seller.id}`}
-              as={NavLink} to="/sellerpage"
+              as={NavLink} 
+              to="/sellerpage"
               borderColor={borderColor}
               _hover={{ bg: "blue.100" }}
             >

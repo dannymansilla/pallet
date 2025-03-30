@@ -97,19 +97,23 @@ const CompanyRegistration = () => {
     }
 
     try {
-      await registerCompany(formData);
+      const response = await registerCompany(formData);
       toast({
-        title: "Success",
-        description: "Registration successful! Awaiting approval.",
+        title: "Registration Successful",
+        description: "Your account is pending approval. You can now log in to check your status.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
-      navigate("/profile");
+      // Redirect to login page after successful registration
+      navigate("/login");
     } catch (error) {
+      const errorMessage = error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          "Registration failed. Please try again.";
       toast({
-        title: "Error",
-        description: error.response?.data?.message || "Registration failed. Please try again.",
+        title: "Registration Failed",
+        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,

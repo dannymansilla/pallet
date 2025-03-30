@@ -12,28 +12,28 @@ export default function UnifiedDashboard() {
     return <Box p={8}><Text>Please log in to view the dashboard.</Text></Box>;
   }
 
-  // Check roles
-  const hasBuyerRole =
-    user.company.roles.includes("buyer") || user.company.roles.includes("both");
-  const hasSellerRole =
-    user.company.roles.includes("seller") || user.company.roles.includes("both");
+  // If account is pending approval
+  if (user.organization?.approval_status === "pending") {
+    return (
+      <Box p={8}>
+        <Text>Your account is pending approval. Please check back later.</Text>
+      </Box>
+    );
+  }
 
-  // Basic logic: if they have the seller role, show Seller; if they have buyer role, show Buyer
-  // If a user has BOTH, we can show both. Or you could implement tabs, or a toggle, etc.
+  // Check roles based on both role field and organization settings
+  const isBuyer = user.role === 'buyer' || user.organization?.is_buyer;
+  const isSeller = user.role === 'seller' || user.organization?.is_seller;
 
   return (
-    <Box bg="white" minH="100vh" p={6}>
-      {/* This container ensures some spacing/padding */}
-      {/* If you want a max width, add something like maxW="1400px" mx="auto" here */}
+    <Box p={6}>
+      {isSeller && <SellerDashboard />}
+      {isBuyer && <BuyerDashboard />}
       
-      {hasSellerRole && <SellerDashboard />}
-
-      {hasBuyerRole && <BuyerDashboard />}
-      
-      {/* If a user doesn't have either role, maybe show an error or message */}
-      {!hasSellerRole && !hasBuyerRole && (
+      {/* Show error if no valid role */}
+      {!isSeller && !isBuyer && (
         <Text>
-          You do not have any Buyer or Seller roles assigned. Contact support.
+          You do not have any Buyer or Seller roles assigned. Please contact support.
         </Text>
       )}
     </Box>
