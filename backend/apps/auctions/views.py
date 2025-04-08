@@ -12,13 +12,15 @@ from .models import (
 from .serializers import (
     SaleEventSerializer, ListingSerializer, DocumentSerializer,
     BidSerializer, BidAuditLogSerializer, OptimizationRunSerializer,
-    OptimizedLoadSerializer, TruckLoadItemSerializer, SellerBuyerNetworkSerializer
+    OptimizedLoadSerializer, TruckLoadItemSerializer, SellerBuyerNetworkSerializer,
+    SellerListingSerializer, AuctionTruckSerializer, BuyerDashboardListingSerializer
 )
-from django.db.models import Count, Sum, F, Q
+from django.db.models import Count, Sum, F, Q, FloatField, Case, When, Value, BooleanField
 from datetime import datetime, timedelta
-from django.db.models.functions import TruncMonth
-from apps.inventory.models import SellerProfile
+from django.db.models.functions import TruncMonth, ExtractYear, ExtractMonth
+from apps.inventory.models import SellerProfile, BuyerProfile
 from apps.orders.models import OrderLineItem, Order
+from apps.accounts.models import Organization
 
 # Create your views here.
 
@@ -65,6 +67,106 @@ class ListingViewSet(viewsets.ModelViewSet):
         elif user.role == 'buyer':
             return Listing.objects.filter(listing_status='active')
         return Listing.objects.all()
+
+class SellerListingsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        # Get the current user's seller profile
+        seller_profile = request.user.organization.sellerprofile
+        
+        # Get filter parameters
+        selected_month = request.query_params.get('month', '')
+        selected_brand = request.query_params.get('brand', '')
+        
+        # Base queryset for the seller's listings
+        queryset = Listing.objects.filter(seller=seller_profile)
+        
+        # Filter by month if provided
+        if selected_month:
+            year, month = selected_month.split('-')
+            queryset = queryset.filter(
+                sale_event__start_date__year=year,
+                sale_event__start_date__month=month
+            )
+        
+        # Filter by brand if provided
+        if selected_brand:
+            queryset = queryset.filter(product__brand=selected_brand)
+        
+        # Get current month for comparison
+        current_date = timezone.now()
+        current_month = current_date.strftime("%Y-%m")
+        
+        # Annotate with bid data for calculations
+        queryset = queryset.annotate(
+            # Total bid quantity for active bids
+            total_bid_qty=Sum('bid__bid_quantity', filter=Q(bid__status='active')),
+            
+            # Sum of (bid_price * bid_quantity) for active bids
+            sum_price_qty=Sum(
+                F('bid__bid_price') * F('bid__bid_quantity'),
+                filter=Q(bid__status='active'),
+                output_field=FloatField()
+            ),
+            
+            # Volume above MSP (bids with price > reserve_price)
+            volume_above_msp=Sum(
+                'bid__bid_quantity',
+                filter=Q(bid__status='active', bid__bid_price__gt=F('reserve_price'))
+            ),
+            
+            # Flag for current month
+            is_current_month=Case(
+                When(
+                    sale_event__start_date__year=current_date.year,
+                    sale_event__start_date__month=current_date.month,
+                    then=Value(True)
+                ),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
+        
+        # Serialize the data
+        serializer = SellerListingSerializer(queryset, many=True)
+        
+        # Process the serialized data to add computed fields
+        listings_data = serializer.data
+        
+        for listing in listings_data:
+            # Get the corresponding listing object
+            listing_obj = queryset.get(id=listing['id'])
+            
+            # Calculate weighted average bid price
+            total_bid_qty = listing_obj.total_bid_qty or 0
+            sum_price_qty = listing_obj.sum_price_qty or 0
+            
+            if total_bid_qty > 0:
+                weighted_avg_price = sum_price_qty / total_bid_qty
+            else:
+                weighted_avg_price = 0
+                
+            listing['weighted_average_bid_price_per_unit'] = round(weighted_avg_price, 2)
+            
+            # Calculate volume above MSP percent
+            volume_above_msp = listing_obj.volume_above_msp or 0
+            quantity_available = listing_obj.quantity_available or 1  # Avoid division by zero
+            
+            volume_above_msp_percent = (volume_above_msp / quantity_available) * 100
+            listing['volume_above_msp_percent'] = round(volume_above_msp_percent, 2)
+            
+            # Calculate recovery rate percent
+            msrp = listing_obj.product.msrp if hasattr(listing_obj.product, 'msrp') else 0
+            
+            if msrp and msrp > 0:
+                recovery_rate = (weighted_avg_price / msrp) * 100
+            else:
+                recovery_rate = 0
+                
+            listing['recovery_rate_percent'] = round(recovery_rate, 2)
+        
+        return Response(listings_data)
 
 class BidViewSet(viewsets.ModelViewSet):
     queryset = Bid.objects.all()
@@ -573,3 +675,376 @@ class DocumentViewSet(viewsets.ModelViewSet):
         elif user.role == 'buyer':
             return Document.objects.filter(listing__listing_status='active')
         return Document.objects.all()
+
+class SellerNetworkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        # Get the current user's seller profile
+        seller_profile = request.user.organization.sellerprofile
+        
+        # Get active network relationships
+        active_network = SellerBuyerNetwork.objects.filter(
+            seller=seller_profile,
+            status='active'
+        )
+        
+        # Get pending requests (where buyer requested to join)
+        pending_requests = SellerBuyerNetwork.objects.filter(
+            seller=seller_profile,
+            status='pending',
+            requested_by__isnull=False
+        )
+        
+        # Get pending invitations (where seller invited buyer)
+        pending_invites = SellerBuyerNetwork.objects.filter(
+            seller=seller_profile,
+            status='pending',
+            invited_by__isnull=False
+        )
+        
+        # Serialize the data
+        active_network_data = SellerBuyerNetworkSerializer(active_network, many=True).data
+        pending_requests_data = SellerBuyerNetworkSerializer(pending_requests, many=True).data
+        pending_invites_data = SellerBuyerNetworkSerializer(pending_invites, many=True).data
+        
+        return Response({
+            'active_network': active_network_data,
+            'pending_requests': pending_requests_data,
+            'pending_invites': pending_invites_data
+        })
+    
+    def post(self, request):
+        # Handle adding a buyer to the network
+        seller_profile = request.user.organization.sellerprofile
+        buyer_id = request.data.get('buyer_id')
+        
+        try:
+            buyer_profile = BuyerProfile.objects.get(id=buyer_id)
+            
+            # Check if relationship already exists
+            existing = SellerBuyerNetwork.objects.filter(
+                seller=seller_profile,
+                buyer=buyer_profile
+            ).first()
+            
+            if existing:
+                # Update status to active if it was pending or rejected
+                if existing.status != 'active':
+                    existing.status = 'active'
+                    existing.invited_by = request.user
+                    existing.save()
+                    return Response(SellerBuyerNetworkSerializer(existing).data)
+                return Response(SellerBuyerNetworkSerializer(existing).data)
+            
+            # Create new relationship
+            network = SellerBuyerNetwork.objects.create(
+                seller=seller_profile,
+                buyer=buyer_profile,
+                status='active',
+                invited_by=request.user
+            )
+            
+            return Response(SellerBuyerNetworkSerializer(network).data, status=status.HTTP_201_CREATED)
+            
+        except BuyerProfile.DoesNotExist:
+            return Response(
+                {'error': 'Buyer not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+    def delete(self, request, relationship_id=None):
+        # Handle removing a buyer from the network
+        seller_profile = request.user.organization.sellerprofile
+        
+        try:
+            network = SellerBuyerNetwork.objects.get(
+                id=relationship_id,
+                seller=seller_profile
+            )
+            network.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+            
+        except SellerBuyerNetwork.DoesNotExist:
+            return Response(
+                {'error': 'Network relationship not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+    def patch(self, request, relationship_id=None):
+        # Handle approving or rejecting a request
+        seller_profile = request.user.organization.sellerprofile
+        action = request.data.get('action')  # 'approve' or 'reject'
+        
+        try:
+            network = SellerBuyerNetwork.objects.get(
+                id=relationship_id,
+                seller=seller_profile,
+                status='pending'
+            )
+            
+            if action == 'approve':
+                network.status = 'active'
+            elif action == 'reject':
+                network.status = 'rejected'
+            else:
+                return Response(
+                    {'error': 'Invalid action'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            network.save()
+            return Response(SellerBuyerNetworkSerializer(network).data)
+            
+        except SellerBuyerNetwork.DoesNotExist:
+            return Response(
+                {'error': 'Network relationship not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+class BuyerSearchView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        query = request.query_params.get('q', '')
+        
+        if not query:
+            return Response({'results': []})
+        
+        # Search for buyers by organization name or email
+        organizations = Organization.objects.filter(
+            is_buyer=True,
+            name__icontains=query
+        )[:10]  # Limit results
+        
+        # Get buyer profiles for these organizations
+        buyer_profiles = BuyerProfile.objects.filter(
+            organization__in=organizations
+        )
+        
+        # Format the results
+        results = []
+        for profile in buyer_profiles:
+            results.append({
+                'id': profile.id,
+                'name': profile.organization.name,
+                'email': profile.organization.contact_email
+            })
+        
+        return Response({'results': results})
+
+class BulkUploadBuyersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        seller_profile = request.user.organization.sellerprofile
+        buyers_data = request.data.get('buyers', [])
+        
+        if not buyers_data:
+            return Response(
+                {'error': 'No buyers data provided'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        results = {
+            'success': [],
+            'failed': []
+        }
+        
+        for buyer_data in buyers_data:
+            company_name = buyer_data.get('company_name')
+            contact_email = buyer_data.get('contact_email')
+            
+            if not company_name or not contact_email:
+                results['failed'].append({
+                    'data': buyer_data,
+                    'reason': 'Missing company name or email'
+                })
+                continue
+            
+            try:
+                # Check if organization exists
+                organization = Organization.objects.filter(
+                    email=contact_email,
+                    is_buyer=True
+                ).first()
+                
+                if not organization:
+                    # Create a new organization and buyer profile
+                    organization = Organization.objects.create(
+                        name=company_name,
+                        email=contact_email,
+                        is_buyer=True,
+                        is_seller=False
+                    )
+                    
+                    buyer_profile = BuyerProfile.objects.create(
+                        organization=organization
+                    )
+                else:
+                    # Get existing buyer profile
+                    buyer_profile = BuyerProfile.objects.get(organization=organization)
+                
+                # Check if network relationship already exists
+                existing = SellerBuyerNetwork.objects.filter(
+                    seller=seller_profile,
+                    buyer=buyer_profile
+                ).first()
+                
+                if existing:
+                    # Update status to active if it was pending or rejected
+                    if existing.status != 'active':
+                        existing.status = 'active'
+                        existing.invited_by = request.user
+                        existing.save()
+                    
+                    results['success'].append({
+                        'id': existing.id,
+                        'name': organization.name,
+                        'email': organization.email,
+                        'status': 'updated'
+                    })
+                else:
+                    # Create new relationship
+                    network = SellerBuyerNetwork.objects.create(
+                        seller=seller_profile,
+                        buyer=buyer_profile,
+                        status='active',
+                        invited_by=request.user
+                    )
+                    
+                    results['success'].append({
+                        'id': network.id,
+                        'name': organization.name,
+                        'email': organization.email,
+                        'status': 'created'
+                    })
+                
+            except Exception as e:
+                results['failed'].append({
+                    'data': buyer_data,
+                    'reason': str(e)
+                })
+        
+        return Response(results)
+
+class AuctionTruckView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, auction_id):
+        try:
+            auction = SaleEvent.objects.get(id=auction_id)
+            serializer = AuctionTruckSerializer(auction)
+            return Response(serializer.data)
+        except SaleEvent.DoesNotExist:
+            return Response({"error": "Auction not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class BuyerDashboardView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        # Ensure the user is a buyer
+        if request.user.role != 'buyer':
+            return Response(
+                {"error": "Only buyers can access this endpoint"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get active listings
+        listings = Listing.objects.filter(
+            listing_status='active',
+            sale_event__status='open'
+        ).select_related(
+            'product', 
+            'seller', 
+            'seller__organization',
+            'sale_event'
+        )
+        
+        # Serialize the listings with network status
+        serializer = BuyerDashboardListingSerializer(
+            listings, 
+            many=True, 
+            context={'request': request}
+        )
+        
+        # Get favorite sellers (sellers the buyer has an active network relationship with)
+        try:
+            buyer_profile = BuyerProfile.objects.get(organization=request.user.organization)
+            favorite_sellers = SellerProfile.objects.filter(
+                network_relationships__buyer=buyer_profile,
+                network_relationships__status='active'
+            ).select_related('organization')
+            
+            favorite_sellers_data = [
+                {
+                    'id': seller.id,
+                    'name': seller.organization.name
+                }
+                for seller in favorite_sellers
+            ]
+        except BuyerProfile.DoesNotExist:
+            favorite_sellers_data = []
+        
+        return Response({
+            'listings': serializer.data,
+            'favorite_sellers': favorite_sellers_data
+        })
+
+class RequestNetworkJoinView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        # Ensure the user is a buyer
+        if request.user.role != 'buyer':
+            return Response(
+                {"error": "Only buyers can request to join a network"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        seller_id = request.data.get('seller_id')
+        if not seller_id:
+            return Response(
+                {"error": "Seller ID is required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            seller = SellerProfile.objects.get(id=seller_id)
+        except SellerProfile.DoesNotExist:
+            return Response(
+                {"error": "Seller not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            buyer_profile = BuyerProfile.objects.get(organization=request.user.organization)
+        except BuyerProfile.DoesNotExist:
+            return Response(
+                {"error": "Buyer profile not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Check if a network relationship already exists
+        network_rel, created = SellerBuyerNetwork.objects.get_or_create(
+            seller=seller,
+            buyer=buyer_profile,
+            defaults={
+                "status": "pending",
+                "requested_by": request.user
+            }
+        )
+        
+        # If the record already exists, update if needed
+        if not created:
+            if network_rel.status == 'rejected':
+                network_rel.status = 'pending'
+                network_rel.requested_by = request.user
+                network_rel.save()
+                return Response({"message": "Network request resubmitted"})
+            elif network_rel.status == 'pending':
+                return Response({"message": "Network request already pending"})
+            elif network_rel.status == 'active':
+                return Response({"message": "Already in network with this seller"})
+        
+        return Response({"message": "Network request submitted"})

@@ -42,6 +42,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    msrp = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Manufacturer's Suggested Retail Price")
 
     # Dimensions & weight
     length = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)

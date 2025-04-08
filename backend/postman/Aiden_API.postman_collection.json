@@ -2,320 +2,2065 @@
 	"info": {
 		"_postman_id": "f2a3b1c4-d5e6-4f7g-8h9i-0j1k2l3m4n5o",
 		"name": "Aiden API",
-		"description": "Collection for testing Aiden API endpoints",
+		"description": "Comprehensive API collection for testing the Aiden platform. This collection includes endpoints for user authentication, profile management, inventory, auctions, orders, and more. Each folder is organized by app and functionality.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
 		{
 			"key": "base_url",
 			"value": "http://localhost:8000",
-			"type": "string"
+			"type": "string",
+			"description": "Base URL for the API"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string",
+			"description": "JWT access token for authenticated requests"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string",
+			"description": "JWT refresh token for obtaining new access tokens"
+		},
+		{
+			"key": "seller_id",
+			"value": "",
+			"type": "string",
+			"description": "ID of a seller for testing seller-specific endpoints"
+		},
+		{
+			"key": "buyer_id",
+			"value": "",
+			"type": "string",
+			"description": "ID of a buyer for testing buyer-specific endpoints"
+		},
+		{
+			"key": "product_id",
+			"value": "",
+			"type": "string",
+			"description": "ID of a product for testing product-specific endpoints"
+		},
+		{
+			"key": "listing_id",
+			"value": "",
+			"type": "string",
+			"description": "ID of a listing for testing listing-specific endpoints"
+		},
+		{
+			"key": "auction_id",
+			"value": "",
+			"type": "string",
+			"description": "ID of an auction for testing auction-specific endpoints"
 		}
 	],
 	"item": [
 		{
-			"name": "Authentication",
+			"name": "Accounts App",
+			"description": "Endpoints for user authentication, profile management, and admin operations",
 			"item": [
 				{
-					"name": "Register User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"securePassword123!\",\n    \"company_name\": \"Test Company Inc\",\n    \"role\": \"buyer\",\n    \"tos_accepted\": true\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/register/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "register"]
-						},
-						"description": "Register a new user with company information"
-					},
-					"response": []
-				},
-				{
-					"name": "Login",
-					"event": [
+					"name": "Authentication",
+					"description": "Endpoints for user authentication including login, registration, token refresh, and logout",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if (jsonData.access) {",
-									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
-									"}",
-									"if (jsonData.refresh) {",
-									"    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
-									"}"
+							"name": "Register User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
 								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"daniel@hiaiden.com\",\n    \"password\": \"super_aiden_2727\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/login/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "login"]
-						},
-						"description": "Login with email and password to get JWT tokens"
-					},
-					"response": []
-				},
-				{
-					"name": "Refresh Token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if (jsonData.access) {",
-									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/login/refresh/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "login", "refresh"]
-						},
-						"description": "Refresh access token using refresh token"
-					},
-					"response": []
-				},
-				{
-					"name": "Logout",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"securePassword123!\",\n    \"company_name\": \"Test Company Inc\",\n    \"role\": \"buyer\",\n    \"tos_accepted\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/register/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "register"]
+								},
+								"description": "Register a new user with company information. This endpoint creates a new user account and organization. The role can be 'buyer' or 'seller'."
 							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/logout/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "logout"]
-						},
-						"description": "Logout and blacklist the refresh token"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Profile",
-			"item": [
-				{
-					"name": "Get Profile",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/accounts/profile/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "profile"]
-						},
-						"description": "Get user profile information"
-					},
-					"response": []
-				},
-				{
-					"name": "Change Password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"old_password\": \"current_password\",\n    \"new_password\": \"new_password123\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/change-password/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "change-password"]
-						},
-						"description": "Change user password"
-					},
-					"response": []
-				},
-				{
-					"name": "Accept Terms",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/accounts/accept-terms/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "accept-terms"]
-						},
-						"description": "Accept terms of service"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Admin",
-			"item": [
-				{
-					"name": "List All Organizations",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/accounts/admin/organizations/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "admin", "organizations"]
-						},
-						"description": "List all organizations (admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "List Pending Organizations",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/accounts/admin/organizations/pending/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "admin", "organizations", "pending"]
-						},
-						"description": "List organizations pending approval (admin only)"
-					},
-					"response": []
-				},
-				{
-					"name": "Approve Organization",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"action\": \"approve\",\n    \"notes\": \"Organization approved after verification\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/admin/organizations/:org_id/approve/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "admin", "organizations", ":org_id", "approve"],
-							"variable": [
+							"response": [
 								{
-									"key": "org_id",
-									"value": "1",
-									"description": "ID of the organization to approve/reject"
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"securePassword123!\",\n    \"company_name\": \"Test Company Inc\",\n    \"role\": \"buyer\",\n    \"tos_accepted\": true\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/register/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "register"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"email\": \"test@example.com\",\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"role\": \"buyer\",\n    \"tos_accepted\": true\n}"
 								}
 							]
 						},
-						"description": "Approve or reject an organization (admin only)"
-					},
-					"response": []
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"if (jsonData.access) {",
+											"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+											"}",
+											"if (jsonData.refresh) {",
+											"    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"daniel@hiaiden.com\",\n    \"password\": \"super_aiden_2727\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/login/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "login"]
+								},
+								"description": "Login with email and password to get JWT tokens. This endpoint returns an access token and a refresh token. The access token should be included in the Authorization header for authenticated requests. The refresh token can be used to obtain a new access token when the current one expires."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"daniel@hiaiden.com\",\n    \"password\": \"super_aiden_2727\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/login/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "login"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjM5MDI0LCJpYXQiOjE2MTYxNTI2MjQsImp0aSI6ImY5ZDM5Y2Q5YzM5NDRlYjU5YzM5NDRlYjU5YzM5NDRlYjU5IiwidXNlcl9pZCI6MX0.example\",\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNzMxOTAyNCwiaWF0IjoxNjE2MTUyNjI0LCJqdGkiOiJmOWQzOWNkOWMzOTQ0ZWI1OWMzOTQ0ZWI1OWMzOTQ0ZWI1OSIsInVzZXJfaWQiOjF9.example\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Refresh Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"if (jsonData.access) {",
+											"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/login/refresh/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "login", "refresh"]
+								},
+								"description": "Refresh access token using refresh token. This endpoint is used to obtain a new access token when the current one expires. The refresh token has a longer lifespan than the access token."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNzMxOTAyNCwiaWF0IjoxNjE2MTUyNjI0LCJqdGkiOiJmOWQzOWNkOWMzOTQ0ZWI1OWMzOTQ0ZWI1OWMzOTQ0ZWI1OSIsInVzZXJfaWQiOjF9.example\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/login/refresh/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "login", "refresh"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjM5MDI0LCJpYXQiOjE2MTYxNTI2MjQsImp0aSI6ImY5ZDM5Y2Q5YzM5NDRlYjU5YzM5NDRlYjU5YzM5NDRlYjU5IiwidXNlcl9pZCI6MX0.example\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/logout/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "logout"]
+								},
+								"description": "Logout and blacklist the refresh token. This endpoint invalidates the refresh token, preventing it from being used to obtain new access tokens. The access token will still be valid until it expires."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNzMxOTAyNCwiaWF0IjoxNjE2MTUyNjI0LCJqdGkiOiJmOWQzOWNkOWMzOTQ0ZWI1OWMzOTQ0ZWI1OWMzOTQ0ZWI1OSIsInVzZXJfaWQiOjF9.example\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/logout/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "logout"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"detail\": \"Successfully logged out.\"\n}"
+								}
+							]
+						}
+					]
 				},
 				{
-					"name": "Create Admin User",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
+					"name": "Profile Management",
+					"description": "Endpoints for managing user profiles, including retrieving profile information, changing passwords, and accepting terms of service",
+					"item": [
+						{
+							"name": "Get Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/accounts/profile/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "profile"]
+								},
+								"description": "Get user profile information. This endpoint returns detailed information about the authenticated user, including their organization details and role."
 							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"newadmin@aidenproject.com\",\n    \"password\": \"secure_admin_password\"\n}"
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/accounts/profile/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "profile"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"email\": \"daniel@hiaiden.com\",\n    \"first_name\": \"Daniel\",\n    \"last_name\": \"Mansilla\",\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"role\": \"seller\",\n    \"tos_accepted\": true,\n    \"tos_accepted_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
 						},
-						"url": {
-							"raw": "{{base_url}}/api/accounts/admin/create-admin/",
-							"host": ["{{base_url}}"],
-							"path": ["api", "accounts", "admin", "create-admin"]
+						{
+							"name": "Change Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"old_password\": \"current_password\",\n    \"new_password\": \"new_password123\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/change-password/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "change-password"]
+								},
+								"description": "Change user password. This endpoint allows users to change their password by providing their current password and a new password."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"old_password\": \"current_password\",\n    \"new_password\": \"new_password123\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/change-password/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "change-password"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"detail\": \"Password successfully changed.\"\n}"
+								}
+							]
 						},
-						"description": "Create a new admin user (admin only)"
-					},
-					"response": []
+						{
+							"name": "Accept Terms",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/accounts/accept-terms/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "accept-terms"]
+								},
+								"description": "Accept terms of service. This endpoint allows users to accept the terms of service, which is required for using certain features of the platform."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/accounts/accept-terms/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "accept-terms"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"detail\": \"Terms of service accepted.\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Admin Operations",
+					"description": "Endpoints for administrative operations, including managing organizations and creating admin users",
+					"item": [
+						{
+							"name": "List All Organizations",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/accounts/admin/organizations/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "admin", "organizations"]
+								},
+								"description": "List all organizations (admin only). This endpoint returns a list of all organizations in the system, including their status and role."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/accounts/admin/organizations/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "admin", "organizations"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true,\n        \"status\": \"approved\"\n    },\n    {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"status\": \"approved\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "List Pending Organizations",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/accounts/admin/organizations/pending/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "admin", "organizations", "pending"]
+								},
+								"description": "List organizations pending approval (admin only). This endpoint returns a list of organizations that are pending approval, allowing admins to review and approve them."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/accounts/admin/organizations/pending/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "admin", "organizations", "pending"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 3,\n        \"name\": \"New Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"status\": \"pending\",\n        \"requested_date\": \"2023-03-20T10:00:00Z\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Approve Organization",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"approve\",\n    \"notes\": \"Organization approved after verification\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/admin/organizations/:org_id/approve/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "admin", "organizations", ":org_id", "approve"],
+									"variable": [
+										{
+											"key": "org_id",
+											"value": "1",
+											"description": "ID of the organization to approve/reject"
+										}
+									]
+								},
+								"description": "Approve or reject an organization (admin only). This endpoint allows admins to approve or reject organizations that are pending approval. The action can be 'approve' or 'reject'."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"action\": \"approve\",\n    \"notes\": \"Organization approved after verification\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/admin/organizations/1/approve/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "admin", "organizations", "1", "approve"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"detail\": \"Organization approved successfully.\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Admin User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"newadmin@aidenproject.com\",\n    \"password\": \"secure_admin_password\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/accounts/admin/create-admin/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "accounts", "admin", "create-admin"]
+								},
+								"description": "Create a new admin user (admin only). This endpoint allows existing admins to create new admin users in the system."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"newadmin@aidenproject.com\",\n    \"password\": \"secure_admin_password\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/accounts/admin/create-admin/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "accounts", "admin", "create-admin"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"email\": \"newadmin@aidenproject.com\",\n    \"role\": \"admin\"\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Inventory App",
+			"description": "Endpoints for managing products, seller profiles, buyer profiles, and warehouse operations",
+			"item": [
+				{
+					"name": "Products",
+					"description": "Endpoints for managing product information and inventory",
+					"item": [
+						{
+							"name": "List Products",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/products/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "products"],
+									"query": [
+										{
+											"key": "seller",
+											"value": "{{seller_id}}",
+											"description": "Filter products by seller ID"
+										},
+										{
+											"key": "category",
+											"value": "electronics",
+											"description": "Filter products by category"
+										},
+										{
+											"key": "search",
+											"value": "laptop",
+											"description": "Search products by name or description"
+										}
+									]
+								},
+								"description": "List all products with optional filtering. This endpoint returns a paginated list of products that can be filtered by seller, category, or searched by name/description."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/products/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "products"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"name\": \"MacBook Pro\",\n            \"description\": \"13-inch MacBook Pro with M1 chip\",\n            \"category\": \"electronics\",\n            \"brand\": \"Apple\",\n            \"model\": \"MBP13-M1\",\n            \"condition\": \"new\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"created_at\": \"2023-03-15T12:00:00Z\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"ThinkPad X1\",\n            \"description\": \"ThinkPad X1 Carbon Business Laptop\",\n            \"category\": \"electronics\",\n            \"brand\": \"Lenovo\",\n            \"model\": \"X1-Carbon\",\n            \"condition\": \"used\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"created_at\": \"2023-03-15T12:00:00Z\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Product",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Brand Name\",\n    \"model\": \"Model Number\",\n    \"condition\": \"new\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/inventory/products/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "products"]
+								},
+								"description": "Create a new product. This endpoint allows sellers to create new products in their inventory. The product will be associated with the seller's profile automatically."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Brand Name\",\n    \"model\": \"Model Number\",\n    \"condition\": \"new\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/inventory/products/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "products"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Brand Name\",\n    \"model\": \"Model Number\",\n    \"condition\": \"new\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"created_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get Product",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/products/:product_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "products", ":product_id"],
+									"variable": [
+										{
+											"key": "product_id",
+											"value": "1",
+											"description": "ID of the product to retrieve"
+										}
+									]
+								},
+								"description": "Get detailed information about a specific product. This endpoint returns detailed information about a product, including its specifications and seller information."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/products/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "products", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"MacBook Pro\",\n    \"description\": \"13-inch MacBook Pro with M1 chip\",\n    \"category\": \"electronics\",\n    \"brand\": \"Apple\",\n    \"model\": \"MBP13-M1\",\n    \"condition\": \"new\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Product",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/inventory/products/:product_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "products", ":product_id"],
+									"variable": [
+										{
+											"key": "product_id",
+											"value": "1",
+											"description": "ID of the product to update"
+										}
+									]
+								},
+								"description": "Update a product's information. This endpoint allows sellers to update their product information. Only the seller who owns the product can update it."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/inventory/products/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "products", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Apple\",\n    \"model\": \"MBP13-M1\",\n    \"condition\": \"new\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete Product",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/products/:product_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "products", ":product_id"],
+									"variable": [
+										{
+											"key": "product_id",
+											"value": "1",
+											"description": "ID of the product to delete"
+										}
+									]
+								},
+								"description": "Delete a product. This endpoint allows sellers to delete their products. Only the seller who owns the product can delete it."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/products/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "products", "1"]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Seller Profiles",
+					"description": "Endpoints for managing seller profiles and their settings",
+					"item": [
+						{
+							"name": "Get Seller Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/seller-profile/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "seller-profile"]
+								},
+								"description": "Get the current user's seller profile. This endpoint returns detailed information about the seller's profile, including their organization details and settings."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/seller-profile/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "seller-profile"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"warehouse_location\": \"New York, NY\",\n    \"preferred_payment_method\": \"bank_transfer\",\n    \"minimum_order_value\": 1000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Seller Profile",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"warehouse_location\": \"Los Angeles, CA\",\n    \"preferred_payment_method\": \"credit_card\",\n    \"minimum_order_value\": 2000\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/inventory/seller-profile/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "seller-profile"]
+								},
+								"description": "Update the seller's profile settings. This endpoint allows sellers to update their profile information, including warehouse location, payment preferences, and minimum order value."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"warehouse_location\": \"Los Angeles, CA\",\n    \"preferred_payment_method\": \"credit_card\",\n    \"minimum_order_value\": 2000\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/inventory/seller-profile/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "seller-profile"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"warehouse_location\": \"Los Angeles, CA\",\n    \"preferred_payment_method\": \"credit_card\",\n    \"minimum_order_value\": 2000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Buyer Profiles",
+					"description": "Endpoints for managing buyer profiles and their settings",
+					"item": [
+						{
+							"name": "Get Buyer Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/buyer-profile/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "buyer-profile"]
+								},
+								"description": "Get the current user's buyer profile. This endpoint returns detailed information about the buyer's profile, including their organization details and preferences."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/buyer-profile/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "buyer-profile"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"preferred_categories\": [\"electronics\", \"office supplies\"],\n    \"preferred_sellers\": [1],\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Buyer Profile",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"preferred_categories\": [\"electronics\", \"furniture\"],\n    \"preferred_sellers\": [1, 3]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/inventory/buyer-profile/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "buyer-profile"]
+								},
+								"description": "Update the buyer's profile settings. This endpoint allows buyers to update their profile information, including preferred categories and sellers."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"preferred_categories\": [\"electronics\", \"furniture\"],\n    \"preferred_sellers\": [1, 3]\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/inventory/buyer-profile/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "buyer-profile"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"preferred_categories\": [\"electronics\", \"furniture\"],\n    \"preferred_sellers\": [1, 3],\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Warehouse Management",
+					"description": "Endpoints for managing warehouse locations and inventory",
+					"item": [
+						{
+							"name": "List Warehouses",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/warehouses/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "warehouses"]
+								},
+								"description": "List all warehouses for the current seller. This endpoint returns a list of all warehouses associated with the seller's organization."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/warehouses/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "warehouses"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Main Warehouse\",\n        \"location\": \"New York, NY\",\n        \"capacity\": 10000,\n        \"current_usage\": 5000,\n        \"created_at\": \"2023-03-15T12:00:00Z\"\n    },\n    {\n        \"id\": 2,\n        \"name\": \"West Coast Warehouse\",\n        \"location\": \"Los Angeles, CA\",\n        \"capacity\": 8000,\n        \"current_usage\": 3000,\n        \"created_at\": \"2023-03-15T12:00:00Z\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Create Warehouse",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"New Warehouse\",\n    \"location\": \"Chicago, IL\",\n    \"capacity\": 5000\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/inventory/warehouses/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "warehouses"]
+								},
+								"description": "Create a new warehouse. This endpoint allows sellers to create new warehouse locations for their inventory."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"New Warehouse\",\n    \"location\": \"Chicago, IL\",\n    \"capacity\": 5000\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/inventory/warehouses/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "warehouses"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"name\": \"New Warehouse\",\n    \"location\": \"Chicago, IL\",\n    \"capacity\": 5000,\n    \"current_usage\": 0,\n    \"created_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get Warehouse",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/warehouses/:warehouse_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "warehouses", ":warehouse_id"],
+									"variable": [
+										{
+											"key": "warehouse_id",
+											"value": "1",
+											"description": "ID of the warehouse to retrieve"
+										}
+									]
+								},
+								"description": "Get detailed information about a specific warehouse. This endpoint returns detailed information about a warehouse, including its capacity and current usage."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/warehouses/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "warehouses", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Main Warehouse\",\n    \"location\": \"New York, NY\",\n    \"capacity\": 10000,\n    \"current_usage\": 5000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Warehouse",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Updated Warehouse Name\",\n    \"capacity\": 12000\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/inventory/warehouses/:warehouse_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "warehouses", ":warehouse_id"],
+									"variable": [
+										{
+											"key": "warehouse_id",
+											"value": "1",
+											"description": "ID of the warehouse to update"
+										}
+									]
+								},
+								"description": "Update a warehouse's information. This endpoint allows sellers to update their warehouse information, including name, location, and capacity."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Updated Warehouse Name\",\n    \"capacity\": 12000\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/inventory/warehouses/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "warehouses", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Warehouse Name\",\n    \"location\": \"New York, NY\",\n    \"capacity\": 12000,\n    \"current_usage\": 5000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete Warehouse",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/inventory/warehouses/:warehouse_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "inventory", "warehouses", ":warehouse_id"],
+									"variable": [
+										{
+											"key": "warehouse_id",
+											"value": "1",
+											"description": "ID of the warehouse to delete"
+										}
+									]
+								},
+								"description": "Delete a warehouse. This endpoint allows sellers to delete warehouse locations. Only warehouses with no inventory can be deleted."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/inventory/warehouses/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "inventory", "warehouses", "1"]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Auctions App",
+			"description": "Endpoints for managing auctions, listings, bids, and sale events",
+			"item": [
+				{
+					"name": "Sale Events",
+					"description": "Endpoints for managing sale events",
+					"item": [
+						{
+							"name": "List Sale Events",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/sale-events/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "sale-events"],
+									"query": [
+										{
+											"key": "seller",
+											"value": "{{seller_id}}",
+											"description": "Filter events by seller ID"
+										},
+										{
+											"key": "status",
+											"value": "open",
+											"description": "Filter events by status (open, closed, pending)"
+										}
+									]
+								},
+								"description": "List all sale events with optional filtering. This endpoint returns a paginated list of sale events that can be filtered by seller or status."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/sale-events/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "sale-events"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"name\": \"Spring Electronics Sale\",\n            \"description\": \"Huge discounts on electronics\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"start_date\": \"2023-03-15T12:00:00Z\",\n            \"end_date\": \"2023-03-22T12:00:00Z\",\n            \"status\": \"open\",\n            \"listing_count\": 5,\n            \"total_value\": 25000\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Office Supplies Clearance\",\n            \"description\": \"Clear out of office supplies\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"start_date\": \"2023-03-20T12:00:00Z\",\n            \"end_date\": \"2023-03-27T12:00:00Z\",\n            \"status\": \"pending\",\n            \"listing_count\": 3,\n            \"total_value\": 15000\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Sale Event",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"New Sale Event\",\n    \"description\": \"Description of the sale event\",\n    \"start_date\": \"2023-04-01T12:00:00Z\",\n    \"end_date\": \"2023-04-08T12:00:00Z\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auctions/sale-events/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "sale-events"]
+								},
+								"description": "Create a new sale event. This endpoint allows sellers to create new sale events. The event will be created with a 'pending' status."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"New Sale Event\",\n    \"description\": \"Description of the sale event\",\n    \"start_date\": \"2023-04-01T12:00:00Z\",\n    \"end_date\": \"2023-04-08T12:00:00Z\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/auctions/sale-events/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "sale-events"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"name\": \"New Sale Event\",\n    \"description\": \"Description of the sale event\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"start_date\": \"2023-04-01T12:00:00Z\",\n    \"end_date\": \"2023-04-08T12:00:00Z\",\n    \"status\": \"pending\",\n    \"listing_count\": 0,\n    \"total_value\": 0\n}"
+								}
+							]
+						},
+						{
+							"name": "Get Sale Event",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "sale-events", ":event_id"],
+									"variable": [
+										{
+											"key": "event_id",
+											"value": "1",
+											"description": "ID of the sale event to retrieve"
+										}
+									]
+								},
+								"description": "Get detailed information about a specific sale event. This endpoint returns detailed information about a sale event, including its listings and metrics."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/sale-events/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "sale-events", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"description\": \"Huge discounts on electronics\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"status\": \"open\",\n    \"listing_count\": 5,\n    \"total_value\": 25000,\n    \"listings\": [\n        {\n            \"id\": 1,\n            \"product\": {\n                \"id\": 1,\n                \"name\": \"MacBook Pro\"\n            },\n            \"quantity\": 10,\n            \"starting_price\": 2000,\n            \"current_price\": 1800,\n            \"bid_count\": 5\n        }\n    ],\n    \"metrics\": {\n        \"total_bids\": 25,\n        \"unique_bidders\": 8,\n        \"average_discount\": 15\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Sale Event",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Updated Sale Event Name\",\n    \"description\": \"Updated description\",\n    \"end_date\": \"2023-04-15T12:00:00Z\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "sale-events", ":event_id"],
+									"variable": [
+										{
+											"key": "event_id",
+											"value": "1",
+											"description": "ID of the sale event to update"
+										}
+									]
+								},
+								"description": "Update a sale event's information. This endpoint allows sellers to update their sale event information. Only events in 'pending' status can be fully updated."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Updated Sale Event Name\",\n    \"description\": \"Updated description\",\n    \"end_date\": \"2023-04-15T12:00:00Z\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/auctions/sale-events/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "sale-events", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Sale Event Name\",\n    \"description\": \"Updated description\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"end_date\": \"2023-04-15T12:00:00Z\",\n    \"status\": \"pending\",\n    \"listing_count\": 5,\n    \"total_value\": 25000\n}"
+								}
+							]
+						},
+						{
+							"name": "Start Sale Event",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/start/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "sale-events", ":event_id", "start"],
+									"variable": [
+										{
+											"key": "event_id",
+											"value": "1",
+											"description": "ID of the sale event to start"
+										}
+									]
+								},
+								"description": "Start a sale event. This endpoint changes the event status from 'pending' to 'open' and makes all associated listings available for bidding."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/sale-events/1/start/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "sale-events", "1", "start"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"status\": \"open\",\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"message\": \"Sale event started successfully\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Close Sale Event",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/close/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "sale-events", ":event_id", "close"],
+									"variable": [
+										{
+											"key": "event_id",
+											"value": "1",
+											"description": "ID of the sale event to close"
+										}
+									]
+								},
+								"description": "Close a sale event. This endpoint changes the event status to 'closed' and finalizes all winning bids."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/sale-events/1/close/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "sale-events", "1", "close"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"status\": \"closed\",\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"message\": \"Sale event closed successfully\",\n    \"summary\": {\n        \"total_listings_sold\": 4,\n        \"total_revenue\": 20000,\n        \"average_discount\": 15\n    }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Listings",
+					"description": "Endpoints for managing auction listings",
+					"item": [
+						{
+							"name": "List Listings",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/listings/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "listings"],
+									"query": [
+										{
+											"key": "sale_event",
+											"value": "{{event_id}}",
+											"description": "Filter listings by sale event ID"
+										},
+										{
+											"key": "status",
+											"value": "active",
+											"description": "Filter listings by status (active, pending, sold, expired)"
+										},
+										{
+											"key": "seller",
+											"value": "{{seller_id}}",
+											"description": "Filter listings by seller ID"
+										}
+									]
+								},
+								"description": "List all listings with optional filtering. This endpoint returns a paginated list of listings that can be filtered by sale event, status, or seller."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/listings/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "listings"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"product\": {\n                \"id\": 1,\n                \"name\": \"MacBook Pro\",\n                \"description\": \"13-inch MacBook Pro with M1 chip\",\n                \"brand\": \"Apple\",\n                \"model\": \"MBP13-M1\"\n            },\n            \"sale_event\": {\n                \"id\": 1,\n                \"name\": \"Spring Electronics Sale\"\n            },\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"quantity\": 10,\n            \"starting_price\": 2000,\n            \"current_price\": 1800,\n            \"status\": \"active\",\n            \"bid_count\": 5,\n            \"end_date\": \"2023-03-22T12:00:00Z\"\n        },\n        {\n            \"id\": 2,\n            \"product\": {\n                \"id\": 2,\n                \"name\": \"ThinkPad X1\",\n                \"description\": \"ThinkPad X1 Carbon Business Laptop\",\n                \"brand\": \"Lenovo\",\n                \"model\": \"X1-Carbon\"\n            },\n            \"sale_event\": {\n                \"id\": 1,\n                \"name\": \"Spring Electronics Sale\"\n            },\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"quantity\": 5,\n            \"starting_price\": 1500,\n            \"current_price\": 1400,\n            \"status\": \"active\",\n            \"bid_count\": 3,\n            \"end_date\": \"2023-03-22T12:00:00Z\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Listing",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"product_id\": 1,\n    \"sale_event_id\": 1,\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auctions/listings/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "listings"]
+								},
+								"description": "Create a new listing. This endpoint allows sellers to create new listings for their products in a sale event."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"product_id\": 1,\n    \"sale_event_id\": 1,\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/auctions/listings/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "listings"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"product\": {\n        \"id\": 1,\n        \"name\": \"MacBook Pro\"\n    },\n    \"sale_event\": {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\"\n    },\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"current_price\": 2000,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50,\n    \"status\": \"pending\",\n    \"bid_count\": 0,\n    \"end_date\": \"2023-03-22T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get Listing",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/listings/:listing_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "listings", ":listing_id"],
+									"variable": [
+										{
+											"key": "listing_id",
+											"value": "1",
+											"description": "ID of the listing to retrieve"
+										}
+									]
+								},
+								"description": "Get detailed information about a specific listing. This endpoint returns detailed information about a listing, including its bids and metrics."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/listings/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "listings", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"product\": {\n        \"id\": 1,\n        \"name\": \"MacBook Pro\",\n        \"description\": \"13-inch MacBook Pro with M1 chip\",\n        \"brand\": \"Apple\",\n        \"model\": \"MBP13-M1\",\n        \"condition\": \"new\"\n    },\n    \"sale_event\": {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\",\n        \"status\": \"open\"\n    },\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"current_price\": 1800,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50,\n    \"status\": \"active\",\n    \"bid_count\": 5,\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"bids\": [\n        {\n            \"id\": 1,\n            \"buyer\": {\n                \"id\": 2,\n                \"name\": \"Test Buyer Co\"\n            },\n            \"amount\": 1800,\n            \"created_at\": \"2023-03-15T14:30:00Z\",\n            \"status\": \"winning\"\n        }\n    ],\n    \"metrics\": {\n        \"unique_bidders\": 3,\n        \"time_remaining\": \"5d 12h\",\n        \"price_discount\": 10\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Listing",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"quantity\": 15,\n    \"starting_price\": 1900,\n    \"reserve_price\": 1700\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auctions/listings/:listing_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "listings", ":listing_id"],
+									"variable": [
+										{
+											"key": "listing_id",
+											"value": "1",
+											"description": "ID of the listing to update"
+										}
+									]
+								},
+								"description": "Update a listing's information. This endpoint allows sellers to update their listing information. Only listings in 'pending' status can be fully updated."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"quantity\": 15,\n    \"starting_price\": 1900,\n    \"reserve_price\": 1700\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/auctions/listings/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "listings", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"product\": {\n        \"id\": 1,\n        \"name\": \"MacBook Pro\"\n    },\n    \"sale_event\": {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\"\n    },\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"quantity\": 15,\n    \"starting_price\": 1900,\n    \"current_price\": 1900,\n    \"reserve_price\": 1700,\n    \"status\": \"pending\",\n    \"bid_count\": 0,\n    \"end_date\": \"2023-03-22T12:00:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete Listing",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/listings/:listing_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "listings", ":listing_id"],
+									"variable": [
+										{
+											"key": "listing_id",
+											"value": "1",
+											"description": "ID of the listing to delete"
+										}
+									]
+								},
+								"description": "Delete a listing. This endpoint allows sellers to delete their listings. Only listings in 'pending' status can be deleted."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/listings/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "listings", "1"]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Bids",
+					"description": "Endpoints for managing bids on auction listings",
+					"item": [
+						{
+							"name": "List Bids",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/bids/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "bids"],
+									"query": [
+										{
+											"key": "listing",
+											"value": "{{listing_id}}",
+											"description": "Filter bids by listing ID"
+										},
+										{
+											"key": "buyer",
+											"value": "{{buyer_id}}",
+											"description": "Filter bids by buyer ID"
+										},
+										{
+											"key": "status",
+											"value": "winning",
+											"description": "Filter bids by status (winning, outbid, expired)"
+										}
+									]
+								},
+								"description": "List all bids with optional filtering. This endpoint returns a paginated list of bids that can be filtered by listing, buyer, or status."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/bids/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "bids"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"listing\": {\n                \"id\": 1,\n                \"product\": {\n                    \"id\": 1,\n                    \"name\": \"MacBook Pro\"\n                },\n                \"current_price\": 1800\n            },\n            \"buyer\": {\n                \"id\": 2,\n                \"name\": \"Test Buyer Co\"\n            },\n            \"amount\": 1800,\n            \"status\": \"winning\",\n            \"created_at\": \"2023-03-15T14:30:00Z\"\n        },\n        {\n            \"id\": 2,\n            \"listing\": {\n                \"id\": 2,\n                \"product\": {\n                    \"id\": 2,\n                    \"name\": \"ThinkPad X1\"\n                },\n                \"current_price\": 1400\n            },\n            \"buyer\": {\n                \"id\": 2,\n                \"name\": \"Test Buyer Co\"\n            },\n            \"amount\": 1400,\n            \"status\": \"winning\",\n            \"created_at\": \"2023-03-15T15:00:00Z\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Bid",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"listing_id\": 1,\n    \"amount\": 1850\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auctions/bids/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "bids"]
+								},
+								"description": "Create a new bid. This endpoint allows buyers to place bids on active listings."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"listing_id\": 1,\n    \"amount\": 1850\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/auctions/bids/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "bids"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"listing\": {\n        \"id\": 1,\n        \"product\": {\n            \"id\": 1,\n            \"name\": \"MacBook Pro\"\n        },\n        \"current_price\": 1850\n    },\n    \"buyer\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\"\n    },\n    \"amount\": 1850,\n    \"status\": \"winning\",\n    \"created_at\": \"2023-03-15T15:30:00Z\",\n    \"message\": \"Bid placed successfully\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get Bid",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/bids/:bid_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "bids", ":bid_id"],
+									"variable": [
+										{
+											"key": "bid_id",
+											"value": "1",
+											"description": "ID of the bid to retrieve"
+										}
+									]
+								},
+								"description": "Get detailed information about a specific bid. This endpoint returns detailed information about a bid, including its status and related listing details."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/bids/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "bids", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"listing\": {\n        \"id\": 1,\n        \"product\": {\n            \"id\": 1,\n            \"name\": \"MacBook Pro\",\n            \"description\": \"13-inch MacBook Pro with M1 chip\"\n        },\n        \"current_price\": 1800,\n        \"status\": \"active\",\n        \"end_date\": \"2023-03-22T12:00:00Z\"\n    },\n    \"buyer\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\"\n    },\n    \"amount\": 1800,\n    \"status\": \"winning\",\n    \"created_at\": \"2023-03-15T14:30:00Z\",\n    \"updated_at\": \"2023-03-15T14:30:00Z\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Cancel Bid",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/auctions/bids/:bid_id/cancel/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "bids", ":bid_id", "cancel"],
+									"variable": [
+										{
+											"key": "bid_id",
+											"value": "1",
+											"description": "ID of the bid to cancel"
+										}
+									]
+								},
+								"description": "Cancel a bid. This endpoint allows buyers to cancel their bids. Only bids that are not winning can be cancelled."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/auctions/bids/1/cancel/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "bids", "1", "cancel"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"status\": \"cancelled\",\n    \"message\": \"Bid cancelled successfully\"\n}"
+								}
+							]
+						}
+					]
 				}
 			]
 		}
