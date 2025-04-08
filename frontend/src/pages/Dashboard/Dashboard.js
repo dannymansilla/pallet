@@ -26,7 +26,7 @@ export default function UnifiedDashboard() {
   const isSeller = user.role === 'seller' || user.organization?.is_seller;
 
   return (
-    <Box p={6}>
+    <Box p={0}>
       {isSeller && <SellerDashboard />}
       {isBuyer && <BuyerDashboard />}
       

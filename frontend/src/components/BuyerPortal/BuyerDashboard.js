@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -14,11 +14,17 @@ import {
   VStack,
   HStack,
   Select,
+  Badge,
+  FormControl,
+  FormLabel,
+  Switch,
+  useToast,
 } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
 import { SearchIcon } from "@chakra-ui/icons";
-import cardboardbox from '../../images/cardboardbox.png'
-
+import cardboardbox from '../../images/cardboardbox.png';
+import { getBuyerDashboard, requestNetworkJoin } from "../../services/api";
+// TODO: Add pagination
 /**
  * SAMPLE DATA
  */
@@ -37,7 +43,10 @@ const auctionItems = [
     imageUrl: {cardboardbox},
     category: "Snacks",
     seller: "Daily Health",
+    sellerId: 1,
     description: "Delicious high-protein bars perfect for a quick snack.",
+    is_in_network: true,
+    network_status: "active",
   },
   {
     id: "AUC-002",
@@ -47,7 +56,10 @@ const auctionItems = [
     imageUrl: {cardboardbox},
     category: "Drinks",
     seller: "Best Snacks Co.",
+    sellerId: 2,
     description: "A refreshing boost of energy with a citrus twist.",
+    is_in_network: false,
+    network_status: "not_in_network",
   },
   {
     id: "AUC-003",
@@ -57,7 +69,10 @@ const auctionItems = [
     imageUrl: {cardboardbox},
     category: "Snacks",
     seller: "Power Protein Inc.",
+    sellerId: 3,
     description: "Hearty trail mix loaded with cranberries and nuts.",
+    is_in_network: true,
+    network_status: "active",
   },
   {
     id: "AUC-004",
@@ -67,7 +82,10 @@ const auctionItems = [
     imageUrl: {cardboardbox},
     category: "Protein",
     seller: "Power Protein Inc.",
+    sellerId: 3,
     description: "High-quality whey isolate with a smooth vanilla flavor.",
+    is_in_network: true,
+    network_status: "active",
   },
   {
     id: "AUC-005",
@@ -77,7 +95,10 @@ const auctionItems = [
     imageUrl: {cardboardbox},
     category: "Snacks",
     seller: "Best Snacks Co.",
+    sellerId: 2,
     description: "Crunchy granola bars bursting with berry flavors.",
+    is_in_network: false,
+    network_status: "pending",
   },
   {
     id: "AUC-006",
@@ -87,7 +108,10 @@ const auctionItems = [
     imageUrl: {cardboardbox},
     category: "Drinks",
     seller: "Daily Health",
+    sellerId: 1,
     description: "Replenish your electrolytes during intense workouts.",
+    is_in_network: true,
+    network_status: "active",
   },
 ];
 
@@ -95,43 +119,157 @@ const CATEGORIES = ["All Categories", "Snacks", "Drinks", "Protein"];
 
 const BuyerDashboard = () => {
   // Styling with color mode
-  // const pageBgGradient = useColorModeValue(
-  //   "linear(to-b, gray.50, white)",
-  //   "linear(to-b, gray.800, gray.900)"
-  // );
   const pageBgGradient = 'white';
   const textColor = useColorModeValue("gray.800", "gray.100");
   const cardBg = useColorModeValue("white", "gray.700");
   const accentBg = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+  const toast = useToast();
+
+  // State for data
+  const [useSampleData, setUseSampleData] = useState(true);
+  const [listings, setListings] = useState([]);
+  const [favoriteSellersList, setFavoriteSellersList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Search and category
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("All Categories");
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!useSampleData) {
+        setLoading(true);
+        try {
+          const response = await getBuyerDashboard();
+          setListings(response.data.listings);
+          setFavoriteSellersList(response.data.favorite_sellers);
+          setError(null);
+        } catch (err) {
+          console.error("Failed to fetch buyer dashboard data:", err);
+          setError("Failed to load data. Using sample data instead.");
+          setUseSampleData(true);
+        }
+        setLoading(false);
+      } else {
+        // Use sample data
+        setListings(auctionItems);
+        setFavoriteSellersList(favoriteSellers);
+      }
+    };
+
+    fetchData();
+  }, [useSampleData]);
+
+  // Handle network join request
+  const handleJoinNetwork = async (sellerId) => {
+    try {
+      const response = await requestNetworkJoin(sellerId);
+      toast({
+        title: "Network Request",
+        description: response.data.message,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      // If using real data, refresh the dashboard
+      if (!useSampleData) {
+        const dashboardResponse = await getBuyerDashboard();
+        setListings(dashboardResponse.data.listings);
+        setFavoriteSellersList(dashboardResponse.data.favorite_sellers);
+      } else {
+        // Update sample data
+        setListings(prevListings => 
+          prevListings.map(item => 
+            item.sellerId === sellerId 
+              ? { ...item, network_status: 'pending' } 
+              : item
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to request network join:", err);
+      toast({
+        title: "Error",
+        description: "Failed to send network request. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
 
   // Filter logic
   const filteredItems = useMemo(() => {
-    return auctionItems.filter((item) => {
+    return listings.filter((item) => {
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
 
-      if (activeCategory === "All") return true;
+      if (activeCategory === "All Categories") return true;
       return item.category === activeCategory;
     });
-  }, [searchQuery, activeCategory]);
+  }, [listings, searchQuery, activeCategory]);
+
+  // Render network status badge
+  const renderNetworkStatus = (item) => {
+    if (item.network_status === 'active') {
+      return <Badge colorScheme="green">In Network</Badge>;
+    } else if (item.network_status === 'pending') {
+      return <Badge colorScheme="yellow">Request Pending</Badge>;
+    } else {
+      return (
+        <Button 
+          size="xs" 
+          colorScheme="blue" 
+          onClick={() => handleJoinNetwork(item.sellerId)}
+        >
+          Request to Join Network
+        </Button>
+      );
+    }
+  };
 
   return (
     <Flex
       flexDirection="column"
       bg={pageBgGradient}
-      p={[2, 2, 2]}
+      p={6}
     >
-      {/* PAGE HEADING */}
-      <Heading mb={4} color={textColor}>
-        Marketplace
-      </Heading>
+      {/* PAGE HEADING AND TOGGLE */}
+      <Flex justify="space-between" align="center" mb={4}>
+        <Heading color={textColor}>
+          Marketplace
+        </Heading>
+        <FormControl display="flex" alignItems="center" w="auto">
+          <FormLabel htmlFor="sample-data" mb="0" mr={2}>
+            Use Sample Data
+          </FormLabel>
+          <Switch
+            id="sample-data"
+            isChecked={useSampleData}
+            onChange={(e) => setUseSampleData(e.target.checked)}
+          />
+        </FormControl>
+      </Flex>
+
+      {/* Error Message if any */}
+      {error && (
+        <Box mb={6} p={4} bg="red.100" color="red.700" borderRadius="md">
+          {error}
+        </Box>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <Box mb={6} p={4} bg="blue.100" color="blue.700" borderRadius="md">
+          Loading data...
+        </Box>
+      )}
 
       {/* Favorite Sellers Section */}
       <Box
@@ -145,7 +283,7 @@ const BuyerDashboard = () => {
           Your Favorite Sellers
         </Text>
         <SimpleGrid columns={[1, 3, 3]} spacing="20px">
-          {favoriteSellers.map((seller) => (
+          {favoriteSellersList.map((seller) => (
             <Button
               key={seller.id}
               variant="outline"
@@ -163,7 +301,7 @@ const BuyerDashboard = () => {
 
       {/* Search & Category */}
       <HStack mb={6} spacing={4} w="100%">
-      <Box w={["40%", "30%", "15%"]}>
+        <Box w={["40%", "30%", "15%"]}>
           <Select
             value={activeCategory}
             onChange={(e) => setActiveCategory(e.target.value)}
@@ -228,12 +366,10 @@ const BuyerDashboard = () => {
                 <Text fontSize="xs" color="gray.500">
                   {item.seller}
                 </Text>
+                {renderNetworkStatus(item)}
               </Box>
               <Text fontSize="sm" noOfLines={2}>
                 {item.description}
-              </Text>
-              <Text fontSize="md" fontWeight="bold">
-                Current Bid: ${item.currentBid.toLocaleString()}
               </Text>
               <Text fontSize="xs" color="gray.500">
                 Ends on: {item.endDate}

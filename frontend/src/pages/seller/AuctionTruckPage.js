@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Heading,
@@ -16,16 +16,19 @@ import {
   Td,
   useColorModeValue,
   Input,
+  Switch,
+  FormControl,
+  FormLabel,
+  Flex,
+  Spinner,
+  Alert,
+  AlertIcon,
+  Button,
 } from "@chakra-ui/react";
-import { fetchAuctionTrucks } from "../../services/api"; // Mock API call
+import { useParams } from "react-router-dom";
+import { getAuctionTrucks } from "../../services/api";
 
-/** 
- * SAMPLE DATA for demonstration (if your backend isn't ready yet).
- * This structure includes a 'months' array, each with 'orders'.
- * Each order has: buyer, orderId, numTrucks, totalValue, paymentDue, isPaid, items
- * 
- * The items' totalValue now properly sums to the order's totalValue.
- */
+// SAMPLE DATA for demonstration
 const sampleSellerMonthsData = [
   {
     month: "2025-03",
@@ -34,39 +37,23 @@ const sampleSellerMonthsData = [
         buyer: "Acme Retailers",
         orderId: "O-S1001",
         numTrucks: 3,
-        totalValue: 20000, // Sum of the items below = 20,000
+        totalValue: 20000,
         paymentDue: "2025-03-15",
         isPaid: false,
         items: [
-          {
-            brand: "Persil",
-            productName: "Persil Detergent",
-            pricePerPallet: 4500,
-            pallets: 3, // 4500 * 3 = 13,500
-          },
-          {
-            brand: "Persil",
-            productName: "Persil Pods",
-            pricePerPallet: 3250,
-            pallets: 2, // 3250 * 2 = 6,500
-          },
-          // 13,500 + 6,500 = 20,000
+          { brand: "Persil", productName: "Persil Detergent", pricePerPallet: 4500, pallets: 3 },
+          { brand: "Persil", productName: "Persil Pods", pricePerPallet: 3250, pallets: 2 },
         ],
       },
       {
         buyer: "Global Foods",
         orderId: "O-S1002",
         numTrucks: 2,
-        totalValue: 17000, // Sum of the items below = 17,000
+        totalValue: 17000,
         paymentDue: "2025-03-20",
         isPaid: true,
         items: [
-          {
-            brand: "Tide",
-            productName: "Tide Pods",
-            pricePerPallet: 3400,
-            pallets: 5, // 3400 * 5 = 17,000
-          },
+          { brand: "Tide", productName: "Tide Pods", pricePerPallet: 3400, pallets: 5 },
         ],
       },
     ],
@@ -78,25 +65,18 @@ const sampleSellerMonthsData = [
         buyer: "Best Snacks Inc.",
         orderId: "O-S2001",
         numTrucks: 1,
-        totalValue: 10000, // Sum of the items below = 10,000
+        totalValue: 10000,
         paymentDue: "2025-02-28",
         isPaid: false,
         items: [
-          {
-            brand: "Dove",
-            productName: "Dove Soap",
-            pricePerPallet: 2500,
-            pallets: 4, // 2500 * 4 = 10,000
-          },
+          { brand: "Dove", productName: "Dove Soap", pricePerPallet: 2500, pallets: 4 },
         ],
       },
     ],
   },
 ];
 
-/**
- * Sub-table of awarded items: brand, productName, pricePerPallet, # pallets, totalValue
- */
+/** Sub-table for awarded items */
 const AwardedItemsSubtable = ({ items }) => {
   const bgSubheader = useColorModeValue("gray.50", "gray.700");
 
@@ -132,15 +112,10 @@ const AwardedItemsSubtable = ({ items }) => {
   );
 };
 
-/**
- * The main table for orders in a single month
- * - Filterable / Sortable
- * - Expandable rows to show AwardedItemsSubtable
- */
+/** Main orders table for a single month */
 const SellerOrdersTable = ({ orders }) => {
   const expandedBg = useColorModeValue("gray.50", "gray.800");
 
-  // Columns: showing BUYER instead of SELLER
   const columns = [
     { key: "buyer", label: "Buyer", isNumeric: false, width: "15%" },
     { key: "orderId", label: "Order ID", isNumeric: false, width: "15%" },
@@ -150,24 +125,20 @@ const SellerOrdersTable = ({ orders }) => {
     { key: "isPaid", label: "Payment Status", isNumeric: false, width: "15%" },
   ];
 
-  // Convert orders to initial data
   const initialData = orders.map((o) => ({ ...o }));
 
-  // Filter & sort states
-  const [filters, setFilters] = useState(
+  // Filter & sort
+  const [filters, setFilters] = useState(() =>
     columns.reduce((acc, c) => ({ ...acc, [c.key]: "" }), {})
   );
   const [sortColumn, setSortColumn] = useState(null);
   const [sortOrder, setSortOrder] = useState(null);
-
-  // Which row is expanded?
   const [expandedRow, setExpandedRow] = useState(null);
 
   const handleFilterChange = (colKey, value) => {
     setFilters((prev) => ({ ...prev, [colKey]: value }));
   };
 
-  // Filtering
   const filterRows = (data) =>
     data.filter((row) =>
       columns.every((col) => {
@@ -178,7 +149,6 @@ const SellerOrdersTable = ({ orders }) => {
       })
     );
 
-  // Sorting
   const sortRows = (data) => {
     if (!sortColumn) return data;
     const colDef = columns.find((c) => c.key === sortColumn);
@@ -236,11 +206,7 @@ const SellerOrdersTable = ({ orders }) => {
         <Tr>
           <Td />
           {columns.map((col) => (
-            <Td
-              key={`${col.key}-filter`}
-              width={col.width}
-              isNumeric={col.isNumeric}
-            >
+            <Td key={`${col.key}-filter`} width={col.width} isNumeric={col.isNumeric}>
               <Input
                 size="xs"
                 placeholder="Filter..."
@@ -263,7 +229,6 @@ const SellerOrdersTable = ({ orders }) => {
                 _hover={{ bg: "gray.50", cursor: "pointer" }}
                 onClick={() => toggleExpandRow(order.orderId)}
               >
-                {/* Truck Icon + Expand indicator */}
                 <Td>🚛 {isExpanded ? "▾" : "▸"}</Td>
                 <Td>{order.buyer}</Td>
                 <Td>{order.orderId}</Td>
@@ -283,7 +248,6 @@ const SellerOrdersTable = ({ orders }) => {
                 </Td>
               </Tr>
 
-              {/* Expanded sub-row for items */}
               {isExpanded && (
                 <Tr>
                   <Td colSpan={columns.length + 1} bg={expandedBg}>
@@ -304,96 +268,186 @@ const SellerOrdersTable = ({ orders }) => {
   );
 };
 
-const AuctionTrucksPage = ({ auctionId }) => {
+const AuctionTrucksPage = () => {
   const [auctionData, setAuctionData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [useSampleData, setUseSampleData] = useState(true);
+
+  // Hooks for styling
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const summaryBg = useColorModeValue("gray.50", "gray.900");
 
-  useEffect(() => {
-    // Real call to fetch data from your backend
-    // For demonstration, we mimic returning a structure with:
-    // {
-    //   auction_summary: { ...some summary info... },
-    //   months: [...array of months... ]
-    // }
-    const loadTrucks = async () => {
-      try {
-        const response = await fetchAuctionTrucks(auctionId);
-        // If your API doesn’t return 'months', you can adapt it,
-        // or fallback to sampleSellerMonthsData
-        setAuctionData(
-          response?.data && response.data.months
-            ? response.data
-            : {
-                auction_summary: {
-                  auction_name: "March 2025 Auction",
-                  auction_closed: "2025-03-20",
-                  total_trucks: 6,
-                  total_buyers_awarded: 3,
-                  total_auction_revenue: 47000, 
-                  // Matches the sum of 20k + 17k + 10k = 47k
-                },
-                months: sampleSellerMonthsData,
-              }
-        );
-      } catch (error) {
-        console.error("Failed to fetch trucks", error);
+  /** 
+   * Load trucks data from the API or use sample data
+   */
+  const loadTrucks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (useSampleData) {
+        setAuctionData({
+          auction_summary: {
+            auction_name: "Sample Auction",
+            auction_closed: "2025-03-31",
+            total_trucks: 6,
+            total_buyers_awarded: 3,
+            total_auction_revenue: 47000
+          },
+          months: sampleSellerMonthsData
+        });
+      } else {
+        const response = await getAuctionTrucks();
+        setAuctionData(response);
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch trucks", err);
+      setError("Failed to fetch truck data. Please try again.");
+      setAuctionData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [useSampleData]);
+
+  // Call it on mount (and whenever `loadTrucks` changes)
+  useEffect(() => {
     loadTrucks();
-  }, [auctionId]);
+  }, [loadTrucks]);
 
-  if (!auctionData) {
-    return <Text p={6}>Loading auction data...</Text>;
-  }
+  // Toggle sample vs. real data
+  const handleToggleChange = () => {
+    setUseSampleData(!useSampleData);
+  };
 
-  const { auction_summary, months } = auctionData;
-
-  // Sort months descending => first is most recent
-  const sortedMonths = [...months].sort((a, b) => b.month.localeCompare(a.month));
-  const defaultOpenIndices = [0];
-
+  // ----------------------
+  // Render
+  // ----------------------
   return (
     <Box bg={bgColor} p={6} minH="100vh">
-      {/* Month-by-month breakdown */}
-      <Heading size="lg" mb={4}>
-        Trucks by Month (Seller View)
-      </Heading>
-      <Accordion allowMultiple defaultIndex={defaultOpenIndices}>
-        {sortedMonths.map((monthObj) => {
-          // Convert "2025-03" -> "March 2025"
-          const [year, mon] = monthObj.month.split("-");
-          const date = new Date(+year, +mon - 1);
-          const monthLabel = date.toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          });
+      {/* Header with summary and toggle */}
+      <Flex direction="column" mb={6}>
+        <Flex justify="space-between" alignItems="center" mb={4}>
+          <Heading size="lg">Trucks by Month (Seller View)</Heading>
+          <FormControl display="flex" alignItems="center" w="auto">
+            <FormLabel htmlFor="sample-data" mb="0" mr={2}>
+              Use Sample Data
+            </FormLabel>
+            <Switch
+              id="sample-data"
+              isChecked={useSampleData}
+              onChange={handleToggleChange}
+            />
+          </FormControl>
+        </Flex>
 
-          return (
-            <AccordionItem
-              key={monthObj.month}
-              mb={4}
-              border="1px solid"
-              borderColor={borderColor}
-              borderRadius="md"
-            >
-              <h2>
-                <AccordionButton px={4} py={2}>
-                  <Box flex="1" textAlign="left">
-                    <Heading size="md">{monthLabel}</Heading>
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-              <AccordionPanel px={4} pb={4}>
-                <Box overflowX="auto">
-                  <SellerOrdersTable orders={monthObj.orders} />
+        {/* Auction Summary */}
+        {auctionData?.auction_summary && (
+          <Box p={4} bg={summaryBg} borderRadius="md">
+            <Flex justify="space-between" wrap="wrap" gap={4}>
+              <Box>
+                <Text fontWeight="bold">{auctionData.auction_summary.auction_name}</Text>
+                <Text color="gray.600">Closed: {auctionData.auction_summary.auction_closed}</Text>
+              </Box>
+              <Flex gap={6}>
+                <Box>
+                  <Text fontWeight="bold">Total Trucks</Text>
+                  <Text>{auctionData.auction_summary.total_trucks}</Text>
                 </Box>
-              </AccordionPanel>
-            </AccordionItem>
-          );
-        })}
-      </Accordion>
+                <Box>
+                  <Text fontWeight="bold">Total Buyers</Text>
+                  <Text>{auctionData.auction_summary.total_buyers_awarded}</Text>
+                </Box>
+                <Box>
+                  <Text fontWeight="bold">Total Revenue</Text>
+                  <Text>${auctionData.auction_summary.total_auction_revenue.toLocaleString()}</Text>
+                </Box>
+              </Flex>
+            </Flex>
+          </Box>
+        )}
+      </Flex>
+
+      {/* Loading State */}
+      {loading && (
+        <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
+          <Spinner size="xl" />
+        </Box>
+      )}
+
+      {/* Error State */}
+      {!loading && error && (
+        <Box minH="50vh">
+          <Alert status="error" mb={4}>
+            <AlertIcon />
+            {error}
+          </Alert>
+          <Button onClick={loadTrucks} colorScheme="blue">
+            Retry
+          </Button>
+        </Box>
+      )}
+
+      {/* No Data State */}
+      {!loading && !error && !auctionData && (
+        <Text p={6}>No truck data available</Text>
+      )}
+
+      {/* Main Content */}
+      {!loading && !error && auctionData && (
+        <Accordion allowMultiple defaultIndex={[0]}>
+          {(auctionData.months || []).sort((a, b) => b.month.localeCompare(a.month))
+            .map((monthObj) => {
+              // Convert "2025-03" -> "March 2025"
+              const [year, mon] = monthObj.month.split("-");
+              const date = new Date(+year, +mon - 1);
+              const monthLabel = date.toLocaleString("default", {
+                month: "long",
+                year: "numeric",
+              });
+
+              // Summaries for this month
+              const totalMonthTrucks = monthObj.orders.reduce(
+                (sum, order) => sum + order.numTrucks,
+                0
+              );
+              const totalMonthValue = monthObj.orders.reduce(
+                (sum, order) => sum + order.totalValue,
+                0
+              );
+
+              return (
+                <AccordionItem
+                  key={monthObj.month}
+                  mb={4}
+                  border="1px solid"
+                  borderColor={borderColor}
+                  borderRadius="md"
+                >
+                  <h2>
+                    <AccordionButton px={4} py={2}>
+                      <Box flex="1" textAlign="left">
+                        <Heading size="md">{monthLabel}</Heading>
+                      </Box>
+                      <Box mr={4}>
+                        <Text>
+                          {totalMonthTrucks} trucks • ${totalMonthValue.toLocaleString()}
+                        </Text>
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel px={4} pb={4}>
+                    <Box overflowX="auto">
+                      <SellerOrdersTable orders={monthObj.orders} />
+                    </Box>
+                  </AccordionPanel>
+                </AccordionItem>
+              );
+            })}
+        </Accordion>
+      )}
     </Box>
   );
 };

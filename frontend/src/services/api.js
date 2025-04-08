@@ -454,4 +454,97 @@ export const getSellerMetrics = () => API.get("/auctions/seller/metrics/");
 export const getMonthlyStats = () => API.get("/auctions/monthly-stats/");
 export const getSellerDashboardTables = () => API.get("/auctions/dashboard-tables/");
 
+// Buyer Dashboard
+export const getBuyerDashboard = () => API.get("/auctions/buyer/dashboard/");
+export const requestNetworkJoin = (sellerId) => API.post("/auctions/buyer/request-network-join/", { seller_id: sellerId });
+
+// Seller Listings
+export const getSellerListings = (filters = {}) => {
+  const params = new URLSearchParams();
+  
+  if (filters.month) {
+    params.append('month', filters.month);
+  }
+  
+  if (filters.brand) {
+    params.append('brand', filters.brand);
+  }
+  
+  const queryString = params.toString();
+  const url = queryString ? `/auctions/seller/listings/?${queryString}` : '/auctions/seller/listings/';
+  
+  return API.get(url);
+};
+
+// Seller Network API
+export const getSellerNetwork = async () => {
+  try {
+    const response = await API.get('/auctions/seller/network/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller network:', error);
+    throw error;
+  }
+};
+
+export const addBuyerToNetwork = async (buyerId) => {
+  try {
+    const response = await API.post('/auctions/seller/network/', { buyer_id: buyerId });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding buyer to network:', error);
+    throw error;
+  }
+};
+
+export const removeBuyerFromNetwork = async (relationshipId) => {
+  try {
+    const response = await API.delete(`/auctions/seller/network/${relationshipId}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error removing buyer from network:', error);
+    throw error;
+  }
+};
+
+export const updateNetworkRequest = async (relationshipId, action) => {
+  try {
+    const response = await API.patch(`/auctions/seller/network/${relationshipId}/`, { action });
+    return response.data;
+  } catch (error) {
+    console.error('Error handling network request:', error);
+    throw error;
+  }
+};
+
+export const searchBuyers = async (query) => {
+  try {
+    const response = await API.get(`/auctions/buyers/search/?q=${encodeURIComponent(query)}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error searching buyers:', error);
+    throw error;
+  }
+};
+
+export const uploadBuyersBulk = async (buyersData) => {
+  try {
+    const response = await API.post('/auctions/buyers/bulk-upload/', { buyers: buyersData });
+    return response.data;
+  } catch (error) {
+    console.error('Error bulk uploading buyers:', error);
+    throw error;
+  }
+};
+
+export const getAuctionTrucks = async () => {
+  try {
+    const response = await API.get('/orders/seller/trucks/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller trucks:', error);
+    throw error;
+  }
+};
+
 export {API};
