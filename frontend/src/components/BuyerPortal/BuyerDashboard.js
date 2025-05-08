@@ -24,6 +24,7 @@ import { NavLink } from "react-router-dom";
 import { SearchIcon } from "@chakra-ui/icons";
 import cardboardbox from '../../images/cardboardbox.png';
 import { getBuyerDashboard, requestNetworkJoin } from "../../services/api";
+import { useDataMode } from "../../context/DataModeContext";
 // TODO: Add pagination
 /**
  * SAMPLE DATA
@@ -115,7 +116,7 @@ const auctionItems = [
   },
 ];
 
-const CATEGORIES = ["All Categories", "Snacks", "Drinks", "Protein"];
+const CATEGORIES = ["All Categories", "Henkelish", "ProPure", "DermaBeiers"];
 
 const BuyerDashboard = () => {
   // Styling with color mode
@@ -125,9 +126,9 @@ const BuyerDashboard = () => {
   const accentBg = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const toast = useToast();
+  const { useSampleData, toggleDataMode } = useDataMode();
 
   // State for data
-  const [useSampleData, setUseSampleData] = useState(true);
   const [listings, setListings] = useState([]);
   const [favoriteSellersList, setFavoriteSellersList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -144,13 +145,21 @@ const BuyerDashboard = () => {
         setLoading(true);
         try {
           const response = await getBuyerDashboard();
+          console.log('API Response:', response.data);
+          
           setListings(response.data.listings);
           setFavoriteSellersList(response.data.favorite_sellers);
+          
+          // Store listings in localStorage for ProductDetailPage
+          const listingsString = JSON.stringify(response.data.listings);
+          console.log('Storing listings in localStorage:', listingsString);
+          localStorage.setItem('buyerDashboardListings', listingsString);
+          
           setError(null);
         } catch (err) {
           console.error("Failed to fetch buyer dashboard data:", err);
           setError("Failed to load data. Using sample data instead.");
-          setUseSampleData(true);
+          toggleDataMode(true);
         }
         setLoading(false);
       } else {
@@ -161,7 +170,7 @@ const BuyerDashboard = () => {
     };
 
     fetchData();
-  }, [useSampleData]);
+  }, [useSampleData, toggleDataMode]);
 
   // Handle network join request
   const handleJoinNetwork = async (sellerId) => {
@@ -204,14 +213,22 @@ const BuyerDashboard = () => {
 
   // Filter logic
   const filteredItems = useMemo(() => {
+    if (!listings || !Array.isArray(listings)) return [];
+    
     return listings.filter((item) => {
+      if (!item) return false;
+      
+      const productName = item.product_name || '';
+      const productDescription = item.product_description || '';
+      const productBrand = item.product_brand || '';
+      
       const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        productDescription.toLowerCase().includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
 
       if (activeCategory === "All Categories") return true;
-      return item.category === activeCategory;
+      return productBrand === activeCategory;
     });
   }, [listings, searchQuery, activeCategory]);
 
@@ -226,7 +243,7 @@ const BuyerDashboard = () => {
         <Button 
           size="xs" 
           colorScheme="blue" 
-          onClick={() => handleJoinNetwork(item.sellerId)}
+          onClick={() => handleJoinNetwork(item.seller_id)}
         >
           Request to Join Network
         </Button>
@@ -240,21 +257,11 @@ const BuyerDashboard = () => {
       bg={pageBgGradient}
       p={6}
     >
-      {/* PAGE HEADING AND TOGGLE */}
+      {/* PAGE HEADING */}
       <Flex justify="space-between" align="center" mb={4}>
         <Heading color={textColor}>
           Marketplace
         </Heading>
-        <FormControl display="flex" alignItems="center" w="auto">
-          <FormLabel htmlFor="sample-data" mb="0" mr={2}>
-            Use Sample Data
-          </FormLabel>
-          <Switch
-            id="sample-data"
-            isChecked={useSampleData}
-            onChange={(e) => setUseSampleData(e.target.checked)}
-          />
-        </FormControl>
       </Flex>
 
       {/* Error Message if any */}
@@ -289,7 +296,7 @@ const BuyerDashboard = () => {
               variant="outline"
               bg={accentBg}
               as={NavLink} 
-              to="/sellerpage"
+              to={`/sellerpage/${seller.id}`}
               borderColor={borderColor}
               _hover={{ bg: "blue.100" }}
             >
@@ -352,7 +359,7 @@ const BuyerDashboard = () => {
             <VStack align="start" spacing={3}>
               <Image
                 src={cardboardbox}
-                alt={item.name}
+                alt={item.product_name}
                 borderRadius="md"
                 w="100%"
                 maxH="300px"
@@ -361,25 +368,24 @@ const BuyerDashboard = () => {
               />
               <Box>
                 <Heading size="sm" mb={1}>
-                  {item.name}
+                  {item.product_name}
                 </Heading>
                 <Text fontSize="xs" color="gray.500">
-                  {item.seller}
+                  {item.seller_name}
                 </Text>
                 {renderNetworkStatus(item)}
               </Box>
               <Text fontSize="sm" noOfLines={2}>
-                {item.description}
+                {item.product_description}
               </Text>
               <Text fontSize="xs" color="gray.500">
-                Ends on: {item.endDate}
+                Ends on: {new Date(item.end_date).toLocaleDateString()}
               </Text>
               <Button
                 size="sm"
                 colorScheme="blue"
                 as={NavLink}
-                to="/productdetailpage"
-                // to={`/auction/${item.id}`}
+                to={`/product/${item.id}`}
               >
                 Bid Now
               </Button>

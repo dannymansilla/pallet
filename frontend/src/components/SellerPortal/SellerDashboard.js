@@ -15,10 +15,10 @@ import {
   Td,
   Text,
   useColorModeValue,
-  Switch,
-  FormControl,
-  FormLabel,
-  Flex,
+  useToast,
+  Center,
+  VStack,
+  Icon,
 } from "@chakra-ui/react";
 import {
   LineChart,
@@ -30,8 +30,9 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { ArrowUpIcon, ArrowDownIcon } from "@chakra-ui/icons";
+import { ArrowUpIcon, ArrowDownIcon, InfoIcon } from "@chakra-ui/icons";
 import { getSellerMetrics, getMonthlyStats, getSellerDashboardTables } from "../../services/api";
+import { useDataMode } from "../../context/DataModeContext";
 
 /**
  * 1) Updated sample data for top-level metrics (unchanged).
@@ -148,15 +149,26 @@ const sampleBuyers = [
   },
 ];
 
+const EmptyStateMessage = ({ title, description }) => (
+  <Center p={8}>
+    <VStack spacing={4}>
+      <Icon as={InfoIcon} w={8} h={8} color="gray.400" />
+      <Text fontSize="lg" fontWeight="bold">{title}</Text>
+      <Text color="gray.600" textAlign="center">{description}</Text>
+    </VStack>
+  </Center>
+);
+
 const SellerDashboard = () => {
   const cardBg = useColorModeValue("white", "gray.800");
   const cardBorderColor = useColorModeValue("gray.200", "gray.700");
-  const [useSampleData, setUseSampleData] = useState(true);
+  const { useSampleData } = useDataMode();
   const [metrics, setMetrics] = useState(null);
   const [monthlyData, setMonthlyData] = useState(null);
   const [tableData, setTableData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -168,52 +180,65 @@ const SellerDashboard = () => {
             getMonthlyStats(),
             getSellerDashboardTables()
           ]);
-          setMetrics(metricsResponse.data);
-          setMonthlyData(monthlyResponse.data);
-          setTableData(tablesResponse.data);
+          
+          // Only update state if we have actual data
+          if (metricsResponse?.data) setMetrics(metricsResponse.data);
+          if (monthlyResponse?.data) setMonthlyData(monthlyResponse.data);
+          if (tablesResponse?.data) setTableData(tablesResponse.data);
+          
           setError(null);
         } catch (err) {
           console.error("Failed to fetch data:", err);
-          setError("Failed to load data. Using sample data instead.");
-          setUseSampleData(true);
+          setError("Failed to load data. Please try again later.");
+          toast({
+            title: "Error",
+            description: "Failed to load seller dashboard data. Please try again later.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
         }
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [useSampleData]);
+  }, [useSampleData, toast]);
+
+  // Helper function to check if data is empty
+  const isDataEmpty = (data) => {
+    if (!data) return true;
+    if (Array.isArray(data)) return data.length === 0;
+    if (typeof data === 'object') return Object.keys(data).length === 0;
+    return false;
+  };
 
   // Use either real or sample data
-  const currentMetrics = useSampleData ? sampleSellerStats : metrics;
-  const currentMonthlyData = useSampleData ? sampleMonthlyData : monthlyData;
+  const currentMetrics = useSampleData ? sampleSellerStats : (metrics || {});
+  const currentMonthlyData = useSampleData ? sampleMonthlyData : (monthlyData || []);
   const currentTableData = useSampleData ? {
     recentAuctions: sampleAuctions,
     topProducts: sampleProducts,
     topBuyers: sampleBuyers
-  } : tableData;
+  } : {
+    recentAuctions: tableData?.recentAuctions || [],
+    topProducts: tableData?.topProducts || [],
+    topBuyers: tableData?.topBuyers || []
+  };
 
   // Compute recovery rate data
   const { prevMonthListValue, prevMonthSoldValue } = currentMetrics?.recoveryRate || {};
-  const recoveryPercent = ((prevMonthSoldValue / prevMonthListValue) * 100).toFixed(1);
-  const difference = (prevMonthListValue - prevMonthSoldValue).toLocaleString();
+  const recoveryPercent = prevMonthListValue && prevMonthSoldValue 
+    ? ((prevMonthSoldValue / prevMonthListValue) * 100).toFixed(1)
+    : '0.0';
+  const difference = prevMonthListValue && prevMonthSoldValue
+    ? (prevMonthListValue - prevMonthSoldValue).toLocaleString()
+    : '0';
 
   return (
     <Box p={6}>
-      {/* Page Title and Data Toggle */}
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading>Seller Dashboard</Heading>
-        <FormControl display="flex" alignItems="center" w="auto">
-          <FormLabel htmlFor="sample-data" mb="0" mr={2}>
-            Use Sample Data
-          </FormLabel>
-          <Switch
-            id="sample-data"
-            isChecked={useSampleData}
-            onChange={(e) => setUseSampleData(e.target.checked)}
-          />
-        </FormControl>
-      </Flex>
+      {/* Page Title */}
+      <Heading mb={6}>Seller Dashboard</Heading>
 
       {/* Error Message if any */}
       {error && (
@@ -230,244 +255,279 @@ const SellerDashboard = () => {
       )}
 
       {/* Key Metric Boxes */}
-      <SimpleGrid columns={[1, 2, 4]} spacing="20px" mb={6}>
-        {/* 1) Customer Engagement */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={cardBorderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Stat>
-            <StatLabel>Customer Engagement</StatLabel>
-            <StatNumber>
-              {currentMetrics?.customerEngagement?.lastMonthActivePercent}%
-            </StatNumber>
-            <StatHelpText>
-              Active bidders last month
-              <MoMChangeIndicator change={currentMetrics?.customerEngagement?.MoMChange} />
-            </StatHelpText>
-          </Stat>
-        </Box>
+      {!useSampleData && isDataEmpty(metrics) ? (
+        <EmptyStateMessage
+          title="No Metrics Available"
+          description="Metrics will appear here once you start listing products and completing auctions."
+        />
+      ) : (
+        <SimpleGrid columns={[1, 2, 4]} spacing="20px" mb={6}>
+          {/* 1) Customer Engagement */}
+          <Box
+            bg={cardBg}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            borderRadius="md"
+            p={4}
+          >
+            <Stat>
+              <StatLabel>Customer Engagement</StatLabel>
+              <StatNumber>
+                {currentMetrics?.customerEngagement?.lastMonthActivePercent}%
+              </StatNumber>
+              <StatHelpText>
+                Active bidders last month
+                <MoMChangeIndicator change={currentMetrics?.customerEngagement?.MoMChange} />
+              </StatHelpText>
+            </Stat>
+          </Box>
 
-        {/* 2) Volume */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={cardBorderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Stat>
-            <StatLabel>Volume ({currentMetrics?.volume?.currentMonth})</StatLabel>
-            <StatNumber>
-              ${currentMetrics?.volume?.currentMonthListValue.toLocaleString()}
-            </StatNumber>
-            <StatHelpText>
-              Total List Price Value
-              <MoMChangeIndicator change={currentMetrics?.volume?.MoMChange} />
-            </StatHelpText>
-          </Stat>
-        </Box>
+          {/* 2) Volume */}
+          <Box
+            bg={cardBg}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            borderRadius="md"
+            p={4}
+          >
+            <Stat>
+              <StatLabel>Volume ({currentMetrics?.volume?.currentMonth})</StatLabel>
+              <StatNumber>
+                ${currentMetrics?.volume?.currentMonthListValue.toLocaleString()}
+              </StatNumber>
+              <StatHelpText>
+                Total List Price Value
+                <MoMChangeIndicator change={currentMetrics?.volume?.MoMChange} />
+              </StatHelpText>
+            </Stat>
+          </Box>
 
-        {/* 3) Recovery Rate */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={cardBorderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Stat>
-            <StatLabel>Recovery Rate</StatLabel>
-            <StatNumber>{recoveryPercent}%</StatNumber>
-            <StatHelpText>
-              ${prevMonthListValue?.toLocaleString()} listed vs. $
-              {prevMonthSoldValue?.toLocaleString()} sold
-              <br />
-              (${difference} difference)
-            </StatHelpText>
-          </Stat>
-        </Box>
+          {/* 3) Recovery Rate */}
+          <Box
+            bg={cardBg}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            borderRadius="md"
+            p={4}
+          >
+            <Stat>
+              <StatLabel>Recovery Rate</StatLabel>
+              <StatNumber>{recoveryPercent}%</StatNumber>
+              <StatHelpText>
+                ${prevMonthListValue?.toLocaleString()} listed vs. $
+                {prevMonthSoldValue?.toLocaleString()} sold
+                <br />
+                (${difference} difference)
+              </StatHelpText>
+            </Stat>
+          </Box>
 
-        {/* 4) Carried Over */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={cardBorderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Stat>
-            <StatLabel>Carried Over</StatLabel>
-            <StatNumber>
-              ${currentMetrics?.carriedOverValue?.toLocaleString()}
-            </StatNumber>
-            <StatHelpText>Into Current Month</StatHelpText>
-          </Stat>
-        </Box>
-      </SimpleGrid>
+          {/* 4) Carried Over */}
+          <Box
+            bg={cardBg}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            borderRadius="md"
+            p={4}
+          >
+            <Stat>
+              <StatLabel>Carried Over</StatLabel>
+              <StatNumber>
+                ${currentMetrics?.carriedOverValue?.toLocaleString()}
+              </StatNumber>
+              <StatHelpText>Into Current Month</StatHelpText>
+            </Stat>
+          </Box>
+        </SimpleGrid>
+      )}
 
       {/* Sales Over Time (Chart) */}
-      <Box
-        bg={cardBg}
-        border="1px solid"
-        borderColor={cardBorderColor}
-        borderRadius="md"
-        p={4}
-        mb={6}
-      >
-        <Heading size="md" mb={4}>
-          Monthly Inventory & Sales
-        </Heading>
-        <Box height="350px">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={currentMonthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="listValue"
-                name="Total List Value"
-                stroke="#3182CE"
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 6 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="soldListValue"
-                name="Sold (List Value)"
-                stroke="#E53E3E"
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 6 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="actualSales"
-                name="Actual Sales"
-                stroke="#38A169"
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      {!useSampleData && isDataEmpty(monthlyData) ? (
+        <EmptyStateMessage
+          title="No Sales Data Available"
+          description="Your sales history will be displayed here once you complete your first auction."
+        />
+      ) : (
+        <Box
+          bg={cardBg}
+          border="1px solid"
+          borderColor={cardBorderColor}
+          borderRadius="md"
+          p={4}
+          mb={6}
+        >
+          <Heading size="md" mb={4}>
+            Monthly Inventory & Sales
+          </Heading>
+          <Box height="350px">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={currentMonthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="listValue"
+                  name="Total List Value"
+                  stroke="#3182CE"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="soldListValue"
+                  name="Sold (List Value)"
+                  stroke="#E53E3E"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="actualSales"
+                  name="Actual Sales"
+                  stroke="#38A169"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Box>
         </Box>
-      </Box>
+      )}
 
       {/* Recent Auctions Table */}
-      <Box
-        bg={cardBg}
-        border="1px solid"
-        borderColor={cardBorderColor}
-        borderRadius="md"
-        p={4}
-        mb={6}
-      >
-        <Heading size="md" mb={4}>
-          Recent Auctions
-        </Heading>
-        <Table variant="simple" size="md">
-          <Thead>
-            <Tr>
-              <Th>Auction ID</Th>
-              <Th>Products</Th>
-              <Th>Total Bids</Th>
-              <Th>Start Date</Th>
-              <Th>End Date</Th>
-              <Th>Status</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {currentTableData?.recentAuctions?.map((auc) => (
-              <Tr key={auc.auctionId}>
-                <Td>{auc.auctionId}</Td>
-                <Td>{auc.products}</Td>
-                <Td>{auc.totalBids}</Td>
-                <Td>{auc.startDate}</Td>
-                <Td>{auc.endDate}</Td>
-                <Td>
-                  <Text
-                    color={auc.status === "Open" ? "green.500" : "gray.500"}
-                  >
-                    {auc.status}
-                  </Text>
-                </Td>
+      {!useSampleData && isDataEmpty(tableData?.recentAuctions) ? (
+        <EmptyStateMessage
+          title="No Auctions Yet"
+          description="Your recent auctions will appear here once you create and complete your first auction."
+        />
+      ) : (
+        <Box
+          bg={cardBg}
+          border="1px solid"
+          borderColor={cardBorderColor}
+          borderRadius="md"
+          p={4}
+          mb={6}
+        >
+          <Heading size="md" mb={4}>
+            Recent Auctions
+          </Heading>
+          <Table variant="simple" size="md">
+            <Thead>
+              <Tr>
+                <Th>Auction ID</Th>
+                <Th>Products</Th>
+                <Th>Total Bids</Th>
+                <Th>Start Date</Th>
+                <Th>End Date</Th>
+                <Th>Status</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+            </Thead>
+            <Tbody>
+              {currentTableData?.recentAuctions?.map((auc) => (
+                <Tr key={auc.auctionId}>
+                  <Td>{auc.auctionId}</Td>
+                  <Td>{auc.products}</Td>
+                  <Td>{auc.totalBids}</Td>
+                  <Td>{auc.startDate}</Td>
+                  <Td>{auc.endDate}</Td>
+                  <Td>
+                    <Text
+                      color={auc.status === "Open" ? "green.500" : "gray.500"}
+                    >
+                      {auc.status}
+                    </Text>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      )}
 
       {/* 2-Column Layout: Top Products & Top Buyers */}
       <SimpleGrid columns={[1, 2]} spacing="20px">
         {/* Top Products */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={cardBorderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Heading size="md" mb={4}>
-            Top Products
-          </Heading>
-          <Table variant="simple" size="md">
-            <Thead>
-              <Tr>
-                <Th>Product</Th>
-                <Th>Revenue</Th>
-                <Th>Bids</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {currentTableData?.topProducts?.map((product) => (
-                <Tr key={product.productId}>
-                  <Td>{product.name}</Td>
-                  <Td>${product.totalRevenue.toLocaleString()}</Td>
-                  <Td>{product.totalBids}</Td>
+        {!useSampleData && isDataEmpty(tableData?.topProducts) ? (
+          <EmptyStateMessage
+            title="No Product Data"
+            description="Your top performing products will be displayed here once you start listing items and receiving bids."
+          />
+        ) : (
+          <Box
+            bg={cardBg}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            borderRadius="md"
+            p={4}
+          >
+            <Heading size="md" mb={4}>
+              Top Products
+            </Heading>
+            <Table variant="simple" size="md">
+              <Thead>
+                <Tr>
+                  <Th>Product</Th>
+                  <Th>Revenue</Th>
+                  <Th>Bids</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </Box>
+              </Thead>
+              <Tbody>
+                {currentTableData?.topProducts?.map((product) => (
+                  <Tr key={product.productId}>
+                    <Td>{product.name}</Td>
+                    <Td>${product.totalRevenue.toLocaleString()}</Td>
+                    <Td>{product.totalBids}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </Box>
+        )}
 
         {/* Top Buyers */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={cardBorderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Heading size="md" mb={4}>
-            Top Buyers
-          </Heading>
-          <Table variant="simple" size="md">
-            <Thead>
-              <Tr>
-                <Th>Buyer</Th>
-                <Th>Total Bids</Th>
-                <Th>Total Spent</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {currentTableData?.topBuyers?.map((buyer) => (
-                <Tr key={buyer.buyerId}>
-                  <Td>{buyer.name}</Td>
-                  <Td>{buyer.totalBids}</Td>
-                  <Td>${buyer.totalSpent.toLocaleString()}</Td>
+        {!useSampleData && isDataEmpty(tableData?.topBuyers) ? (
+          <EmptyStateMessage
+            title="No Buyer Data"
+            description="Your top buyers will be shown here once you start receiving bids on your auctions."
+          />
+        ) : (
+          <Box
+            bg={cardBg}
+            border="1px solid"
+            borderColor={cardBorderColor}
+            borderRadius="md"
+            p={4}
+          >
+            <Heading size="md" mb={4}>
+              Top Buyers
+            </Heading>
+            <Table variant="simple" size="md">
+              <Thead>
+                <Tr>
+                  <Th>Buyer</Th>
+                  <Th>Total Bids</Th>
+                  <Th>Total Spent</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </Box>
+              </Thead>
+              <Tbody>
+                {currentTableData?.topBuyers?.map((buyer) => (
+                  <Tr key={buyer.buyerId}>
+                    <Td>{buyer.name}</Td>
+                    <Td>{buyer.totalBids}</Td>
+                    <Td>${buyer.totalSpent.toLocaleString()}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </Box>
+        )}
       </SimpleGrid>
     </Box>
   );

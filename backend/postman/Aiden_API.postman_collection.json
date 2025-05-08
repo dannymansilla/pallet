@@ -106,7 +106,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"email\": \"test@example.com\",\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"role\": \"buyer\",\n    \"tos_accepted\": true\n}"
+									"body": "{\n    \"user\": {\n        \"id\": 1,\n        \"email\": \"test@example.com\",\n        \"role\": \"buyer\",\n        \"organization\": {\n            \"id\": 1,\n            \"name\": \"Test Company Inc\",\n            \"is_buyer\": true,\n            \"is_seller\": false\n        },\n        \"tos_accepted\": true,\n        \"tos_accepted_at\": \"2023-03-15T12:00:00Z\"\n    },\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\"\n}"
 								}
 							]
 						},
@@ -139,7 +139,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"daniel@hiaiden.com\",\n    \"password\": \"super_aiden_2727\"\n}"
+									"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"securePassword123!\"\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/accounts/login/",
@@ -156,7 +156,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"email\": \"daniel@hiaiden.com\",\n    \"password\": \"super_aiden_2727\"\n}"
+											"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"securePassword123!\"\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/accounts/login/",
@@ -169,7 +169,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjM5MDI0LCJpYXQiOjE2MTYxNTI2MjQsImp0aSI6ImY5ZDM5Y2Q5YzM5NDRlYjU5YzM5NDRlYjU5YzM5NDRlYjU5IiwidXNlcl9pZCI6MX0.example\",\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNzMxOTAyNCwiaWF0IjoxNjE2MTUyNjI0LCJqdGkiOiJmOWQzOWNkOWMzOTQ0ZWI1OWMzOTQ0ZWI1OWMzOTQ0ZWI1OSIsInVzZXJfaWQiOjF9.example\"\n}"
+									"body": "{\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n    \"user\": {\n        \"id\": 1,\n        \"email\": \"test@example.com\",\n        \"role\": \"buyer\",\n        \"organization\": {\n            \"id\": 1,\n            \"name\": \"Test Company Inc\",\n            \"is_buyer\": true,\n            \"is_seller\": false,\n            \"approval_status\": \"pending\"\n        }\n    }\n}"
 								}
 							]
 						},
@@ -216,7 +216,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNzMxOTAyNCwiaWF0IjoxNjE2MTUyNjI0LCJqdGkiOiJmOWQzOWNkOWMzOTQ0ZWI1OWMzOTQ0ZWI1OWMzOTQ0ZWI1OSIsInVzZXJfaWQiOjF9.example\"\n}"
+											"raw": "{\n    \"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\"\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/accounts/login/refresh/",
@@ -229,7 +229,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjE2MjM5MDI0LCJpYXQiOjE2MTYxNTI2MjQsImp0aSI6ImY5ZDM5Y2Q5YzM5NDRlYjU5YzM5NDRlYjU5YzM5NDRlYjU5IiwidXNlcl9pZCI6MX0.example\"\n}"
+									"body": "{\n    \"access\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\"\n}"
 								}
 							]
 						},
@@ -266,7 +266,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYxNzMxOTAyNCwiaWF0IjoxNjE2MTUyNjI0LCJqdGkiOiJmOWQzOWNkOWMzOTQ0ZWI1OWMzOTQ0ZWI1OWMzOTQ0ZWI1OSIsInVzZXJfaWQiOjF9.example\"\n}"
+											"raw": "{\n    \"refresh_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\"\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/accounts/logout/",
@@ -279,7 +279,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"detail\": \"Successfully logged out.\"\n}"
+									"body": "{\n    \"message\": \"Successfully logged out\"\n}"
 								}
 							]
 						}
@@ -323,7 +323,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"email\": \"daniel@hiaiden.com\",\n    \"first_name\": \"Daniel\",\n    \"last_name\": \"Mansilla\",\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"role\": \"seller\",\n    \"tos_accepted\": true,\n    \"tos_accepted_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"email\": \"test@example.com\",\n    \"role\": \"buyer\",\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"approval_status\": \"pending\"\n    },\n    \"tos_accepted\": true,\n    \"tos_accepted_at\": \"2023-03-15T12:00:00Z\"\n}"
 								}
 							]
 						},
@@ -373,7 +373,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"detail\": \"Password successfully changed.\"\n}"
+									"body": "{\n    \"message\": \"Password changed successfully\"\n}"
 								}
 							]
 						},
@@ -411,7 +411,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"detail\": \"Terms of service accepted.\"\n}"
+									"body": "{\n    \"message\": \"Terms accepted successfully\"\n}"
 								}
 							]
 						}
@@ -455,7 +455,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true,\n        \"status\": \"approved\"\n    },\n    {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"status\": \"approved\"\n    }\n]"
+									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"approval_status\": \"pending\",\n        \"approved_at\": null\n    },\n    {\n        \"id\": 2,\n        \"name\": \"Another Company\",\n        \"is_buyer\": false,\n        \"is_seller\": true,\n        \"approval_status\": \"approved\",\n        \"approved_at\": \"2023-03-15T12:00:00Z\"\n    }\n]"
 								}
 							]
 						},
@@ -493,7 +493,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "[\n    {\n        \"id\": 3,\n        \"name\": \"New Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"status\": \"pending\",\n        \"requested_date\": \"2023-03-20T10:00:00Z\"\n    }\n]"
+									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"approval_status\": \"pending\",\n        \"approved_at\": null\n    }\n]"
 								}
 							]
 						},
@@ -550,7 +550,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"detail\": \"Organization approved successfully.\"\n}"
+									"body": "{\n    \"message\": \"Organization Test Company Inc has been approved\",\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false,\n        \"approval_status\": \"approved\",\n        \"approved_at\": \"2023-03-15T12:00:00Z\"\n    }\n}"
 								}
 							]
 						},
@@ -570,7 +570,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"newadmin@aidenproject.com\",\n    \"password\": \"secure_admin_password\"\n}"
+									"raw": "{\n    \"email\": \"newadmin@example.com\",\n    \"password\": \"secure_admin_password\"\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/accounts/admin/create-admin/",
@@ -587,7 +587,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"email\": \"newadmin@aidenproject.com\",\n    \"password\": \"secure_admin_password\"\n}"
+											"raw": "{\n    \"email\": \"newadmin@example.com\",\n    \"password\": \"secure_admin_password\"\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/accounts/admin/create-admin/",
@@ -600,7 +600,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 2,\n    \"email\": \"newadmin@aidenproject.com\",\n    \"role\": \"admin\"\n}"
+									"body": "{\n    \"message\": \"Admin user created successfully\",\n    \"user\": {\n        \"id\": 3,\n        \"email\": \"newadmin@example.com\",\n        \"role\": \"admin\",\n        \"tos_accepted\": true,\n        \"tos_accepted_at\": \"2023-03-15T12:00:00Z\"\n    }\n}"
 								}
 							]
 						}
@@ -629,26 +629,9 @@
 								"url": {
 									"raw": "{{base_url}}/api/inventory/products/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "inventory", "products"],
-									"query": [
-										{
-											"key": "seller",
-											"value": "{{seller_id}}",
-											"description": "Filter products by seller ID"
-										},
-										{
-											"key": "category",
-											"value": "electronics",
-											"description": "Filter products by category"
-										},
-										{
-											"key": "search",
-											"value": "laptop",
-											"description": "Search products by name or description"
-										}
-									]
+									"path": ["api", "inventory", "products"]
 								},
-								"description": "List all products with optional filtering. This endpoint returns a paginated list of products that can be filtered by seller, category, or searched by name/description."
+								"description": "List all products. For sellers, this endpoint returns their own products. For buyers, it returns products available in active listings. Admins see all products."
 							},
 							"response": [
 								{
@@ -667,7 +650,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"name\": \"MacBook Pro\",\n            \"description\": \"13-inch MacBook Pro with M1 chip\",\n            \"category\": \"electronics\",\n            \"brand\": \"Apple\",\n            \"model\": \"MBP13-M1\",\n            \"condition\": \"new\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"created_at\": \"2023-03-15T12:00:00Z\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"ThinkPad X1\",\n            \"description\": \"ThinkPad X1 Carbon Business Laptop\",\n            \"category\": \"electronics\",\n            \"brand\": \"Lenovo\",\n            \"model\": \"X1-Carbon\",\n            \"condition\": \"used\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"created_at\": \"2023-03-15T12:00:00Z\"\n        }\n    ]\n}"
+									"body": "[\n    {\n        \"id\": 1,\n        \"sku\": \"MBP13-M1-001\",\n        \"name\": \"MacBook Pro\",\n        \"brand\": \"Apple\",\n        \"description\": \"13-inch MacBook Pro with M1 chip\",\n        \"length\": 30.41,\n        \"width\": 21.24,\n        \"height\": 1.56,\n        \"weight\": 1.4,\n        \"units_per_case\": 1,\n        \"cases_per_pallet\": 20,\n        \"created_at\": \"2023-03-15T12:00:00Z\",\n        \"updated_at\": \"2023-03-15T12:00:00Z\"\n    },\n    {\n        \"id\": 2,\n        \"sku\": \"X1-CARBON-001\",\n        \"name\": \"ThinkPad X1 Carbon\",\n        \"brand\": \"Lenovo\",\n        \"description\": \"ThinkPad X1 Carbon Business Laptop\",\n        \"length\": 32.3,\n        \"width\": 21.7,\n        \"height\": 1.5,\n        \"weight\": 1.1,\n        \"units_per_case\": 1,\n        \"cases_per_pallet\": 25,\n        \"created_at\": \"2023-03-15T12:00:00Z\",\n        \"updated_at\": \"2023-03-15T12:00:00Z\"\n    }\n]"
 								}
 							]
 						},
@@ -687,14 +670,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Brand Name\",\n    \"model\": \"Model Number\",\n    \"condition\": \"new\"\n}"
+									"raw": "{\n    \"sku\": \"NEW-PROD-001\",\n    \"name\": \"New Product\",\n    \"brand\": \"Brand Name\",\n    \"description\": \"Product description\",\n    \"length\": 10.0,\n    \"width\": 10.0,\n    \"height\": 10.0,\n    \"weight\": 1.0,\n    \"units_per_case\": 1,\n    \"cases_per_pallet\": 20\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/inventory/products/",
 									"host": ["{{base_url}}"],
 									"path": ["api", "inventory", "products"]
 								},
-								"description": "Create a new product. This endpoint allows sellers to create new products in their inventory. The product will be associated with the seller's profile automatically."
+								"description": "Create a new product. This endpoint is available to sellers and admins only."
 							},
 							"response": [
 								{
@@ -704,7 +687,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Brand Name\",\n    \"model\": \"Model Number\",\n    \"condition\": \"new\"\n}"
+											"raw": "{\n    \"sku\": \"NEW-PROD-001\",\n    \"name\": \"New Product\",\n    \"brand\": \"Brand Name\",\n    \"description\": \"Product description\",\n    \"length\": 10.0,\n    \"width\": 10.0,\n    \"height\": 10.0,\n    \"weight\": 1.0,\n    \"units_per_case\": 1,\n    \"cases_per_pallet\": 20\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/inventory/products/",
@@ -717,7 +700,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 3,\n    \"name\": \"New Product\",\n    \"description\": \"Product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Brand Name\",\n    \"model\": \"Model Number\",\n    \"condition\": \"new\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"created_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 3,\n    \"sku\": \"NEW-PROD-001\",\n    \"name\": \"New Product\",\n    \"brand\": \"Brand Name\",\n    \"description\": \"Product description\",\n    \"length\": 10.0,\n    \"width\": 10.0,\n    \"height\": 10.0,\n    \"weight\": 1.0,\n    \"units_per_case\": 1,\n    \"cases_per_pallet\": 20,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
 								}
 							]
 						},
@@ -743,7 +726,7 @@
 										}
 									]
 								},
-								"description": "Get detailed information about a specific product. This endpoint returns detailed information about a product, including its specifications and seller information."
+								"description": "Get detailed information about a specific product."
 							},
 							"response": [
 								{
@@ -762,7 +745,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"MacBook Pro\",\n    \"description\": \"13-inch MacBook Pro with M1 chip\",\n    \"category\": \"electronics\",\n    \"brand\": \"Apple\",\n    \"model\": \"MBP13-M1\",\n    \"condition\": \"new\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"sku\": \"MBP13-M1-001\",\n    \"name\": \"MacBook Pro\",\n    \"brand\": \"Apple\",\n    \"description\": \"13-inch MacBook Pro with M1 chip\",\n    \"length\": 30.41,\n    \"width\": 21.24,\n    \"height\": 1.56,\n    \"weight\": 1.4,\n    \"units_per_case\": 1,\n    \"cases_per_pallet\": 20,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
 								}
 							]
 						},
@@ -782,7 +765,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\"\n}"
+									"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\",\n    \"weight\": 1.5\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/inventory/products/:product_id/",
@@ -796,7 +779,7 @@
 										}
 									]
 								},
-								"description": "Update a product's information. This endpoint allows sellers to update their product information. Only the seller who owns the product can update it."
+								"description": "Update a product's information. This endpoint is available to sellers and admins only."
 							},
 							"response": [
 								{
@@ -806,7 +789,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\"\n}"
+											"raw": "{\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\",\n    \"weight\": 1.5\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/inventory/products/1/",
@@ -819,7 +802,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Product Name\",\n    \"description\": \"Updated product description\",\n    \"category\": \"electronics\",\n    \"brand\": \"Apple\",\n    \"model\": \"MBP13-M1\",\n    \"condition\": \"new\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"sku\": \"MBP13-M1-001\",\n    \"name\": \"Updated Product Name\",\n    \"brand\": \"Apple\",\n    \"description\": \"Updated product description\",\n    \"length\": 30.41,\n    \"width\": 21.24,\n    \"height\": 1.56,\n    \"weight\": 1.5,\n    \"units_per_case\": 1,\n    \"cases_per_pallet\": 20,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
 								}
 							]
 						},
@@ -845,7 +828,7 @@
 										}
 									]
 								},
-								"description": "Delete a product. This endpoint allows sellers to delete their products. Only the seller who owns the product can delete it."
+								"description": "Delete a product. This endpoint is available to sellers and admins only."
 							},
 							"response": [
 								{
@@ -885,11 +868,11 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/inventory/seller-profile/",
+									"raw": "{{base_url}}/api/inventory/sellers/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "inventory", "seller-profile"]
+									"path": ["api", "inventory", "sellers"]
 								},
-								"description": "Get the current user's seller profile. This endpoint returns detailed information about the seller's profile, including their organization details and settings."
+								"description": "Get the current user's seller profile. This endpoint returns detailed information about the seller's profile, including their organization details and warehouses."
 							},
 							"response": [
 								{
@@ -898,9 +881,9 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/inventory/seller-profile/",
+											"raw": "{{base_url}}/api/inventory/sellers/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "inventory", "seller-profile"]
+											"path": ["api", "inventory", "sellers"]
 										}
 									},
 									"status": "OK",
@@ -908,7 +891,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"warehouse_location\": \"New York, NY\",\n    \"preferred_payment_method\": \"bank_transfer\",\n    \"minimum_order_value\": 1000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"seller_since\": \"2023-03-15T12:00:00Z\",\n    \"default_warehouse\": 1,\n    \"warehouses\": [\n        {\n            \"id\": 1,\n            \"name\": \"Main Warehouse\",\n            \"address\": \"123 Main St, New York, NY\",\n            \"capacity\": 10000\n        },\n        {\n            \"id\": 2,\n            \"name\": \"West Coast Warehouse\",\n            \"address\": \"456 Market St, San Francisco, CA\",\n            \"capacity\": 8000\n        }\n    ]\n}"
 								}
 							]
 						},
@@ -928,14 +911,21 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"warehouse_location\": \"Los Angeles, CA\",\n    \"preferred_payment_method\": \"credit_card\",\n    \"minimum_order_value\": 2000\n}"
+									"raw": "{\n    \"default_warehouse\": 2\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/inventory/seller-profile/",
+									"raw": "{{base_url}}/api/inventory/sellers/:profile_id/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "inventory", "seller-profile"]
+									"path": ["api", "inventory", "sellers", ":profile_id"],
+									"variable": [
+										{
+											"key": "profile_id",
+											"value": "1",
+											"description": "ID of the seller profile to update"
+										}
+									]
 								},
-								"description": "Update the seller's profile settings. This endpoint allows sellers to update their profile information, including warehouse location, payment preferences, and minimum order value."
+								"description": "Update the seller's profile settings. This endpoint allows sellers to update their profile information, including default warehouse."
 							},
 							"response": [
 								{
@@ -945,12 +935,12 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"warehouse_location\": \"Los Angeles, CA\",\n    \"preferred_payment_method\": \"credit_card\",\n    \"minimum_order_value\": 2000\n}"
+											"raw": "{\n    \"default_warehouse\": 2\n}"
 										},
 										"url": {
-											"raw": "{{base_url}}/api/inventory/seller-profile/",
+											"raw": "{{base_url}}/api/inventory/sellers/1/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "inventory", "seller-profile"]
+											"path": ["api", "inventory", "sellers", "1"]
 										}
 									},
 									"status": "OK",
@@ -958,7 +948,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"warehouse_location\": \"Los Angeles, CA\",\n    \"preferred_payment_method\": \"credit_card\",\n    \"minimum_order_value\": 2000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 1,\n        \"name\": \"Test Company Inc\",\n        \"is_buyer\": false,\n        \"is_seller\": true\n    },\n    \"seller_since\": \"2023-03-15T12:00:00Z\",\n    \"default_warehouse\": 2,\n    \"warehouses\": [\n        {\n            \"id\": 1,\n            \"name\": \"Main Warehouse\",\n            \"address\": \"123 Main St, New York, NY\",\n            \"capacity\": 10000\n        },\n        {\n            \"id\": 2,\n            \"name\": \"West Coast Warehouse\",\n            \"address\": \"456 Market St, San Francisco, CA\",\n            \"capacity\": 8000\n        }\n    ]\n}"
 								}
 							]
 						}
@@ -979,9 +969,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/inventory/buyer-profile/",
+									"raw": "{{base_url}}/api/inventory/buyers/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "inventory", "buyer-profile"]
+									"path": ["api", "inventory", "buyers"]
 								},
 								"description": "Get the current user's buyer profile. This endpoint returns detailed information about the buyer's profile, including their organization details and preferences."
 							},
@@ -992,9 +982,9 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/inventory/buyer-profile/",
+											"raw": "{{base_url}}/api/inventory/buyers/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "inventory", "buyer-profile"]
+											"path": ["api", "inventory", "buyers"]
 										}
 									},
 									"status": "OK",
@@ -1002,7 +992,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"preferred_categories\": [\"electronics\", \"office supplies\"],\n    \"preferred_sellers\": [1],\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 2,\n        \"name\": \"Buyer Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"buyer_since\": \"2023-03-15T12:00:00Z\",\n    \"credit_terms\": 30,\n    \"preferred_shipping_locations\": [\n        {\n            \"address\": \"789 Business Ave, Chicago, IL\",\n            \"is_default\": true\n        },\n        {\n            \"address\": \"321 Corporate Blvd, Boston, MA\",\n            \"is_default\": false\n        }\n    ]\n}"
 								}
 							]
 						},
@@ -1022,14 +1012,21 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"preferred_categories\": [\"electronics\", \"furniture\"],\n    \"preferred_sellers\": [1, 3]\n}"
+									"raw": "{\n    \"credit_terms\": 45,\n    \"preferred_shipping_locations\": [\n        {\n            \"address\": \"789 Business Ave, Chicago, IL\",\n            \"is_default\": true\n        },\n        {\n            \"address\": \"321 Corporate Blvd, Boston, MA\",\n            \"is_default\": false\n        },\n        {\n            \"address\": \"555 Industrial Dr, Houston, TX\",\n            \"is_default\": false\n        }\n    ]\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/inventory/buyer-profile/",
+									"raw": "{{base_url}}/api/inventory/buyers/:profile_id/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "inventory", "buyer-profile"]
+									"path": ["api", "inventory", "buyers", ":profile_id"],
+									"variable": [
+										{
+											"key": "profile_id",
+											"value": "1",
+											"description": "ID of the buyer profile to update"
+										}
+									]
 								},
-								"description": "Update the buyer's profile settings. This endpoint allows buyers to update their profile information, including preferred categories and sellers."
+								"description": "Update the buyer's profile settings. This endpoint allows buyers to update their profile information, including credit terms and preferred shipping locations."
 							},
 							"response": [
 								{
@@ -1039,12 +1036,12 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"preferred_categories\": [\"electronics\", \"furniture\"],\n    \"preferred_sellers\": [1, 3]\n}"
+											"raw": "{\n    \"credit_terms\": 45,\n    \"preferred_shipping_locations\": [\n        {\n            \"address\": \"789 Business Ave, Chicago, IL\",\n            \"is_default\": true\n        },\n        {\n            \"address\": \"321 Corporate Blvd, Boston, MA\",\n            \"is_default\": false\n        },\n        {\n            \"address\": \"555 Industrial Dr, Houston, TX\",\n            \"is_default\": false\n        }\n    ]\n}"
 										},
 										"url": {
-											"raw": "{{base_url}}/api/inventory/buyer-profile/",
+											"raw": "{{base_url}}/api/inventory/buyers/1/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "inventory", "buyer-profile"]
+											"path": ["api", "inventory", "buyers", "1"]
 										}
 									},
 									"status": "OK",
@@ -1052,7 +1049,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"preferred_categories\": [\"electronics\", \"furniture\"],\n    \"preferred_sellers\": [1, 3],\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"organization\": {\n        \"id\": 2,\n        \"name\": \"Buyer Company Inc\",\n        \"is_buyer\": true,\n        \"is_seller\": false\n    },\n    \"buyer_since\": \"2023-03-15T12:00:00Z\",\n    \"credit_terms\": 45,\n    \"preferred_shipping_locations\": [\n        {\n            \"address\": \"789 Business Ave, Chicago, IL\",\n            \"is_default\": true\n        },\n        {\n            \"address\": \"321 Corporate Blvd, Boston, MA\",\n            \"is_default\": false\n        },\n        {\n            \"address\": \"555 Industrial Dr, Houston, TX\",\n            \"is_default\": false\n        }\n    ]\n}"
 								}
 							]
 						}
@@ -1096,7 +1093,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Main Warehouse\",\n        \"location\": \"New York, NY\",\n        \"capacity\": 10000,\n        \"current_usage\": 5000,\n        \"created_at\": \"2023-03-15T12:00:00Z\"\n    },\n    {\n        \"id\": 2,\n        \"name\": \"West Coast Warehouse\",\n        \"location\": \"Los Angeles, CA\",\n        \"capacity\": 8000,\n        \"current_usage\": 3000,\n        \"created_at\": \"2023-03-15T12:00:00Z\"\n    }\n]"
+									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Main Warehouse\",\n        \"address\": \"123 Main St, New York, NY\",\n        \"seller\": 1,\n        \"capacity\": 10000\n    },\n    {\n        \"id\": 2,\n        \"name\": \"West Coast Warehouse\",\n        \"address\": \"456 Market St, San Francisco, CA\",\n        \"seller\": 1,\n        \"capacity\": 8000\n    }\n]"
 								}
 							]
 						},
@@ -1116,7 +1113,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"New Warehouse\",\n    \"location\": \"Chicago, IL\",\n    \"capacity\": 5000\n}"
+									"raw": "{\n    \"name\": \"New Warehouse\",\n    \"address\": \"789 Industrial Park, Chicago, IL\",\n    \"capacity\": 5000\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/inventory/warehouses/",
@@ -1133,7 +1130,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"name\": \"New Warehouse\",\n    \"location\": \"Chicago, IL\",\n    \"capacity\": 5000\n}"
+											"raw": "{\n    \"name\": \"New Warehouse\",\n    \"address\": \"789 Industrial Park, Chicago, IL\",\n    \"capacity\": 5000\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/inventory/warehouses/",
@@ -1146,7 +1143,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 3,\n    \"name\": \"New Warehouse\",\n    \"location\": \"Chicago, IL\",\n    \"capacity\": 5000,\n    \"current_usage\": 0,\n    \"created_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 3,\n    \"name\": \"New Warehouse\",\n    \"address\": \"789 Industrial Park, Chicago, IL\",\n    \"seller\": 1,\n    \"capacity\": 5000\n}"
 								}
 							]
 						},
@@ -1191,7 +1188,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Main Warehouse\",\n    \"location\": \"New York, NY\",\n    \"capacity\": 10000,\n    \"current_usage\": 5000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Main Warehouse\",\n    \"address\": \"123 Main St, New York, NY\",\n    \"seller\": 1,\n    \"capacity\": 10000,\n    \"current_usage\": 5000\n}"
 								}
 							]
 						},
@@ -1248,7 +1245,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Warehouse Name\",\n    \"location\": \"New York, NY\",\n    \"capacity\": 12000,\n    \"current_usage\": 5000,\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"updated_at\": \"2023-03-15T12:30:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Warehouse Name\",\n    \"address\": \"123 Main St, New York, NY\",\n    \"seller\": 1,\n    \"capacity\": 12000,\n    \"current_usage\": 5000\n}"
 								}
 							]
 						},
@@ -1322,21 +1319,9 @@
 								"url": {
 									"raw": "{{base_url}}/api/auctions/sale-events/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "sale-events"],
-									"query": [
-										{
-											"key": "seller",
-											"value": "{{seller_id}}",
-											"description": "Filter events by seller ID"
-										},
-										{
-											"key": "status",
-											"value": "open",
-											"description": "Filter events by status (open, closed, pending)"
-										}
-									]
+									"path": ["api", "auctions", "sale-events"]
 								},
-								"description": "List all sale events with optional filtering. This endpoint returns a paginated list of sale events that can be filtered by seller or status."
+								"description": "List all sale events. For sellers, this endpoint returns their own sale events. For buyers, it returns open sale events."
 							},
 							"response": [
 								{
@@ -1355,7 +1340,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"name\": \"Spring Electronics Sale\",\n            \"description\": \"Huge discounts on electronics\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"start_date\": \"2023-03-15T12:00:00Z\",\n            \"end_date\": \"2023-03-22T12:00:00Z\",\n            \"status\": \"open\",\n            \"listing_count\": 5,\n            \"total_value\": 25000\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Office Supplies Clearance\",\n            \"description\": \"Clear out of office supplies\",\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"start_date\": \"2023-03-20T12:00:00Z\",\n            \"end_date\": \"2023-03-27T12:00:00Z\",\n            \"status\": \"pending\",\n            \"listing_count\": 3,\n            \"total_value\": 15000\n        }\n    ]\n}"
+									"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\",\n        \"description\": \"Huge discounts on electronics\",\n        \"status\": \"open\",\n        \"start_date\": \"2023-03-15T12:00:00Z\",\n        \"end_date\": \"2023-03-22T12:00:00Z\",\n        \"listings\": []\n    }\n]"
 								}
 							]
 						},
@@ -1382,7 +1367,7 @@
 									"host": ["{{base_url}}"],
 									"path": ["api", "auctions", "sale-events"]
 								},
-								"description": "Create a new sale event. This endpoint allows sellers to create new sale events. The event will be created with a 'pending' status."
+								"description": "Create a new sale event. This endpoint is available to sellers only."
 							},
 							"response": [
 								{
@@ -1405,7 +1390,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 3,\n    \"name\": \"New Sale Event\",\n    \"description\": \"Description of the sale event\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"start_date\": \"2023-04-01T12:00:00Z\",\n    \"end_date\": \"2023-04-08T12:00:00Z\",\n    \"status\": \"pending\",\n    \"listing_count\": 0,\n    \"total_value\": 0\n}"
+									"body": "{\n    \"id\": 2,\n    \"name\": \"New Sale Event\",\n    \"description\": \"Description of the sale event\",\n    \"status\": \"upcoming\",\n    \"start_date\": \"2023-04-01T12:00:00Z\",\n    \"end_date\": \"2023-04-08T12:00:00Z\",\n    \"listings\": []\n}"
 								}
 							]
 						},
@@ -1431,7 +1416,7 @@
 										}
 									]
 								},
-								"description": "Get detailed information about a specific sale event. This endpoint returns detailed information about a sale event, including its listings and metrics."
+								"description": "Get detailed information about a specific sale event."
 							},
 							"response": [
 								{
@@ -1450,64 +1435,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"description\": \"Huge discounts on electronics\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"status\": \"open\",\n    \"listing_count\": 5,\n    \"total_value\": 25000,\n    \"listings\": [\n        {\n            \"id\": 1,\n            \"product\": {\n                \"id\": 1,\n                \"name\": \"MacBook Pro\"\n            },\n            \"quantity\": 10,\n            \"starting_price\": 2000,\n            \"current_price\": 1800,\n            \"bid_count\": 5\n        }\n    ],\n    \"metrics\": {\n        \"total_bids\": 25,\n        \"unique_bidders\": 8,\n        \"average_discount\": 15\n    }\n}"
-								}
-							]
-						},
-						{
-							"name": "Update Sale Event",
-							"request": {
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "Bearer {{access_token}}"
-									},
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"Updated Sale Event Name\",\n    \"description\": \"Updated description\",\n    \"end_date\": \"2023-04-15T12:00:00Z\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/",
-									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "sale-events", ":event_id"],
-									"variable": [
-										{
-											"key": "event_id",
-											"value": "1",
-											"description": "ID of the sale event to update"
-										}
-									]
-								},
-								"description": "Update a sale event's information. This endpoint allows sellers to update their sale event information. Only events in 'pending' status can be fully updated."
-							},
-							"response": [
-								{
-									"name": "Success",
-									"originalRequest": {
-										"method": "PATCH",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"name\": \"Updated Sale Event Name\",\n    \"description\": \"Updated description\",\n    \"end_date\": \"2023-04-15T12:00:00Z\"\n}"
-										},
-										"url": {
-											"raw": "{{base_url}}/api/auctions/sale-events/1/",
-											"host": ["{{base_url}}"],
-											"path": ["api", "auctions", "sale-events", "1"]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [],
-									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Updated Sale Event Name\",\n    \"description\": \"Updated description\",\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"end_date\": \"2023-04-15T12:00:00Z\",\n    \"status\": \"pending\",\n    \"listing_count\": 5,\n    \"total_value\": 25000\n}"
+									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"description\": \"Huge discounts on electronics\",\n    \"status\": \"open\",\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"listings\": [\n        {\n            \"id\": 1,\n            \"product\": 1,\n            \"seller\": 1,\n            \"warehouse\": 1,\n            \"sale_event\": 1,\n            \"quantity_available\": 10,\n            \"reserve_price\": 2000,\n            \"listing_status\": \"active\",\n            \"status_display\": \"Active\",\n            \"documents\": []\n        }\n    ]\n}"
 								}
 							]
 						},
@@ -1522,9 +1450,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/start/",
+									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/start_event/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "sale-events", ":event_id", "start"],
+									"path": ["api", "auctions", "sale-events", ":event_id", "start_event"],
 									"variable": [
 										{
 											"key": "event_id",
@@ -1533,7 +1461,7 @@
 										}
 									]
 								},
-								"description": "Start a sale event. This endpoint changes the event status from 'pending' to 'open' and makes all associated listings available for bidding."
+								"description": "Start a sale event. This endpoint changes the event status from 'upcoming' to 'open'."
 							},
 							"response": [
 								{
@@ -1542,9 +1470,9 @@
 										"method": "POST",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/auctions/sale-events/1/start/",
+											"raw": "{{base_url}}/api/auctions/sale-events/1/start_event/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "auctions", "sale-events", "1", "start"]
+											"path": ["api", "auctions", "sale-events", "1", "start_event"]
 										}
 									},
 									"status": "OK",
@@ -1552,7 +1480,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"status\": \"open\",\n    \"start_date\": \"2023-03-15T12:00:00Z\",\n    \"message\": \"Sale event started successfully\"\n}"
+									"body": "{\n    \"status\": \"event started\"\n}"
 								}
 							]
 						},
@@ -1567,9 +1495,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/close/",
+									"raw": "{{base_url}}/api/auctions/sale-events/:event_id/close_event/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "sale-events", ":event_id", "close"],
+									"path": ["api", "auctions", "sale-events", ":event_id", "close_event"],
 									"variable": [
 										{
 											"key": "event_id",
@@ -1578,7 +1506,7 @@
 										}
 									]
 								},
-								"description": "Close a sale event. This endpoint changes the event status to 'closed' and finalizes all winning bids."
+								"description": "Close a sale event. This endpoint changes the event status from 'open' to 'closed'."
 							},
 							"response": [
 								{
@@ -1587,9 +1515,9 @@
 										"method": "POST",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/auctions/sale-events/1/close/",
+											"raw": "{{base_url}}/api/auctions/sale-events/1/close_event/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "auctions", "sale-events", "1", "close"]
+											"path": ["api", "auctions", "sale-events", "1", "close_event"]
 										}
 									},
 									"status": "OK",
@@ -1597,7 +1525,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"name\": \"Spring Electronics Sale\",\n    \"status\": \"closed\",\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"message\": \"Sale event closed successfully\",\n    \"summary\": {\n        \"total_listings_sold\": 4,\n        \"total_revenue\": 20000,\n        \"average_discount\": 15\n    }\n}"
+									"body": "{\n    \"status\": \"event closed\"\n}"
 								}
 							]
 						}
@@ -1620,26 +1548,9 @@
 								"url": {
 									"raw": "{{base_url}}/api/auctions/listings/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "listings"],
-									"query": [
-										{
-											"key": "sale_event",
-											"value": "{{event_id}}",
-											"description": "Filter listings by sale event ID"
-										},
-										{
-											"key": "status",
-											"value": "active",
-											"description": "Filter listings by status (active, pending, sold, expired)"
-										},
-										{
-											"key": "seller",
-											"value": "{{seller_id}}",
-											"description": "Filter listings by seller ID"
-										}
-									]
+									"path": ["api", "auctions", "listings"]
 								},
-								"description": "List all listings with optional filtering. This endpoint returns a paginated list of listings that can be filtered by sale event, status, or seller."
+								"description": "List all listings. For sellers, this endpoint returns their own listings. For buyers, it returns active listings."
 							},
 							"response": [
 								{
@@ -1658,7 +1569,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"product\": {\n                \"id\": 1,\n                \"name\": \"MacBook Pro\",\n                \"description\": \"13-inch MacBook Pro with M1 chip\",\n                \"brand\": \"Apple\",\n                \"model\": \"MBP13-M1\"\n            },\n            \"sale_event\": {\n                \"id\": 1,\n                \"name\": \"Spring Electronics Sale\"\n            },\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"quantity\": 10,\n            \"starting_price\": 2000,\n            \"current_price\": 1800,\n            \"status\": \"active\",\n            \"bid_count\": 5,\n            \"end_date\": \"2023-03-22T12:00:00Z\"\n        },\n        {\n            \"id\": 2,\n            \"product\": {\n                \"id\": 2,\n                \"name\": \"ThinkPad X1\",\n                \"description\": \"ThinkPad X1 Carbon Business Laptop\",\n                \"brand\": \"Lenovo\",\n                \"model\": \"X1-Carbon\"\n            },\n            \"sale_event\": {\n                \"id\": 1,\n                \"name\": \"Spring Electronics Sale\"\n            },\n            \"seller\": {\n                \"id\": 1,\n                \"name\": \"Aiden Project\"\n            },\n            \"quantity\": 5,\n            \"starting_price\": 1500,\n            \"current_price\": 1400,\n            \"status\": \"active\",\n            \"bid_count\": 3,\n            \"end_date\": \"2023-03-22T12:00:00Z\"\n        }\n    ]\n}"
+									"body": "[\n    {\n        \"id\": 1,\n        \"product\": 1,\n        \"seller\": 1,\n        \"warehouse\": 1,\n        \"sale_event\": 1,\n        \"quantity_available\": 10,\n        \"reserve_price\": 2000,\n        \"listing_status\": \"active\",\n        \"status_display\": \"Active\",\n        \"documents\": []\n    }\n]"
 								}
 							]
 						},
@@ -1678,14 +1589,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"product_id\": 1,\n    \"sale_event_id\": 1,\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50\n}"
+									"raw": "{\n    \"product\": 1,\n    \"warehouse\": 1,\n    \"sale_event\": 1,\n    \"quantity_available\": 10,\n    \"reserve_price\": 2000\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/auctions/listings/",
 									"host": ["{{base_url}}"],
 									"path": ["api", "auctions", "listings"]
 								},
-								"description": "Create a new listing. This endpoint allows sellers to create new listings for their products in a sale event."
+								"description": "Create a new listing. This endpoint is available to sellers only."
 							},
 							"response": [
 								{
@@ -1695,7 +1606,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"product_id\": 1,\n    \"sale_event_id\": 1,\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50\n}"
+											"raw": "{\n    \"product\": 1,\n    \"warehouse\": 1,\n    \"sale_event\": 1,\n    \"quantity_available\": 10,\n    \"reserve_price\": 2000\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/auctions/listings/",
@@ -1708,7 +1619,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 3,\n    \"product\": {\n        \"id\": 1,\n        \"name\": \"MacBook Pro\"\n    },\n    \"sale_event\": {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\"\n    },\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"current_price\": 2000,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50,\n    \"status\": \"pending\",\n    \"bid_count\": 0,\n    \"end_date\": \"2023-03-22T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 2,\n    \"product\": 1,\n    \"seller\": 1,\n    \"warehouse\": 1,\n    \"sale_event\": 1,\n    \"quantity_available\": 10,\n    \"reserve_price\": 2000,\n    \"listing_status\": \"pending\",\n    \"status_display\": \"Pending\",\n    \"documents\": []\n}"
 								}
 							]
 						},
@@ -1734,7 +1645,7 @@
 										}
 									]
 								},
-								"description": "Get detailed information about a specific listing. This endpoint returns detailed information about a listing, including its bids and metrics."
+								"description": "Get detailed information about a specific listing."
 							},
 							"response": [
 								{
@@ -1753,7 +1664,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"product\": {\n        \"id\": 1,\n        \"name\": \"MacBook Pro\",\n        \"description\": \"13-inch MacBook Pro with M1 chip\",\n        \"brand\": \"Apple\",\n        \"model\": \"MBP13-M1\",\n        \"condition\": \"new\"\n    },\n    \"sale_event\": {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\",\n        \"status\": \"open\"\n    },\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"quantity\": 10,\n    \"starting_price\": 2000,\n    \"current_price\": 1800,\n    \"reserve_price\": 1800,\n    \"minimum_bid_increment\": 50,\n    \"status\": \"active\",\n    \"bid_count\": 5,\n    \"end_date\": \"2023-03-22T12:00:00Z\",\n    \"bids\": [\n        {\n            \"id\": 1,\n            \"buyer\": {\n                \"id\": 2,\n                \"name\": \"Test Buyer Co\"\n            },\n            \"amount\": 1800,\n            \"created_at\": \"2023-03-15T14:30:00Z\",\n            \"status\": \"winning\"\n        }\n    ],\n    \"metrics\": {\n        \"unique_bidders\": 3,\n        \"time_remaining\": \"5d 12h\",\n        \"price_discount\": 10\n    }\n}"
+									"body": "{\n    \"id\": 1,\n    \"product\": 1,\n    \"seller\": 1,\n    \"warehouse\": 1,\n    \"sale_event\": 1,\n    \"quantity_available\": 10,\n    \"reserve_price\": 2000,\n    \"listing_status\": \"active\",\n    \"status_display\": \"Active\",\n    \"documents\": []\n}"
 								}
 							]
 						},
@@ -1773,7 +1684,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"quantity\": 15,\n    \"starting_price\": 1900,\n    \"reserve_price\": 1700\n}"
+									"raw": "{\n    \"quantity_available\": 15,\n    \"reserve_price\": 1900\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/auctions/listings/:listing_id/",
@@ -1787,7 +1698,7 @@
 										}
 									]
 								},
-								"description": "Update a listing's information. This endpoint allows sellers to update their listing information. Only listings in 'pending' status can be fully updated."
+								"description": "Update a listing's information. This endpoint is available to sellers only."
 							},
 							"response": [
 								{
@@ -1797,7 +1708,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"quantity\": 15,\n    \"starting_price\": 1900,\n    \"reserve_price\": 1700\n}"
+											"raw": "{\n    \"quantity_available\": 15,\n    \"reserve_price\": 1900\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/auctions/listings/1/",
@@ -1810,7 +1721,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"product\": {\n        \"id\": 1,\n        \"name\": \"MacBook Pro\"\n    },\n    \"sale_event\": {\n        \"id\": 1,\n        \"name\": \"Spring Electronics Sale\"\n    },\n    \"seller\": {\n        \"id\": 1,\n        \"name\": \"Aiden Project\"\n    },\n    \"quantity\": 15,\n    \"starting_price\": 1900,\n    \"current_price\": 1900,\n    \"reserve_price\": 1700,\n    \"status\": \"pending\",\n    \"bid_count\": 0,\n    \"end_date\": \"2023-03-22T12:00:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"product\": 1,\n    \"seller\": 1,\n    \"warehouse\": 1,\n    \"sale_event\": 1,\n    \"quantity_available\": 15,\n    \"reserve_price\": 1900,\n    \"listing_status\": \"active\",\n    \"status_display\": \"Active\",\n    \"documents\": []\n}"
 								}
 							]
 						},
@@ -1836,7 +1747,7 @@
 										}
 									]
 								},
-								"description": "Delete a listing. This endpoint allows sellers to delete their listings. Only listings in 'pending' status can be deleted."
+								"description": "Delete a listing. This endpoint is available to sellers only."
 							},
 							"response": [
 								{
@@ -1878,26 +1789,9 @@
 								"url": {
 									"raw": "{{base_url}}/api/auctions/bids/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "bids"],
-									"query": [
-										{
-											"key": "listing",
-											"value": "{{listing_id}}",
-											"description": "Filter bids by listing ID"
-										},
-										{
-											"key": "buyer",
-											"value": "{{buyer_id}}",
-											"description": "Filter bids by buyer ID"
-										},
-										{
-											"key": "status",
-											"value": "winning",
-											"description": "Filter bids by status (winning, outbid, expired)"
-										}
-									]
+									"path": ["api", "auctions", "bids"]
 								},
-								"description": "List all bids with optional filtering. This endpoint returns a paginated list of bids that can be filtered by listing, buyer, or status."
+								"description": "List all bids. For buyers, this endpoint returns their own bids. For sellers, it returns bids on their listings."
 							},
 							"response": [
 								{
@@ -1916,7 +1810,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"count\": 2,\n    \"next\": null,\n    \"previous\": null,\n    \"results\": [\n        {\n            \"id\": 1,\n            \"listing\": {\n                \"id\": 1,\n                \"product\": {\n                    \"id\": 1,\n                    \"name\": \"MacBook Pro\"\n                },\n                \"current_price\": 1800\n            },\n            \"buyer\": {\n                \"id\": 2,\n                \"name\": \"Test Buyer Co\"\n            },\n            \"amount\": 1800,\n            \"status\": \"winning\",\n            \"created_at\": \"2023-03-15T14:30:00Z\"\n        },\n        {\n            \"id\": 2,\n            \"listing\": {\n                \"id\": 2,\n                \"product\": {\n                    \"id\": 2,\n                    \"name\": \"ThinkPad X1\"\n                },\n                \"current_price\": 1400\n            },\n            \"buyer\": {\n                \"id\": 2,\n                \"name\": \"Test Buyer Co\"\n            },\n            \"amount\": 1400,\n            \"status\": \"winning\",\n            \"created_at\": \"2023-03-15T15:00:00Z\"\n        }\n    ]\n}"
+									"body": "[\n    {\n        \"id\": 1,\n        \"listing\": 1,\n        \"sale_event\": 1,\n        \"buyer\": 1,\n        \"bid_price\": 2000,\n        \"bid_quantity\": 5,\n        \"status\": \"active\",\n        \"timestamp\": \"2023-03-15T14:30:00Z\"\n    }\n]"
 								}
 							]
 						},
@@ -1936,14 +1830,14 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"listing_id\": 1,\n    \"amount\": 1850\n}"
+									"raw": "{\n    \"listing\": 1,\n    \"sale_event\": 1,\n    \"bid_price\": 2000,\n    \"bid_quantity\": 5\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/api/auctions/bids/",
 									"host": ["{{base_url}}"],
 									"path": ["api", "auctions", "bids"]
 								},
-								"description": "Create a new bid. This endpoint allows buyers to place bids on active listings."
+								"description": "Create a new bid. This endpoint is available to buyers only."
 							},
 							"response": [
 								{
@@ -1953,7 +1847,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"listing_id\": 1,\n    \"amount\": 1850\n}"
+											"raw": "{\n    \"listing\": 1,\n    \"sale_event\": 1,\n    \"bid_price\": 2000,\n    \"bid_quantity\": 5\n}"
 										},
 										"url": {
 											"raw": "{{base_url}}/api/auctions/bids/",
@@ -1966,7 +1860,7 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 3,\n    \"listing\": {\n        \"id\": 1,\n        \"product\": {\n            \"id\": 1,\n            \"name\": \"MacBook Pro\"\n        },\n        \"current_price\": 1850\n    },\n    \"buyer\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\"\n    },\n    \"amount\": 1850,\n    \"status\": \"winning\",\n    \"created_at\": \"2023-03-15T15:30:00Z\",\n    \"message\": \"Bid placed successfully\"\n}"
+									"body": "{\n    \"id\": 2,\n    \"listing\": 1,\n    \"sale_event\": 1,\n    \"buyer\": 1,\n    \"bid_price\": 2000,\n    \"bid_quantity\": 5,\n    \"status\": \"active\",\n    \"timestamp\": \"2023-03-15T15:00:00Z\"\n}"
 								}
 							]
 						},
@@ -1992,7 +1886,7 @@
 										}
 									]
 								},
-								"description": "Get detailed information about a specific bid. This endpoint returns detailed information about a bid, including its status and related listing details."
+								"description": "Get detailed information about a specific bid."
 							},
 							"response": [
 								{
@@ -2011,14 +1905,20 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"listing\": {\n        \"id\": 1,\n        \"product\": {\n            \"id\": 1,\n            \"name\": \"MacBook Pro\",\n            \"description\": \"13-inch MacBook Pro with M1 chip\"\n        },\n        \"current_price\": 1800,\n        \"status\": \"active\",\n        \"end_date\": \"2023-03-22T12:00:00Z\"\n    },\n    \"buyer\": {\n        \"id\": 2,\n        \"name\": \"Test Buyer Co\"\n    },\n    \"amount\": 1800,\n    \"status\": \"winning\",\n    \"created_at\": \"2023-03-15T14:30:00Z\",\n    \"updated_at\": \"2023-03-15T14:30:00Z\"\n}"
+									"body": "{\n    \"id\": 1,\n    \"listing\": 1,\n    \"sale_event\": 1,\n    \"buyer\": 1,\n    \"bid_price\": 2000,\n    \"bid_quantity\": 5,\n    \"status\": \"active\",\n    \"timestamp\": \"2023-03-15T14:30:00Z\"\n}"
 								}
 							]
-						},
+						}
+					]
+				},
+				{
+					"name": "Seller-Buyer Network",
+					"description": "Endpoints for managing relationships between sellers and buyers",
+					"item": [
 						{
-							"name": "Cancel Bid",
+							"name": "List Network Relationships",
 							"request": {
-								"method": "POST",
+								"method": "GET",
 								"header": [
 									{
 										"key": "Authorization",
@@ -2026,29 +1926,22 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/auctions/bids/:bid_id/cancel/",
+									"raw": "{{base_url}}/api/auctions/seller-buyer-network/",
 									"host": ["{{base_url}}"],
-									"path": ["api", "auctions", "bids", ":bid_id", "cancel"],
-									"variable": [
-										{
-											"key": "bid_id",
-											"value": "1",
-											"description": "ID of the bid to cancel"
-										}
-									]
+									"path": ["api", "auctions", "seller-buyer-network"]
 								},
-								"description": "Cancel a bid. This endpoint allows buyers to cancel their bids. Only bids that are not winning can be cancelled."
+								"description": "List all network relationships. For sellers, this endpoint returns their relationships with buyers. For buyers, it returns their relationships with sellers."
 							},
 							"response": [
 								{
 									"name": "Success",
 									"originalRequest": {
-										"method": "POST",
+										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/auctions/bids/1/cancel/",
+											"raw": "{{base_url}}/api/auctions/seller-buyer-network/",
 											"host": ["{{base_url}}"],
-											"path": ["api", "auctions", "bids", "1", "cancel"]
+											"path": ["api", "auctions", "seller-buyer-network"]
 										}
 									},
 									"status": "OK",
@@ -2056,9 +1949,1030 @@
 									"_postman_previewlanguage": "json",
 									"header": [],
 									"cookie": [],
-									"body": "{\n    \"id\": 1,\n    \"status\": \"cancelled\",\n    \"message\": \"Bid cancelled successfully\"\n}"
+									"body": "[\n    {\n        \"id\": 1,\n        \"seller\": 1,\n        \"seller_name\": \"Test Seller\",\n        \"buyer\": 1,\n        \"buyer_name\": \"Test Buyer\",\n        \"buyer_email\": \"buyer@example.com\",\n        \"status\": \"active\",\n        \"status_display\": \"Active\",\n        \"invited_by\": null,\n        \"requested_by\": 1,\n        \"created_at\": \"2023-03-15T12:00:00Z\",\n        \"created_at_formatted\": \"2023-03-15 12:00:00\",\n        \"updated_at\": \"2023-03-15T12:00:00Z\"\n    }\n]"
 								}
 							]
+						},
+						{
+							"name": "Request Network Join",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"seller_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auctions/buyer/request-network-join/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "auctions", "buyer", "request-network-join"]
+								},
+								"description": "Request to join a seller's network. This endpoint is available to buyers only."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"seller_id\": 1\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/auctions/buyer/request-network-join/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "auctions", "buyer", "request-network-join"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"seller\": 1,\n    \"seller_name\": \"Test Seller\",\n    \"buyer\": 2,\n    \"buyer_name\": \"New Buyer\",\n    \"buyer_email\": \"newbuyer@example.com\",\n    \"status\": \"pending\",\n    \"status_display\": \"Pending\",\n    \"invited_by\": null,\n    \"requested_by\": 2,\n    \"created_at\": \"2023-03-15T15:00:00Z\",\n    \"created_at_formatted\": \"2023-03-15 15:00:00\",\n    \"updated_at\": \"2023-03-15T15:00:00Z\"\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Orders App",
+			"description": "Endpoints for managing orders, shipments, invoices, and payments",
+			"item": [
+				{
+					"name": "Order Management",
+					"description": "Endpoints for managing orders and order line items",
+					"item": [
+						{
+							"name": "List Orders",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/orders/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders"]
+								},
+								"description": "List all orders. For sellers, this endpoint returns their own orders. For buyers, it returns orders they've placed."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/orders/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 1,\n        \"order_date\": \"2023-03-15T12:00:00Z\",\n        \"order_date_formatted\": \"2023-03-15 12:00:00\",\n        \"order_status\": \"completed\",\n        \"total_price\": 10000.00,\n        \"invoice_number\": \"INV-2023-001\",\n        \"buyer_name\": \"Buyer Company Inc\",\n        \"line_items\": [\n            {\n                \"id\": 1,\n                \"product_name\": \"MacBook Pro\",\n                \"product_brand\": \"Apple\",\n                \"quantity\": 5,\n                \"price\": 2000.00,\n                \"total_price\": 10000.00\n            }\n        ]\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Get Order",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/orders/:order_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", ":order_id"],
+									"variable": [
+										{
+											"key": "order_id",
+											"value": "1",
+											"description": "ID of the order to retrieve"
+										}
+									]
+								},
+								"description": "Get detailed information about a specific order."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/orders/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"order_date\": \"2023-03-15T12:00:00Z\",\n    \"order_date_formatted\": \"2023-03-15 12:00:00\",\n    \"order_status\": \"completed\",\n    \"total_price\": 10000.00,\n    \"invoice_number\": \"INV-2023-001\",\n    \"buyer_name\": \"Buyer Company Inc\",\n    \"line_items\": [\n        {\n            \"id\": 1,\n            \"product_name\": \"MacBook Pro\",\n            \"product_brand\": \"Apple\",\n            \"quantity\": 5,\n            \"price\": 2000.00,\n            \"total_price\": 10000.00\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Order Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order_status\": \"completed\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/orders/:order_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", ":order_id"],
+									"variable": [
+										{
+											"key": "order_id",
+											"value": "1",
+											"description": "ID of the order to update"
+										}
+									]
+								},
+								"description": "Update an order's status. This endpoint is available to sellers only."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"order_status\": \"completed\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/orders/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"order_date\": \"2023-03-15T12:00:00Z\",\n    \"order_date_formatted\": \"2023-03-15 12:00:00\",\n    \"order_status\": \"completed\",\n    \"total_price\": 10000.00,\n    \"invoice_number\": \"INV-2023-001\",\n    \"buyer_name\": \"Buyer Company Inc\",\n    \"line_items\": [\n        {\n            \"id\": 1,\n            \"product_name\": \"MacBook Pro\",\n            \"product_brand\": \"Apple\",\n            \"quantity\": 5,\n            \"price\": 2000.00,\n            \"total_price\": 10000.00\n        }\n    ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Shipment Management",
+					"description": "Endpoints for managing order shipments and tracking",
+					"item": [
+						{
+							"name": "List Shipments",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/orders/shipments/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", "shipments"]
+								},
+								"description": "List all shipments. For sellers, this endpoint returns their shipments. For buyers, it returns shipments to them."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/orders/shipments/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "shipments"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 1,\n        \"order\": 1,\n        \"carrier\": \"FedEx\",\n        \"tracking_number\": \"FX123456789\",\n        \"estimated_delivery_date\": \"2023-03-20\",\n        \"actual_delivery_date\": \"2023-03-19\",\n        \"shipment_status\": \"delivered\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Create Shipment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": 1,\n    \"carrier\": \"FedEx\",\n    \"tracking_number\": \"FX123456789\",\n    \"estimated_delivery_date\": \"2023-03-20\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/orders/shipments/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", "shipments"]
+								},
+								"description": "Create a new shipment. This endpoint is available to sellers only."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"order\": 1,\n    \"carrier\": \"FedEx\",\n    \"tracking_number\": \"FX123456789\",\n    \"estimated_delivery_date\": \"2023-03-20\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/orders/shipments/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "shipments"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"order\": 1,\n    \"carrier\": \"FedEx\",\n    \"tracking_number\": \"FX123456789\",\n    \"estimated_delivery_date\": \"2023-03-20\",\n    \"actual_delivery_date\": null,\n    \"shipment_status\": \"scheduled\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Shipment Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"shipment_status\": \"delivered\",\n    \"actual_delivery_date\": \"2023-03-19\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/orders/shipments/:shipment_id/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", "shipments", ":shipment_id"],
+									"variable": [
+										{
+											"key": "shipment_id",
+											"value": "1",
+											"description": "ID of the shipment to update"
+										}
+									]
+								},
+								"description": "Update a shipment's status. This endpoint is available to sellers only."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"shipment_status\": \"delivered\",\n    \"actual_delivery_date\": \"2023-03-19\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/orders/shipments/1/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "shipments", "1"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"order\": 1,\n    \"carrier\": \"FedEx\",\n    \"tracking_number\": \"FX123456789\",\n    \"estimated_delivery_date\": \"2023-03-20\",\n    \"actual_delivery_date\": \"2023-03-19\",\n    \"shipment_status\": \"delivered\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Invoice Management",
+					"description": "Endpoints for managing invoices and payments",
+					"item": [
+						{
+							"name": "List Invoices",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/orders/invoices/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", "invoices"]
+								},
+								"description": "List all invoices. For sellers, this endpoint returns their invoices. For buyers, it returns invoices they need to pay."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/orders/invoices/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "invoices"]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 1,\n        \"order\": 1,\n        \"invoice_number\": \"INV-2023-001\",\n        \"amount\": 10000.00,\n        \"currency\": \"USD\",\n        \"due_date\": \"2023-04-14\",\n        \"paid_at\": \"2023-03-20T12:00:00Z\",\n        \"status\": \"paid\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Create Invoice",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"order\": 1,\n    \"amount\": 10000.00,\n    \"due_date\": \"2023-04-14\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/orders/invoices/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", "invoices"]
+								},
+								"description": "Create a new invoice. This endpoint is available to sellers only."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"order\": 1,\n    \"amount\": 10000.00,\n    \"due_date\": \"2023-04-14\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/orders/invoices/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "invoices"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"order\": 1,\n    \"invoice_number\": \"INV-2023-002\",\n    \"amount\": 10000.00,\n    \"currency\": \"USD\",\n    \"due_date\": \"2023-04-14\",\n    \"paid_at\": null,\n    \"status\": \"draft\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Record Payment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"invoice\": 1,\n    \"amount\": 10000.00,\n    \"payment_method\": \"bank_transfer\",\n    \"transaction_id\": \"TRX123456789\",\n    \"notes\": \"Payment received via bank transfer\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/orders/payments/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "orders", "payments"]
+								},
+								"description": "Record a payment for an invoice. This endpoint is available to sellers only."
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"invoice\": 1,\n    \"amount\": 10000.00,\n    \"payment_method\": \"bank_transfer\",\n    \"transaction_id\": \"TRX123456789\",\n    \"notes\": \"Payment received via bank transfer\"\n}"
+										},
+										"url": {
+											"raw": "{{base_url}}/api/orders/payments/",
+											"host": ["{{base_url}}"],
+											"path": ["api", "orders", "payments"]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"invoice\": 1,\n    \"payment_date\": \"2023-03-20T12:00:00Z\",\n    \"amount\": 10000.00,\n    \"payment_method\": \"bank_transfer\",\n    \"transaction_id\": \"TRX123456789\",\n    \"notes\": \"Payment received via bank transfer\"\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Chat App",
+			"description": "Endpoints for AI-powered chat functionality with role-based responses",
+			"item": [
+				{
+					"name": "Chat with AI",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"How do I place a bid on an auction?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/chat/chat/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "chat", "chat"]
+						},
+						"description": "Send a message to the AI assistant and get a response. The response will be tailored based on the user's role (buyer, seller, or visitor)."
+					},
+					"response": [
+						{
+							"name": "Success (Authenticated Buyer)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"message\": \"How do I place a bid on an auction?\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/chat/chat/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "chat", "chat"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"reply\": \"To place a bid on an auction, follow these steps:\\n\\n1. Navigate to the auction you're interested in\\n2. Review the listing details and current bids\\n3. Enter your bid amount in the bidding interface\\n4. Confirm your bid\\n\\nYou can track your bids in the buyer dashboard and receive notifications when you're outbid.\",\n    \"message\": \"How do I place a bid on an auction?\",\n    \"created_at\": \"2023-03-15T12:00:00Z\"\n}"
+						},
+						{
+							"name": "Success (Authenticated Seller)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"message\": \"How do I upload a new listing?\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/chat/chat/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "chat", "chat"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"reply\": \"To upload a new listing, follow these steps:\\n\\n1. Go to your seller dashboard\\n2. Click 'Create New Listing'\\n3. Fill in the product details, including SKU, description, and quantity\\n4. Set your reserve price and auction duration\\n5. Upload product images\\n6. Submit the listing for review\\n\\nOnce approved, your listing will be visible to buyers.\",\n    \"message\": \"How do I upload a new listing?\",\n    \"created_at\": \"2023-03-15T12:00:00Z\"\n}"
+						},
+						{
+							"name": "Success (Unauthenticated)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"message\": \"What is this platform about?\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/chat/chat/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "chat", "chat"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"reply\": \"Welcome to our B2B auction platform! We help businesses buy and sell excess CPG inventory efficiently. Buyers can find great deals on quality products, while sellers can quickly move their excess inventory. Sign up today to start participating in auctions!\",\n    \"message\": \"What is this platform about?\",\n    \"created_at\": null\n}"
+						},
+						{
+							"name": "Error - No Message",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/chat/chat/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "chat", "chat"]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"error\": \"No message provided.\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Integrations App",
+			"description": "Endpoints for managing ERP integrations and their logs",
+			"item": [
+				{
+					"name": "List ERP Integrations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/integrations/erp/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "integrations", "erp"]
+						},
+						"description": "Get a list of all ERP integrations for the authenticated organization"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/integrations/erp/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "integrations", "erp"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"erp_type\": \"SAP\",\n        \"last_sync\": \"2023-03-15T12:00:00Z\",\n        \"organization\": 1\n    },\n    {\n        \"id\": 2,\n        \"erp_type\": \"Oracle\",\n        \"last_sync\": \"2023-03-14T15:30:00Z\",\n        \"organization\": 1\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Create ERP Integration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"erp_type\": \"SAP\",\n    \"auth_credentials\": {\n        \"username\": \"api_user\",\n        \"password\": \"api_password\",\n        \"base_url\": \"https://api.sap.com\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/integrations/erp/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "integrations", "erp"]
+						},
+						"description": "Create a new ERP integration for the authenticated organization"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"erp_type\": \"SAP\",\n    \"auth_credentials\": {\n        \"username\": \"api_user\",\n        \"password\": \"api_password\",\n        \"base_url\": \"https://api.sap.com\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/integrations/erp/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "integrations", "erp"]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"erp_type\": \"SAP\",\n    \"last_sync\": null,\n    \"organization\": 1\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Integration Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/integrations/erp/1/logs/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "integrations", "erp", "1", "logs"]
+						},
+						"description": "Get logs for a specific ERP integration"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/integrations/erp/1/logs/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "integrations", "erp", "1", "logs"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"operation_type\": \"sync_inventory\",\n        \"timestamp\": \"2023-03-15T12:00:00Z\",\n        \"status\": \"success\",\n        \"response_message\": \"Successfully synced 150 inventory items\"\n    },\n    {\n        \"id\": 2,\n        \"operation_type\": \"sync_orders\",\n        \"timestamp\": \"2023-03-14T15:30:00Z\",\n        \"status\": \"failure\",\n        \"response_message\": \"Connection timeout\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Trigger Integration Sync",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"operation_type\": \"sync_inventory\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/integrations/erp/1/sync/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "integrations", "erp", "1", "sync"]
+						},
+						"description": "Trigger a manual sync operation for a specific ERP integration"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"operation_type\": \"sync_inventory\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/integrations/erp/1/sync/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "integrations", "erp", "1", "sync"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Sync operation started successfully\",\n    \"log_id\": 3\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Notifications App",
+			"description": "Endpoints for managing user notifications, activity logs, and notification settings",
+			"item": [
+				{
+					"name": "List Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications"]
+						},
+						"description": "Get a list of notifications for the authenticated user"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/notifications/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "notifications"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"message\": \"New bid received on your listing\",\n        \"created_at\": \"2023-03-15T12:00:00Z\",\n        \"delivery_status\": \"read\"\n    },\n    {\n        \"id\": 2,\n        \"message\": \"Your auction has ended\",\n        \"created_at\": \"2023-03-15T11:30:00Z\",\n        \"delivery_status\": \"pending\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"delivery_status\": \"read\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/notifications/1/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications", "1"]
+						},
+						"description": "Mark a specific notification as read"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"delivery_status\": \"read\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/notifications/1/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "notifications", "1"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"message\": \"New bid received on your listing\",\n    \"created_at\": \"2023-03-15T12:00:00Z\",\n    \"delivery_status\": \"read\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Activity Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/activities/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications", "activities"]
+						},
+						"description": "Get activity logs for the authenticated user"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/notifications/activities/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "notifications", "activities"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"action_type\": \"login\",\n        \"description\": \"User logged in successfully\",\n        \"timestamp\": \"2023-03-15T12:00:00Z\",\n        \"ip_address\": \"192.168.1.1\"\n    },\n    {\n        \"id\": 2,\n        \"action_type\": \"bid_placed\",\n        \"description\": \"Placed bid on auction #123\",\n        \"timestamp\": \"2023-03-15T11:30:00Z\",\n        \"ip_address\": \"192.168.1.1\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Notification Settings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/settings/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications", "settings"]
+						},
+						"description": "Get notification settings for the authenticated user"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/notifications/settings/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "notifications", "settings"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"name\": \"email_notifications\",\n        \"value\": \"true\"\n    },\n    {\n        \"name\": \"push_notifications\",\n        \"value\": \"false\"\n    },\n    {\n        \"name\": \"bid_alerts\",\n        \"value\": \"true\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Update Notification Settings",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"push_notifications\",\n    \"value\": \"true\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/notifications/settings/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications", "settings"]
+						},
+						"description": "Update notification settings for the authenticated user"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"push_notifications\",\n    \"value\": \"true\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/notifications/settings/",
+									"host": ["{{base_url}}"],
+									"path": ["api", "notifications", "settings"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"name\": \"push_notifications\",\n    \"value\": \"true\"\n}"
 						}
 					]
 				}

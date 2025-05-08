@@ -193,50 +193,14 @@ export const removeFromNetwork = (companyId) =>
 export const searchCompanies = (query) =>
   API.get(`/companies/search/?q=${query}`);
 
-export const fetchBuyerTrucks = async (buyerId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          buyer_summary: {
-            buyer_name: "Discount Mart",
-            auction_closed: "2025-01-30",
-            total_trucks: 1,
-            total_units: 6960,
-            total_spent: 78500.00
-          },
-          trucks: [
-            {
-              truck_id: "T-1001",
-              destination: "Dallas, TX",
-              truck_weight: 41300,
-              truck_total_cost: 78500.00,
-              items: [
-                { 
-                  name: "PowerWash Max Laundry Detergent", 
-                  quantity: 4800, 
-                  pallets: 120, 
-                  weight: 24000, 
-                  sku: "1000000000002", 
-                  awarded_price_per_unit: 10.50, 
-                  total_price: 50400.00 
-                },
-                { 
-                  name: "FixoBond Ultra-Strong Adhesive", 
-                  quantity: 2160, 
-                  pallets: 90, 
-                  weight: 2376, 
-                  sku: "1000000000001", 
-                  awarded_price_per_unit: 15.00, 
-                  total_price: 32400.00 
-                }
-              ]
-            }
-          ]
-        }
-      });
-    }, 1000);
-  });
+export const fetchBuyerTrucks = async () => {
+  try {
+    const response = await API.get('/orders/buyer/trucks/');
+    return response;
+  } catch (error) {
+    console.error('Error fetching buyer trucks:', error);
+    throw error;
+  }
 };
 
 
@@ -381,13 +345,23 @@ export const getAvailableListings = (filters = {}) => {
 
 // Fetch details of a specific listing by its ID
 export const getListingDetails = (listingId) => {
-  return API.get(`/listings/${listingId}/`);
+  return API.get(`/auctions/listings/${listingId}/`);
 };
 
+// Fetch product details by ID
+export const getProductDetails = (productId) => {
+  return API.get(`/inventory/products/${productId}/`);
+};
 
 // Place a bid
 export const placeBid = (bidData) => {
-  return API.post("/bids/", bidData);
+  return API.post("/auctions/bids/", {
+    listing: bidData.listingId,
+    sale_event: bidData.saleEventId,
+    bid_price: parseFloat(bidData.bidPrice),
+    bid_quantity: parseInt(bidData.bidQuantity, 10),
+    status: 'active'  // This will be ignored by the backend as it's read-only
+  });
 };
 
 export const getListingBids = (listingId) => {
@@ -396,7 +370,7 @@ export const getListingBids = (listingId) => {
 
 export const fetchMyBids = async () => {
   try {
-    const response = await API.get("/bids/my_bids/");
+    const response = await API.get("/auctions/my-bids/");
     return response.data;
   } catch (error) {
     console.error("Error fetching bids:", error);
@@ -545,6 +519,52 @@ export const getAuctionTrucks = async () => {
     console.error('Error fetching seller trucks:', error);
     throw error;
   }
+};
+
+// Seller Page API
+export const getSellerProducts = async (sellerId) => {
+  try {
+    const response = await API.get(`/auctions/seller/${sellerId}/products/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller products:', error);
+    throw error;
+  }
+};
+
+export const getSellerOpenBids = async (sellerId) => {
+  try {
+    const response = await API.get(`/auctions/seller/${sellerId}/bids/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller open bids:', error);
+    throw error;
+  }
+};
+
+export const getSellerOrderHistory = async (sellerId) => {
+  try {
+    const response = await API.get(`/auctions/seller/${sellerId}/orders/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller order history:', error);
+    throw error;
+  }
+};
+
+export const sendChatMessage = async (message) => {
+  try {
+    const response = await API.post(endpoints.chat, { message });
+    return response.data;
+  } catch (error) {
+    console.error("[Chat API] Error sending message:", error);
+    return "Sorry, I couldn't reach the assistant. Please try again later.";
+  }
+};
+
+// Fetch warehouse details by ID
+export const getWarehouseDetails = (warehouseId) => {
+  return API.get(`/inventory/warehouses/${warehouseId}/`);
 };
 
 export {API};

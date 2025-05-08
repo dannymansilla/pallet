@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Flex,
@@ -6,24 +7,33 @@ import {
   Text,
   Image,
   SimpleGrid,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Button,
   Input,
   FormLabel,
   useColorModeValue,
+  useToast,
+  VStack,
+  HStack,
+  FormControl,
+  Badge,
+  Grid,
+  Center,
+  Spinner,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Divider,
 } from "@chakra-ui/react";
-
-// Placeholder image
+import { useDataMode } from "../context/DataModeContext";
 import cardboardbox from "../images/cardboardbox.png";
+import { getListingDetails, getProductDetails, getWarehouseDetails, placeBid } from "../services/api";
 
-/**
- * SAMPLE PRODUCT DATA
- */
 const sampleProduct = {
   id: "P-001",
   photoUrl: "/images/placeholder.png",
@@ -51,9 +61,27 @@ const sampleProduct = {
   },
 };
 
-/**
- * SAMPLE RECOMMENDED PRODUCTS
- */
+const sampleListing = {
+  id: "L-001",
+  product: "P-001",
+  quantity_available: 1000,
+  reserve_price: 15.99,
+  end_date: "2025-04-15",
+  seller_name: "Daily Health",
+  seller_id: 1,
+  network_status: "active",
+  warehouse: "W-001",
+  warehouse_name: "Main Warehouse",
+  warehouse_address: "123 Storage Lane, Chicago, IL 60601",
+};
+
+const sampleWarehouse = {
+  id: "W-001",
+  name: "Main Warehouse",
+  address: "123 Storage Lane, Chicago, IL 60601",
+  status: "active",
+};
+
 const recommendedProducts = [
   {
     id: "P-002",
@@ -78,307 +106,416 @@ const recommendedProducts = [
   },
 ];
 
-/**
- * MAIN PAGE COMPONENT
- */
 const ProductDetailPage = () => {
-  // Local states for bidding
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { useSampleData } = useDataMode();
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [listing, setListing] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [warehouse, setWarehouse] = useState(null);
+
+  // Now storing numeric value for pallets
+  const [bidPallets, setBidPallets] = useState(1);
   const [bidPrice, setBidPrice] = useState("");
-  const [bidPallets, setBidPallets] = useState("");
-  const [existingBid, setExistingBid] = useState(null);
 
   // Derived calculations
-  const msrpString = `$${sampleProduct.msrpPerPallet.toLocaleString()}/pallet`;
-  const totalUnitsBid =
-    Number(bidPallets) * sampleProduct.consumableUnitsPerPallet || 0;
-  const totalDollarBid = Number(bidPrice) * Number(bidPallets) || 0;
+  const totalUnits =
+    (product?.units_per_case ?? 0) *
+    (product?.cases_per_pallet ?? 0) *
+    bidPallets;
+  const totalBid = totalUnits * parseFloat(bidPrice || 0);
 
-  // Chakra theming
-  const bgColor = useColorModeValue("white", "gray.900");
-  const cardBg = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const formBg = useColorModeValue("gray.50", "gray.700");
+  // Color modes
+  const bgColor = useColorModeValue("gray.50", "gray.800");
+  const cardBg = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const formBg = useColorModeValue("white", "gray.700");
+  const hoverBg = useColorModeValue("gray.50", "gray.600");
 
-  const handleSubmitBid = () => {
-    if (!bidPrice || !bidPallets) return;
-    setExistingBid({
-      bidPrice: Number(bidPrice),
-      bidPallets: Number(bidPallets),
-      totalUnits: totalUnitsBid,
-      totalDollars: totalDollarBid,
-    });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        if (useSampleData) {
+          setListing(sampleListing);
+          setProduct(sampleProduct);
+          setWarehouse(sampleWarehouse);
+        } else {
+          const listingResponse = await getListingDetails(id);
+          if (listingResponse.data) {
+            setListing(listingResponse.data);
+
+            // Warehouse
+            const warehouseResponse = await getWarehouseDetails(
+              listingResponse.data.warehouse
+            );
+            if (warehouseResponse.data) {
+              setWarehouse(warehouseResponse.data);
+            }
+
+            // Product
+            const productResponse = await getProductDetails(
+              listingResponse.data.product
+            );
+            if (productResponse.data) {
+              setProduct(productResponse.data);
+            } else {
+              throw new Error("Product data not found");
+            }
+          } else {
+            throw new Error("Listing data not found");
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+        if (useSampleData) {
+          // fallback to sample data
+          setListing(sampleListing);
+          setProduct(sampleProduct);
+          setWarehouse(sampleWarehouse);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, useSampleData]);
+
+  const handleBidSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const bidData = {
+        listingId: listing.id,
+        saleEventId: listing.sale_event,
+        bidPrice: bidPrice,
+        bidQuantity: bidPallets * product.units_per_case * product.cases_per_pallet
+      };
+
+      await placeBid(bidData);
+
+      toast({
+        title: "Bid Submitted",
+        description: "Your bid has been submitted successfully.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      // Reset form
+      setBidPallets(1);
+      setBidPrice("");
+    } catch (error) {
+      console.error("Error submitting bid:", error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to submit bid. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   const handleRecommendedClick = (productId) => {
-    alert(`Navigating to product detail page: ${productId}`);
-    // In a real app, you'd route to `/products/:productId`
+    navigate(`/product/${productId}`);
   };
 
+  if (loading) {
+    return (
+      <Center p={8}>
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Center p={8}>
+        <Alert status="error" borderRadius="md">
+          <AlertIcon />
+          <AlertTitle>Error!</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </Center>
+    );
+  }
+
+  if (!listing || !product || !warehouse) {
+    return (
+      <Center p={8}>
+        <Alert status="warning" borderRadius="md">
+          <AlertIcon />
+          <AlertTitle>No Data Available</AlertTitle>
+          <AlertDescription>Unable to load product details.</AlertDescription>
+        </Alert>
+      </Center>
+    );
+  }
+
+  // Calculate max number of pallets they can buy if
+  // quantity_available is "units" in your DB (this example depends
+  // on how you track "quantity_available").
+  const maxPallets = Math.floor(
+    listing.quantity_available / (product.units_per_case * product.cases_per_pallet)
+  );
+
   return (
-    <Flex minH="100vh" bg={bgColor} direction="column">
-      {/* TOP SECTION */}
-      <Box px={[4, 6, 8]} py={[4, 6, 8]}>
-        {/* Title */}
-        <Heading size="lg" mb={2}>
-          {sampleProduct.brand} - {sampleProduct.name}
-        </Heading>
-        <Text mb={6} color="gray.600" fontSize="sm">
-          {sampleProduct.description}
-        </Text>
+    <Box bg={bgColor} minH="100vh" p={{ base: 4, md: 8 }}>
+      <Grid
+        templateColumns={{ base: "1fr", lg: "2fr 1fr" }}
+        gap={8}
+        maxW="1200px"
+        mx="auto"
+      >
+        {/* LEFT COLUMN: Product Card + Recommended Products */}
+        <VStack align="stretch" spacing={6}>
+          {/* Product Card */}
+          <Box
+            bg={cardBg}
+            borderRadius="md"
+            boxShadow="md"
+            p={6}
+            border="1px solid"
+            borderColor={borderColor}
+          >
+            <Flex direction={{ base: "column", md: "row" }} mb={4} align="center">
+              <Image
+                src={cardboardbox}
+                alt={product.name}
+                borderRadius="md"
+                w={{ base: "100%", md: "250px" }}
+                h="auto"
+                objectFit="cover"
+                mr={{ md: 6 }}
+                mb={{ base: 4, md: 0 }}
+              />
+              <Box>
+                <Heading size="lg" mb={1}>{product.name}</Heading>
+                <Text fontSize="md" color="gray.400">{product.brand}</Text>
+                <Badge
+                  colorScheme={listing.listing_status === "active" ? "green" : "gray"}
+                  mt={2}
+                >
+                  {listing.status_display}
+                </Badge>
+              </Box>
+            </Flex>
 
-        {/* Two-column layout: Product Image (left), Bidding + Key Info (right) */}
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          gap={8}
-          mb={10} // space under the top layout
-        >
-          {/* LEFT: PRODUCT IMAGE */}
-          <Box flex="0 0 300px">
-            <Image
-              src={cardboardbox}
-              alt={sampleProduct.name}
-              boxSize="100%"
-              maxW="300px"
-              objectFit="cover"
-              borderRadius="md"
-              border="1px solid"
-              borderColor={borderColor}
-              mb={{ base: 4, md: 0 }}
-            />
-          </Box>
+            <Divider mb={4} />
 
-          {/* RIGHT: BIDDING FORM + KEY FIELDS */}
-          <Box flex="1">
-            {/* Bidding Card */}
-            <Box
-              bg={formBg}
-              border="1px solid"
-              borderColor={borderColor}
-              borderRadius="md"
-              p={4}
-              mb={6}
-            >
-              <Heading size="md" mb={2}>
-                Place Your Bid
-              </Heading>
-              <Text fontSize="sm" mb={3}>
-                MSRP per pallet: <strong>{msrpString}</strong>
-              </Text>
-
-              <Flex gap={6} flexWrap="wrap">
-                {/* Bidding Form */}
-                <Box minW="200px">
-                  <FormLabel fontSize="sm">Bid Price (per pallet)</FormLabel>
-                  <Input
-                    type="number"
-                    placeholder="e.g. 1900"
-                    mb={4}
-                    value={bidPrice}
-                    onChange={(e) => setBidPrice(e.target.value)}
-                    size="sm"
-                  />
-                  <FormLabel fontSize="sm">Number of Pallets</FormLabel>
-                  <Input
-                    type="number"
-                    placeholder="e.g. 5"
-                    mb={4}
-                    value={bidPallets}
-                    onChange={(e) => setBidPallets(e.target.value)}
-                    size="sm"
-                  />
-
-                  {/* Computed totals */}
-                  <Box mb={4} fontSize="sm">
-                    <Text>
-                      <strong>Total Units:</strong>{" "}
-                      {totalUnitsBid.toLocaleString()}
-                    </Text>
-                    <Text>
-                      <strong>Total Bid:</strong>{" "}
-                      ${totalDollarBid.toLocaleString()}
-                    </Text>
-                  </Box>
-
-                  <Button colorScheme="blue" size="sm" onClick={handleSubmitBid}>
-                    Submit Bid
-                  </Button>
-                </Box>
-
-                {/* Existing Bid summary */}
-                {existingBid && (
-                  <Box
-                    flex="1"
-                    bg="gray.100"
-                    p={4}
-                    borderRadius="md"
-                    minW="200px"
-                  >
-                    <Heading size="sm" mb={2}>
-                      Your Current Bid
-                    </Heading>
-                    <Text fontSize="sm">
-                      <strong>Price/Pallet:</strong> $
-                      {existingBid.bidPrice.toLocaleString()}
-                    </Text>
-                    <Text fontSize="sm">
-                      <strong># of Pallets:</strong>{" "}
-                      {existingBid.bidPallets.toLocaleString()}
-                    </Text>
-                    <Text fontSize="sm">
-                      <strong>Total Units:</strong>{" "}
-                      {existingBid.totalUnits.toLocaleString()}
-                    </Text>
-                    <Text fontSize="sm">
-                      <strong>Total Bid:</strong> $
-                      {existingBid.totalDollars.toLocaleString()}
-                    </Text>
-                    <Text mt={2} fontSize="xs" color="gray.500">
-                      Update your bid at any time.
-                    </Text>
-                  </Box>
-                )}
-              </Flex>
+            {/* Description */}
+            <Box mb={4}>
+              <Heading size="md" mb={2}>Description</Heading>
+              <Text>{product.description}</Text>
             </Box>
 
-            {/* Key Fields (a few highlights) */}
-            <Box
-              bg={cardBg}
-              border="1px solid"
-              borderColor={borderColor}
-              borderRadius="md"
-              p={4}
-            >
-              <Heading size="sm" mb={3}>
-                Quick Info
-              </Heading>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2} fontSize="sm">
-                <Text>
-                  <strong>Warehouse:</strong> {sampleProduct.warehouseLocation}
-                </Text>
-                <Text>
-                  <strong>Expiration Date:</strong> {sampleProduct.expirationDate}
-                </Text>
-                <Text>
-                  <strong>Sell By Date:</strong> {sampleProduct.sellByDate}
-                </Text>
-                <Text>
-                  <strong>UPC:</strong> {sampleProduct.upc}
-                </Text>
+            {/* Specs */}
+            <Box mb={4}>
+              <Heading size="md" mb={2}>Specifications</Heading>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                <Box>
+                  <Text fontWeight="bold">SKU</Text>
+                  <Text>{product.sku}</Text>
+                </Box>
+                <Box>
+                  <Text fontWeight="bold">Dimensions</Text>
+                  <Text>
+                    {product.length}" × {product.width}" × {product.height}"
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontWeight="bold">Weight</Text>
+                  <Text>{product.weight} lbs</Text>
+                </Box>
+                <Box>
+                  <Text fontWeight="bold">Units per Case</Text>
+                  <Text>{product.units_per_case}</Text>
+                </Box>
+                <Box>
+                  <Text fontWeight="bold">Cases per Pallet</Text>
+                  <Text>{product.cases_per_pallet}</Text>
+                </Box>
+                <Box>
+                  <Text fontWeight="bold">Units per Pallet</Text>
+                  <Text>
+                    {product.units_per_case * product.cases_per_pallet}
+                  </Text>
+                </Box>
               </SimpleGrid>
             </Box>
-          </Box>
-        </Flex>
 
-        {/* ADDITIONAL DETAILS SECTION */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={borderColor}
-          borderRadius="md"
-          p={4}
-          mb={8}
-        >
-          <Heading size="md" mb={4}>
-            Additional Information
-          </Heading>
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} fontSize="sm">
-            {/* Left Column */}
             <Box>
-              <Text>
-                <strong>Batch #:</strong> {sampleProduct.batchNumber}
-              </Text>
-              <Text>
-                <strong>Date of Manufacture:</strong>{" "}
-                {sampleProduct.dateOfManufacture}
-              </Text>
-              <Text>
-                <strong>Sales Unit:</strong> {sampleProduct.salesUnit}
-              </Text>
-              {sampleProduct.ingredients && sampleProduct.ingredients.length > 0 && (
-                <Text>
-                  <strong>Ingredients:</strong>{" "}
-                  {sampleProduct.ingredients.join(", ")}
-                </Text>
-              )}
-              <Text>
-                <strong>Shelf Life:</strong> {sampleProduct.shelfLife}
-              </Text>
-              <Text>
-                <strong>Stop Ship Date:</strong> {sampleProduct.stopShipDate}
-              </Text>
+              <Heading size="md" mb={2}>Warehouse</Heading>
+              <VStack align="stretch" spacing={1}>
+                <HStack>
+                  <Text fontWeight="bold">Name:</Text>
+                  <Text>{warehouse.name}</Text>
+                </HStack>
+                <HStack>
+                  <Text fontWeight="bold">Location:</Text>
+                  <Text>{warehouse.address}</Text>
+                </HStack>
+                <HStack>
+                  <Text fontWeight="bold">Capacity:</Text>
+                  <Text>{warehouse?.capacity?.toLocaleString() ?? 'N/A'} units</Text>
+                </HStack>
+              </VStack>
             </Box>
+          </Box>
 
-            {/* Right Column */}
-            <Box>
-              <Text>
-                <strong>Consumable Units/Pallet:</strong>{" "}
-                {sampleProduct.consumableUnitsPerPallet.toLocaleString()}
-              </Text>
-              <Box mt={2}>
-                <Text fontWeight="bold">Pallet Specs:</Text>
-                <Text pl={4}>
-                  LxWxH: {sampleProduct.palletSpecs.length} x{" "}
-                  {sampleProduct.palletSpecs.width} x{" "}
-                  {sampleProduct.palletSpecs.height}
-                </Text>
-                <Text pl={4}>Weight: {sampleProduct.palletSpecs.weight}</Text>
-                <Text pl={4}>
-                  Stackable:{" "}
-                  {sampleProduct.palletSpecs.stackable ? "Yes" : "No"}
+          {/* Recommended Products */}
+          <Box
+            bg={cardBg}
+            p={6}
+            borderRadius="md"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+          >
+            <Heading size="md" mb={4}>Recommended Products</Heading>
+            <SimpleGrid columns={2} spacing={4}>
+              {recommendedProducts.slice(0, 2).map((item) => (
+                <Box
+                  key={item.id}
+                  p={4}
+                  borderWidth={1}
+                  borderRadius="md"
+                  cursor="pointer"
+                  onClick={() => handleRecommendedClick(item.id)}
+                  _hover={{ boxShadow: "lg", bg: hoverBg }}
+                >
+                  <Text fontWeight="bold">{item.name}</Text>
+                  <Text fontSize="sm" color="gray.600">
+                    {item.brand}
+                  </Text>
+                </Box>
+              ))}
+            </SimpleGrid>
+          </Box>
+        </VStack>
+
+        {/* RIGHT COLUMN: Bidding Form + Auction Details */}
+        <VStack align="stretch" spacing={6}>
+          {/* Bidding Form */}
+          <Box
+            bg={formBg}
+            p={6}
+            borderRadius="md"
+            boxShadow="md"
+            border="1px solid"
+            borderColor={borderColor}
+          >
+            <Heading size="md" mb={4}>Place Your Bid</Heading>
+            <form onSubmit={handleBidSubmit}>
+              <VStack spacing={4} align="stretch">
+                <FormControl>
+                  <FormLabel>Number of Pallets</FormLabel>
+                  <NumberInput
+                    value={bidPallets}
+                    min={1}
+                    max={maxPallets}
+                    clampValueOnBlur={false}
+                    keepWithinRange={false}
+                    onChange={(valStr, valNum) => {
+                      // If the user clears out the field or types invalid text, handle gracefully
+                      if (isNaN(valNum)) {
+                        setBidPallets(0);
+                      } else {
+                        setBidPallets(valNum);
+                      }
+                    }}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <Text fontSize="sm" color="gray.500" mt={1}>
+                    Total Units: {totalUnits.toLocaleString()}
+                  </Text>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Bid Price per Unit ($)</FormLabel>
+                  <Input
+                    type="number"
+                    value={bidPrice}
+                    onChange={(e) => setBidPrice(e.target.value)}
+                    placeholder="Enter your bid"
+                    min={parseFloat(listing.reserve_price)}
+                    step="0.01"
+                  />
+                  <Text fontSize="sm" color="gray.500" mt={1}>
+                    Total Bid: ${totalBid.toLocaleString()}
+                  </Text>
+                </FormControl>
+
+                <Button
+                  type="submit"
+                  colorScheme="blue"
+                  size="lg"
+                  width="full"
+                  isDisabled={
+                    bidPallets < 1 ||
+                    !bidPrice ||
+                    parseFloat(bidPrice) < parseFloat(listing.reserve_price)
+                  }
+                >
+                  Place Bid
+                </Button>
+              </VStack>
+            </form>
+          </Box>
+
+          {/* Auction Details */}
+          <Box
+            bg={cardBg}
+            borderRadius="md"
+            boxShadow="md"
+            p={6}
+            border="1px solid"
+            borderColor={borderColor}
+          >
+            <Heading size="md" mb={4}>Auction Details</Heading>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+              <Box>
+                <Text fontWeight="bold">Available Quantity</Text>
+                <Text>{listing.quantity_available.toLocaleString()} units</Text>
+              </Box>
+              <Box>
+                <Text fontWeight="bold">MSRP (per unit)</Text>
+                <Text>${parseFloat(product.msrp).toLocaleString()}</Text>
+              </Box>
+              <Box>
+                <Text fontWeight="bold">Units per Pallet</Text>
+                <Text>
+                  {product.units_per_case * product.cases_per_pallet} units
                 </Text>
               </Box>
-            </Box>
-          </SimpleGrid>
-        </Box>
-
-        {/* RECOMMENDED PRODUCTS TABLE */}
-        <Box
-          bg={cardBg}
-          border="1px solid"
-          borderColor={borderColor}
-          borderRadius="md"
-          p={4}
-        >
-          <Heading size="md" mb={4}>
-            Other Recommended Products
-          </Heading>
-          <Box overflowX="auto">
-            <Table variant="simple" size="md">
-              <Thead>
-                <Tr>
-                  <Th>Photo</Th>
-                  <Th>Product</Th>
-                  <Th>Brand</Th>
-                  <Th>Description</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {recommendedProducts.map((rp) => (
-                  <Tr
-                    key={rp.id}
-                    _hover={{ bg: "gray.50", cursor: "pointer" }}
-                    onClick={() => handleRecommendedClick(rp.id)}
-                  >
-                    <Td>
-                      <Image
-                        src={cardboardbox}
-                        alt={rp.name}
-                        boxSize="40px"
-                        objectFit="cover"
-                        borderRadius="md"
-                      />
-                    </Td>
-                    <Td>{rp.name}</Td>
-                    <Td>{rp.brand}</Td>
-                    <Td>{rp.shortDesc}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
+              <Box>
+                <Text fontWeight="bold">MSRP per Pallet</Text>
+                <Text>
+                  $
+                  {(
+                    parseFloat(product.msrp) *
+                    product.units_per_case *
+                    product.cases_per_pallet
+                  ).toLocaleString()}
+                </Text>
+              </Box>
+            </SimpleGrid>
           </Box>
-        </Box>
-      </Box>
-    </Flex>
+        </VStack>
+      </Grid>
+    </Box>
   );
 };
 

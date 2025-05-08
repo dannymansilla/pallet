@@ -10,6 +10,11 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ['id', 'file_type', 'file', 'uploaded_at']
 
+class BulkListingSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        listings = [Listing(**item) for item in validated_data]
+        return Listing.objects.bulk_create(listings)
+
 class ListingSerializer(serializers.ModelSerializer):
     documents = DocumentSerializer(many=True, read_only=True)
     status_display = serializers.CharField(source='get_listing_status_display', read_only=True)
@@ -21,6 +26,7 @@ class ListingSerializer(serializers.ModelSerializer):
             'quantity_available', 'reserve_price', 'listing_status',
             'status_display', 'documents'
         ]
+        list_serializer_class = BulkListingSerializer
 
 class SellerListingSerializer(serializers.ModelSerializer):
     # Fields from the frontend ListingPage.js
@@ -56,6 +62,7 @@ class BidSerializer(serializers.ModelSerializer):
             'id', 'listing', 'sale_event', 'buyer', 'bid_price',
             'bid_quantity', 'status', 'timestamp'
         ]
+        read_only_fields = ['buyer', 'status', 'timestamp']
 
 class BidAuditLogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -218,4 +225,45 @@ class BuyerDashboardListingSerializer(serializers.ModelSerializer):
             network = SellerBuyerNetwork.objects.get(seller=obj.seller, buyer=buyer_profile)
             return network.status
         except SellerBuyerNetwork.DoesNotExist:
-            return 'not_in_network' 
+            return 'not_in_network'
+
+class SellerProductSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name')
+    product_description = serializers.CharField(source='product.description')
+    product_brand = serializers.CharField(source='product.brand')
+    warehouse_name = serializers.CharField(source='warehouse.name')
+    end_date = serializers.DateTimeField(source='sale_event.end_date')
+    current_highest_bid = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Listing
+        fields = [
+            'id', 'product_name', 'product_description', 'product_brand',
+            'warehouse_name', 'quantity_available', 'reserve_price',
+            'end_date', 'current_highest_bid'
+        ]
+    
+    def get_current_highest_bid(self, obj):
+        highest_bid = obj.bid_set.filter(status='active').order_by('-bid_price').first()
+        if highest_bid:
+            return {
+                'price': highest_bid.bid_price,
+                'quantity': highest_bid.bid_quantity
+            }
+        return None
+
+class SellerOpenBidSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='listing.product.name', read_only=True)
+    product_brand = serializers.CharField(source='listing.product.brand', read_only=True)
+    buyer_name = serializers.CharField(source='buyer.organization.name', read_only=True)
+    timestamp_formatted = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Bid
+        fields = [
+            'id', 'product_name', 'product_brand', 'buyer_name',
+            'bid_price', 'bid_quantity', 'timestamp', 'timestamp_formatted'
+        ]
+    
+    def get_timestamp_formatted(self, obj):
+        return obj.timestamp.strftime("%Y-%m-%d %H:%M:%S") 

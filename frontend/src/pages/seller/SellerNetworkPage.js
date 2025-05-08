@@ -20,14 +20,15 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  FormControl,
-  FormLabel,
-  Switch,
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Center,
+  VStack,
+  Icon,
 } from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
 import {
   getSellerNetwork,
   addBuyerToNetwork,
@@ -36,6 +37,7 @@ import {
   searchBuyers,
   uploadBuyersBulk,
 } from "../../services/api";
+import { useDataMode } from "../../context/DataModeContext";
 
 // FAKE DATA FOR DEMO
 const fakeSearchResults = [
@@ -62,11 +64,19 @@ const fakePendingInvites = [
   },
 ];
 
+const EmptyStateMessage = ({ title, description }) => (
+  <Center p={8}>
+    <VStack spacing={4}>
+      <Icon as={InfoIcon} w={8} h={8} color="gray.400" />
+      <Text fontSize="lg" fontWeight="bold">{title}</Text>
+      <Text color="gray.600" textAlign="center">{description}</Text>
+    </VStack>
+  </Center>
+);
+
 const SellerNetworkPage = () => {
   const toast = useToast();
-
-  // Toggle between sample and backend data
-  const [useSampleData, setUseSampleData] = useState(true);
+  const { useSampleData } = useDataMode();
 
   // General loading and error states
   const [loading, setLoading] = useState(false);
@@ -78,10 +88,10 @@ const SellerNetworkPage = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Network management states
-  const [network, setNetwork] = useState(fakeNetwork);
-  const [pendingRequests, setPendingRequests] = useState(fakePendingRequests);
-  const [pendingInvites, setPendingInvites] = useState(fakePendingInvites);
+  // Network management states - initialize as empty arrays
+  const [network, setNetwork] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [pendingInvites, setPendingInvites] = useState([]);
 
   // Simulate uploads
   const [isUploading, setIsUploading] = useState(false);
@@ -97,27 +107,31 @@ const SellerNetworkPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // If switching to real data
       if (!useSampleData) {
         setLoading(true);
         try {
           const response = await getSellerNetwork();
-          // Transform the data for local state
-          const activeNetwork = response.active_network.map(item => ({
+          console.log('Network API Response:', response); // Debug log
+          
+          // Handle response directly since it's not wrapped in a data property
+          const activeNetwork = response.active_network?.map(item => ({
             id: item.id,
             name: item.buyer_name,
             email: item.buyer_email
-          }));
-          const requests = response.pending_requests.map(item => ({
+          })) || [];
+          console.log('Transformed Network:', activeNetwork); // Debug log
+          
+          const requests = response.pending_requests?.map(item => ({
             id: item.id,
             buyer_company: item.buyer_name,
             timestamp: new Date(item.created_at).getTime()
-          }));
-          const invites = response.pending_invites.map(item => ({
+          })) || [];
+          
+          const invites = response.pending_invites?.map(item => ({
             contact_email: item.buyer_email,
             company_name: item.buyer_name,
             status: item.status_display
-          }));
+          })) || [];
 
           setNetwork(activeNetwork);
           setPendingRequests(requests);
@@ -125,24 +139,24 @@ const SellerNetworkPage = () => {
           setError(null);
         } catch (err) {
           console.error("Failed to fetch network data:", err);
-          setError("Failed to load data. Using sample data instead.");
-          setUseSampleData(true);
+          setError("Failed to load data. Please try again later.");
+          setNetwork([]);
+          setPendingRequests([]);
+          setPendingInvites([]);
         }
         setLoading(false);
       } else {
-        // Switch back to sample data
         setNetwork(fakeNetwork);
         setPendingRequests(fakePendingRequests);
         setPendingInvites(fakePendingInvites);
       }
     };
 
-    // Whenever we toggle "useSampleData", reset search + load data
+    // Reset search when data mode changes
     setSearchTerm("");
     setSearchResults([]);
     setHasSearched(false);
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useSampleData]);
 
   // ------------------------------------
@@ -212,10 +226,14 @@ const SellerNetworkPage = () => {
       });
     } else {
       try {
-        await addBuyerToNetwork(companyId);
+        const response = await addBuyerToNetwork(companyId);
+        console.log('Add to network response:', response); // Debug log
+
         // Refresh network data
-        const response = await getSellerNetwork();
-        const activeNetwork = response.active_network.map(item => ({
+        const networkResponse = await getSellerNetwork();
+        console.log('Network refresh response:', networkResponse); // Debug log
+
+        const activeNetwork = networkResponse.active_network.map(item => ({
           id: item.id,
           name: item.buyer_name,
           email: item.buyer_email
@@ -233,9 +251,10 @@ const SellerNetworkPage = () => {
           isClosable: true,
         });
       } catch (error) {
+        console.error('Add to network error:', error); // Debug log
         toast({
           title: "Error",
-          description: "Failed to add company to your network.",
+          description: error.response?.data?.message || "Failed to add company to your network.",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -259,7 +278,7 @@ const SellerNetworkPage = () => {
         await removeBuyerFromNetwork(companyId);
         // Refresh network data
         const response = await getSellerNetwork();
-        const activeNetwork = response.active_network.map(item => ({
+        const activeNetwork = response.data.active_network.map(item => ({
           id: item.id,
           name: item.buyer_name,
           email: item.buyer_email
@@ -310,14 +329,14 @@ const SellerNetworkPage = () => {
 
         // Refresh network data
         const networkResponse = await getSellerNetwork();
-        const activeNetwork = networkResponse.active_network.map((item) => ({
+        const activeNetwork = networkResponse.data.active_network.map((item) => ({
           id: item.id,
           name: item.buyer_name,
           email: item.buyer_email,
         }));
         setNetwork(activeNetwork);
 
-        const invites = networkResponse.pending_invites.map((item) => ({
+        const invites = networkResponse.data.pending_invites.map((item) => ({
           contact_email: item.buyer_email,
           company_name: item.buyer_name,
           status: item.status_display,
@@ -377,14 +396,14 @@ const SellerNetworkPage = () => {
 
         // Refresh network data
         const response = await getSellerNetwork();
-        const activeNetwork = response.active_network.map((item) => ({
+        const activeNetwork = response.data.active_network.map((item) => ({
           id: item.id,
           name: item.buyer_name,
           email: item.buyer_email,
         }));
         setNetwork(activeNetwork);
 
-        const requests = response.pending_requests.map((item) => ({
+        const requests = response.data.pending_requests.map((item) => ({
           id: item.id,
           buyer_company: item.buyer_name,
           timestamp: new Date(item.created_at).getTime(),
@@ -418,20 +437,7 @@ const SellerNetworkPage = () => {
   // ------------------------------------
   return (
     <Box bg={pageBg} p={6} minH="100vh">
-      {/* Header & Toggle */}
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading>Manage Your Buyer Network</Heading>
-        <FormControl display="flex" alignItems="center" w="auto">
-          <FormLabel htmlFor="sample-data" mb="0" mr={2}>
-            Use Sample Data
-          </FormLabel>
-          <Switch
-            id="sample-data"
-            isChecked={useSampleData}
-            onChange={(e) => setUseSampleData(e.target.checked)}
-          />
-        </FormControl>
-      </Flex>
+      <Heading mb={6}>Manage Your Buyer Network</Heading>
 
       {/* Error Alert */}
       {error && (
@@ -551,49 +557,56 @@ const SellerNetworkPage = () => {
               <Heading size="sm" mb={2}>
                 Pending Requests
               </Heading>
-              {pendingRequests.length > 0 ? (
-                <Table variant="simple" size="md" shadow="sm" borderRadius="md">
-                  <Thead>
-                    <Tr>
-                      <Th>Company Name</Th>
-                      <Th>Requested On</Th>
-                      <Th>Actions</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {pendingRequests.map((request) => (
-                      <Tr key={request.id}>
-                        <Td>{request.buyer_company}</Td>
-                        <Td>
-                          {new Date(request.timestamp).toLocaleDateString()}
-                        </Td>
-                        <Td>
-                          <Button
-                            colorScheme="green"
-                            size="sm"
-                            onClick={() =>
-                              handleNetworkRequest(request.id, "approve")
-                            }
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            colorScheme="red"
-                            size="sm"
-                            ml={2}
-                            onClick={() =>
-                              handleNetworkRequest(request.id, "reject")
-                            }
-                          >
-                            Reject
-                          </Button>
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
+              {!useSampleData && pendingRequests.length === 0 ? (
+                <EmptyStateMessage
+                  title="No Pending Requests"
+                  description="You'll see pending requests here when buyers request to join your network."
+                />
               ) : (
-                <Text>No pending requests.</Text>
+                pendingRequests.length > 0 ? (
+                  <Table variant="simple" size="md" shadow="sm" borderRadius="md">
+                    <Thead>
+                      <Tr>
+                        <Th>Company Name</Th>
+                        <Th>Requested On</Th>
+                        <Th>Actions</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {pendingRequests.map((request) => (
+                        <Tr key={request.id}>
+                          <Td>{request.buyer_company}</Td>
+                          <Td>
+                            {new Date(request.timestamp).toLocaleDateString()}
+                          </Td>
+                          <Td>
+                            <Button
+                              colorScheme="green"
+                              size="sm"
+                              onClick={() =>
+                                handleNetworkRequest(request.id, "approve")
+                              }
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              colorScheme="red"
+                              size="sm"
+                              ml={2}
+                              onClick={() =>
+                                handleNetworkRequest(request.id, "reject")
+                              }
+                            >
+                              Reject
+                            </Button>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                ) : (
+                  <Text>No pending requests.</Text>
+                )
               )}
             </TabPanel>
 
@@ -602,27 +615,34 @@ const SellerNetworkPage = () => {
               <Heading size="sm" mb={2}>
                 Pending Invitations
               </Heading>
-              {pendingInvites.length > 0 ? (
-                <Table variant="simple" size="md" shadow="sm" borderRadius="md">
-                  <Thead>
-                    <Tr>
-                      <Th>Company Name</Th>
-                      <Th>Email</Th>
-                      <Th>Status</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {pendingInvites.map((invite) => (
-                      <Tr key={invite.contact_email}>
-                        <Td>{invite.company_name}</Td>
-                        <Td>{invite.contact_email}</Td>
-                        <Td>{invite.status}</Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
+              {!useSampleData && pendingInvites.length === 0 ? (
+                <EmptyStateMessage
+                  title="No Pending Invitations"
+                  description="You'll see pending invitations here when you invite buyers to join your network."
+                />
               ) : (
-                <Text>No pending invitations.</Text>
+                pendingInvites.length > 0 ? (
+                  <Table variant="simple" size="md" shadow="sm" borderRadius="md">
+                    <Thead>
+                      <Tr>
+                        <Th>Company Name</Th>
+                        <Th>Email</Th>
+                        <Th>Status</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {pendingInvites.map((invite) => (
+                        <Tr key={invite.contact_email}>
+                          <Td>{invite.company_name}</Td>
+                          <Td>{invite.contact_email}</Td>
+                          <Td>{invite.status}</Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                ) : (
+                  <Text>No pending invitations.</Text>
+                )
               )}
             </TabPanel>
 
@@ -631,7 +651,12 @@ const SellerNetworkPage = () => {
               <Heading size="sm" mb={2}>
                 Current Network
               </Heading>
-              {network.length > 0 ? (
+              {!useSampleData && network.length === 0 ? (
+                <EmptyStateMessage
+                  title="No Companies in Network"
+                  description="Your network will appear here once you start adding buyers or they request to join."
+                />
+              ) : network.length > 0 ? (
                 <Table variant="simple" size="md" shadow="sm" borderRadius="md">
                   <Thead>
                     <Tr>

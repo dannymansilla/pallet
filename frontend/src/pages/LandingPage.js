@@ -1,4 +1,3 @@
-// src/pages/LandingPage.js
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -9,280 +8,365 @@ import {
   VStack,
   Icon,
   Input,
+  Avatar,
+  useColorModeValue,
+  chakra,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import Lottie from 'lottie-react'; // Import the Lottie component
-import globeAnimation from '../assets/aiden_globe.json'; // Update with your Lottie JSON file name
-// import aidenlogo from "../images/aiden_logo.png";
 import posthog from 'posthog-js';
 import TimelineSection from '../components/TimelineSection';
-import { CheckIcon } from '@chakra-ui/icons';
 import BuiltForScaleSection from '../components/BuiltForScaleSection';
 import BottomCTA from '../components/BottomCTA';
 import BuiltForGrowthSection from '../components/BuiltForGrowthSection';
+import { CheckIcon } from '@chakra-ui/icons';
 
+const AidenAvatar = '/images/aiden_icon.png';
+const UserAvatar = '/images/user_icon.png';
+
+// ───────────────────────────────────────────────────────────
+// Dynamic Chat Demo Component
+// ───────────────────────────────────────────────────────────
+const DynamicChatDemo = () => {
+  const conversation = [
+    {
+      sender: 'Aiden',
+      text: "Hello! I'm Aiden, your AI assistant. Ready to get started?",
+      timestamp: '03:24 PM',
+    },
+    {
+      sender: 'User',
+      text: 'Absolutely! I want to list my excess inventory. Can you help me?',
+      timestamp: '03:25 PM',
+    },
+    {
+      sender: 'Aiden',
+      text: "Of course. I'll guide you through the listing process so top buyers see it immediately.",
+      timestamp: '03:25 PM',
+    },
+    {
+      sender: 'User',
+      text: 'That sounds perfect. Let’s do it!',
+      timestamp: '03:26 PM',
+    },
+  ];
+
+  const typingSpeed = 50;
+  const pauseBetweenMessages = 800;
+
+  const [currentMsgIndex, setCurrentMsgIndex] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
+
+  const aidenBubbleBg = useColorModeValue('blue.50', 'blue.900');
+  const userBubbleBg = useColorModeValue('gray.100', 'gray.700');
+  const containerBg = useColorModeValue('white', 'gray.800');
+  const aidenTextColor = useColorModeValue('black', 'white');
+  const userTextColor = useColorModeValue('black', 'white');
+
+  useEffect(() => {
+    let timer;
+    if (isTyping) {
+      const currentMsg = conversation[currentMsgIndex].text;
+      if (typedText.length < currentMsg.length) {
+        timer = setTimeout(() => {
+          setTypedText((prev) => prev + currentMsg.charAt(prev.length));
+        }, typingSpeed);
+      } else {
+        setIsTyping(false);
+        setTimeout(() => {
+          if (currentMsgIndex < conversation.length - 1) {
+            setCurrentMsgIndex((prev) => prev + 1);
+            setTypedText('');
+            setIsTyping(true);
+          }
+        }, pauseBetweenMessages);
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [typedText, isTyping, currentMsgIndex]);
+
+  const messagesToShow = conversation.slice(0, currentMsgIndex);
+  if (typedText && currentMsgIndex < conversation.length) {
+    messagesToShow.push({
+      ...conversation[currentMsgIndex],
+      text: typedText,
+    });
+  }
+
+  return (
+    <Box
+      w="100%"
+      maxW="450px"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="gray.200"
+      p={4}
+      bg={containerBg}
+      boxShadow="lg"
+    >
+      {messagesToShow.map((msg, i) => {
+        const isAiden = msg.sender === 'Aiden';
+        const bubbleBg = isAiden ? aidenBubbleBg : userBubbleBg;
+        const textColor = isAiden ? aidenTextColor : userTextColor;
+        const avatarSrc = isAiden ? AidenAvatar : UserAvatar;
+
+        return (
+          <Flex key={i} justifyContent={isAiden ? 'flex-start' : 'flex-end'} mb={4}>
+            {isAiden && <Avatar src={avatarSrc} name="Aiden" size="sm" mr={2} />}
+            <Box
+              bg={bubbleBg}
+              color={textColor}
+              borderRadius="xl"
+              p={3}
+              maxW="75%"
+              position="relative"
+            >
+              <Text fontWeight="bold" fontSize="sm" mb={1}>
+                {msg.sender}
+              </Text>
+              <Text whiteSpace="pre-wrap" mb="20px">
+                {msg.text}
+              </Text>
+              <chakra.span
+                position="absolute"
+                bottom="4px"
+                right="8px"
+                fontSize="xs"
+                color="gray.500"
+              >
+                {msg.timestamp}
+              </chakra.span>
+            </Box>
+            {!isAiden && <Avatar src={avatarSrc} name="User" size="sm" ml={2} />}
+          </Flex>
+        );
+      })}
+    </Box>
+  );
+};
+
+// ───────────────────────────────────────────────────────────
+// Landing Page Component
+// ───────────────────────────────────────────────────────────
 const LandingPage = () => {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const utm_source = urlParams.get("utm_source");
-    const utm_medium = urlParams.get("utm_medium");
-    const utm_campaign = urlParams.get("utm_campaign");
-    const utm_content = urlParams.get("utm_content");
-    const utm_term = urlParams.get("utm_term");
-    const utm_email = urlParams.get("utm_email"); // Custom UTM parameter
+    const utm_source = urlParams.get('utm_source');
+    const utm_medium = urlParams.get('utm_medium');
+    const utm_campaign = urlParams.get('utm_campaign');
+    const utm_content = urlParams.get('utm_content');
+    const utm_term = urlParams.get('utm_term');
+    const utm_email = urlParams.get('utm_email');
 
-    // Track UTM parameters in PostHog
-    posthog.capture("utm_tracking", {
+    posthog.capture('utm_tracking', {
       utm_source,
       utm_medium,
       utm_campaign,
       utm_content,
       utm_term,
-      utm_email, // Custom parameter
+      utm_email,
     });
 
-    // Identify user in PostHog if `utm_email` is present
     if (utm_email) {
       posthog.identify(utm_email, { email: utm_email });
     }
 
-    // Remove UTM parameters from URL (Optional)
     const url = new URL(window.location.href);
-    url.searchParams.delete("utm_source");
-    url.searchParams.delete("utm_medium");
-    url.searchParams.delete("utm_campaign");
-    url.searchParams.delete("utm_content");
-    url.searchParams.delete("utm_term");
-    url.searchParams.delete("utm_email");
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_email'].forEach((param) =>
+      url.searchParams.delete(param)
+    );
     window.history.replaceState({}, document.title, url.pathname);
   }, []);
 
-
-  const AnimatedLogoOverlay = () => {
-    return (
-      <Box position="relative" width="100%" maxW="650px" maxH="650px">
-        {/* Lottie Animation */}
-        <Box zIndex={1}
-        maxW="550px" maxH="550px">
-          <Lottie
-            animationData={globeAnimation}
-            loop
-            style={{ width: '100%', height: '100%' }}
-          />
-        </Box>
-      </Box>
-    );
-  };
-  
-  
-
   return (
     <Box bg="transparent" color="black" minW="100vw">
-      {/* Background */}
-      <Flex
-        position="relative"  // This container will serve as the positioning reference
-        minH="95vh"
-        align="center"
-        justify="center"
-        overflow="hidden"
-        // px={24}
-        px={{ base: 0, md: 24 }}
+      {/* Hero Section */}
+      <Box
+        width="100%"
+        px={{ base: 8, md: 24 }}
+        py={{ base: 8, md: 12 }}
+        background="repeating-linear-gradient(
+          -45deg,
+          #f2f2f2,
+          #f2f2f2 1px,
+          #ffffff 1px,
+          #ffffff 100px
+        )"
       >
-        {/* <SubtleBackground /> */}
-        {/* Hero Section */}
         <Flex
+          direction={{ base: 'column', md: 'row' }}
           align="center"
-          justify="space-between"
-          direction={{ base: "column", md: "row" }}
-          minH="95vh" // Full viewport height
-          px={{ base: 10, md: 0 }}
-          py={{ base: 10, md: 0 }}
-          position="relative"
-          overflow="hidden"
+          justify="center"
+          maxW="1200px"
+          mx="auto"
+          minH="90vh"
+          gap={10}
         >
-          <VStack
-            spacing={8}
-            align={{ base: 'center', md: 'flex-start' }}
-            maxW="850px"
-            textAlign={{ base: 'left', md: 'left' }}
-            py={{ base: 8, md: 5 }}
+          {/* Left Side */}
+          <Box
+            flex="1"
+            pr={{ md: 0 }}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minH="600px"
+            position="relative"  // Make this position relative
           >
-            {/* Title */}
-            <Heading
-              fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }}
-              fontWeight="extrabold"
-              color="black"
-              letterSpacing="-2px"
-              lineHeight="1.2"
-            >
-              Automate your excess inventory sales
-            </Heading>
+            {/* 
+              Overlay behind the heading area.
+              White with some transparency & subtle blur 
+              so lines under the text get “softened.” 
+            */}
+            <Box
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              bg="whiteAlpha.8"  // Adjust the alpha value if you want it lighter/darker
+              backdropFilter="blur(5px)"
+              zIndex={0}
+            />
 
-            {/* Subtitle */}
-            <Text maxW="650px" fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
-              Aiden is the only excess inventory solution that maximizes sales volume,
-              price, and speed — while reducing manual work by 90%.
-            </Text>
+            {/* Actual heading + text (above the overlay) */}
+            <VStack spacing={8} align="flex-start" maxW="650px" position="relative" zIndex={1}>
+              <Heading
+                fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }}
+                fontWeight="extrabold"
+                color="black"
+                letterSpacing="-2px"
+                lineHeight="1.2"
+              >
+                Automate your excess inventory sales
+              </Heading>
 
-            {/* Desktop Form & Mobile Button */}
-            <Box width="100%" px={{ base: 0, md: 0 }}>
-              {/* Desktop-Only Form */}
-              <Box display={{ base: 'none', md: 'block' }}>
-                <Flex
-                  as="form"
-                  direction="row"
-                  align="center"
-                  justify="space-between"
-                  maxW="600px"
-                  border="1px solid"
-                  borderColor="gray.400"
-                  borderRadius="lg"
-                  shadow="none"
-                  bg="white"
-                  p={1}
-                  h="60px"
-                >
-                  <Input
-                    placeholder="What's your work email?"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    size="lg"
-                    fontSize="lg"
-                    h="60px"
-                    bg="transparent"
-                    border="none"
-                    borderRadius="none"
-                    _hover={{ border: 'none' }}
-                    _focus={{ outline: 'none', boxShadow: 'none' }}
-                    flex="1"
-                  />
+              <Text maxW="600px" fontSize={{ base: 'md', md: 'lg' }} color="gray.700">
+                Aiden is the only excess inventory solution that maximizes sales volume, price,
+                and speed — while reducing manual work by 90%.
+              </Text>
 
-                  <Button
-                    as={RouterLink}
-                    to={`/requestdemo?email=${encodeURIComponent(email)}`}
-                    variant="logo_accent"
-                    size="lg"
-                    h="50px"
-                    px={6}
+              {/* Form */}
+              <Box width="100%">
+                {/* Desktop Form */}
+                <Box display={{ base: 'none', md: 'block' }}>
+                  <Flex
+                    as="form"
+                    align="center"
+                    maxW="600px"
+                    border="1px solid"
+                    borderColor="gray.400"
                     borderRadius="lg"
-                    shadow="sm"
-                  >
-                    Talk to Sales
-                  </Button>
-                </Flex>
-              </Box>
-
-              {/* Mobile-Only Button */}
-              <Box display={{ base: 'block', md: 'none' }} px={{ base: 5, md: 0 }} mt={4} width="100%">
-              <Flex
-                  as="form"
-                  direction="row"
-                  align="center"
-                  justify="space-between"
-                  maxW="600px"
-                  border="1px solid"
-                  borderColor="gray.400"
-                  borderRadius="lg"
-                  shadow="none"
-                  bg="white"
-                  p={1}
-                  h="60px"
-                  width="100%"
-                >
-                  <Input
-                    placeholder="What's your work email?"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    size="lg"
-                    fontSize="lg"
+                    bg="white"
+                    p={1}
                     h="60px"
-                    width="100%"
-                    bg="transparent"
-                    border="none"
-                    borderRadius="none"
-                    _hover={{ border: 'none' }}
-                    _focus={{ outline: 'none', boxShadow: 'none' }}
-                    flex="1"
-                  />
-                  
-                </Flex>
-                <Button
-                      textAlign={"left"}
-                      mt={2}
+                  >
+                    <Input
+                      placeholder="What's your work email?"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      size="lg"
+                      fontSize="lg"
+                      h="60px"
+                      bg="transparent"
+                      border="none"
+                      flex="1"
+                      _hover={{ border: 'none' }}
+                      _focus={{ outline: 'none', boxShadow: 'none' }}
+                    />
+                    <Button
                       as={RouterLink}
-                      to="/requestdemo"
+                      to={`/requestdemo?email=${encodeURIComponent(email)}`}
                       variant="logo_accent"
                       size="lg"
-                      width="100%"
-                      h="60px"
-                      p={6}
+                      h="50px"
+                      px={6}
                       borderRadius="lg"
                       shadow="sm"
                     >
                       Talk to Sales
                     </Button>
+                  </Flex>
+                </Box>
+
+                {/* Mobile Form */}
+                <Box display={{ base: 'block', md: 'none' }} mt={4}>
+                  <Flex
+                    as="form"
+                    align="center"
+                    border="1px solid"
+                    borderColor="gray.400"
+                    borderRadius="lg"
+                    bg="white"
+                    p={1}
+                    h="60px"
+                    width="100%"
+                  >
+                    <Input
+                      placeholder="What's your work email?"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      size="lg"
+                      fontSize="lg"
+                      h="60px"
+                      bg="transparent"
+                      border="none"
+                      flex="1"
+                      _hover={{ border: 'none' }}
+                      _focus={{ outline: 'none', boxShadow: 'none' }}
+                    />
+                  </Flex>
+                  <Button
+                    as={RouterLink}
+                    to="/requestdemo"
+                    variant="logo_accent"
+                    size="lg"
+                    width="100%"
+                    h="60px"
+                    p={6}
+                    mt={2}
+                    borderRadius="lg"
+                    shadow="sm"
+                  >
+                    Talk to Sales
+                  </Button>
+                </Box>
               </Box>
 
-              {/* Check Marks */}
-              <Box display={{ base: 'none', md: 'block' }} mt={6} textAlign={"center"}>
-              <Flex
-                direction={{ base: 'column', md: 'row' }}
-                align={{ base: 'center', md: 'flex-start' }}
-                justify={{ base: 'center', md: 'flex-start' }}
-                gap={{ base: 3, md: 6 }}
-                mt={6}
-              >
-                {/* 1st check item */}
-                <Flex align="center">
-                  <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
-                  <Text color="gray.600" fontSize="sm">Enterprise scale</Text>
+              {/* Checkmarks */}
+              <Box display={{ base: 'none', md: 'block' }}>
+                <Flex gap={6} mt={6}>
+                  <Flex align="center">
+                    <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
+                    <Text color="gray.600" fontSize="sm">Enterprise scale</Text>
+                  </Flex>
+                  <Flex align="center">
+                    <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
+                    <Text color="gray.600" fontSize="sm">Fully automated</Text>
+                  </Flex>
+                  <Flex align="center">
+                    <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
+                    <Text color="gray.600" fontSize="sm">Optimized sales</Text>
+                  </Flex>
                 </Flex>
-                {/* 2nd check item */}
-                <Flex align="center">
-                  <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
-                  <Text color="gray.600" fontSize="sm">Fully automated</Text>
-                </Flex>
-                {/* 3rd check item */}
-                <Flex align="center">
-                  <Icon as={CheckIcon} color="green.500" boxSize={5} mr={2} />
-                  <Text color="gray.600" fontSize="sm">Optimized sales</Text>
-                </Flex>
-              </Flex>
               </Box>
-
-              
-            </Box>
-            {/* Mobile-Only Button */}
-          <Box display={{ base: 'block', md: 'none' }} mt={6} textAlign={"center"}>
-                <Lottie
-                  animationData={globeAnimation}
-                  loop
-                  style={{ width: '200px', height: '100%'}}
-                />
+            </VStack>
           </Box>
-          </VStack>
-          
 
-
-          {/* Replace the Image with the Lottie Animation */}
+          {/* Right Side */}
           <Box
             flex="1"
-            display={{ base: "none", md: "flex" }}
-            justifyContent="center"
+            minH="600px"
+            display="flex"
             alignItems="center"
-            mt={{ base: 10, md: 0 }}
-            minW="400px"
-            maxW="650px"
-            mr="30px"
-            // mx={{ base: 0, md: 12 }}
+            justifyContent="center"
           >
-            <AnimatedLogoOverlay />
+            <DynamicChatDemo />
           </Box>
         </Flex>
-      </Flex>
+      </Box>
+
       <BuiltForScaleSection />
       <TimelineSection />
       <BuiltForGrowthSection />

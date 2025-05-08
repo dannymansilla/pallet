@@ -151,6 +151,24 @@ def approve_organization(request, org_id):
     organization.approved_at = timezone.now()
     organization.save()
 
+    # If approved, create the appropriate profile(s)
+    if action == 'approve':
+        from apps.inventory.models import BuyerProfile, SellerProfile
+        
+        # Create buyer profile if organization is a buyer
+        if organization.is_buyer:
+            BuyerProfile.objects.get_or_create(
+                organization=organization,
+                defaults={'buyer_since': timezone.now().date()}
+            )
+        
+        # Create seller profile if organization is a seller
+        if organization.is_seller:
+            SellerProfile.objects.get_or_create(
+                organization=organization,
+                defaults={'seller_since': timezone.now().date()}
+            )
+
     # Send notification to organization users (you can implement this later)
     
     return Response({

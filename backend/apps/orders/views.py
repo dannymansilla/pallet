@@ -233,3 +233,95 @@ class SellerTrucksView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class BuyerTrucksView(APIView):
+    """
+    API endpoint for retrieving buyer trucks data.
+    This view aggregates data from both OptimizedLoad and Order models
+    to provide a complete view of trucks associated with a buyer.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            # Get the current user's buyer profile
+            user = request.user
+            if user.role != 'buyer':
+                return Response(
+                    {'error': 'User must be a buyer'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            buyer_profile = user.organization.buyerprofile
+            
+            # Get optimized loads for this buyer
+            optimized_loads = OptimizedLoad.objects.filter(buyer=buyer_profile)
+            
+            # Group loads by month
+            loads_by_month = {}
+            for load in optimized_loads:
+                # Use created_at date for grouping
+                month_key = load.created_at.strftime('%Y-%m')
+                
+                if month_key not in loads_by_month:
+                    loads_by_month[month_key] = []
+                
+                # Get order if it exists
+                order = None
+                try:
+                    order = Order.objects.get(optimized_load=load)
+                except Order.DoesNotExist:
+                    pass
+                
+                # Get items for this load
+                items = []
+                for item in load.items.all():
+                    items.append({
+                        'brand': item.listing.product.brand,
+                        'name': item.listing.product.name,
+                        'awarded_price_per_unit': float(item.listing.reserve_price or 0),
+                        'pallets': item.allocated_quantity,
+                    })
+                
+                # Add to month data
+                loads_by_month[month_key].append({
+                    'seller_name': load.sale_event.seller.organization.name,
+                    'truck_id': f"T-{load.id}",
+                    'truck_total_cost': float(load.load_value or 0),
+                    'items': items
+                })
+            
+            # Convert to list of months
+            months_data = [
+                {
+                    'month': month,
+                    'orders': orders
+                }
+                for month, orders in loads_by_month.items()
+            ]
+            
+            # Sort months in descending order
+            months_data.sort(key=lambda x: x['month'], reverse=True)
+            
+            # Calculate buyer summary
+            buyer_summary = {
+                'buyer_name': buyer_profile.organization.name,
+                'total_trucks': optimized_loads.count(),
+                'total_units': sum(
+                    sum(item.allocated_quantity for item in load.items.all())
+                    for load in optimized_loads
+                ),
+                'total_spent': sum(float(load.load_value or 0) for load in optimized_loads)
+            }
+            
+            return Response({
+                'buyer_summary': buyer_summary,
+                'months': months_data
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in BuyerTrucksView: {str(e)}", exc_info=True)
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

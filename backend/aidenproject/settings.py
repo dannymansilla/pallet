@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'apps.orders.apps.OrdersConfig',
     'apps.integrations.apps.IntegrationsConfig',
     'apps.notifications.apps.NotificationsConfig',
+    'apps.chat',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -231,3 +232,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "daniel@hiaiden.com"  # Change to your actual email
 EMAIL_HOST_PASSWORD = "fqro uyum gimw ompz"  # Use an App Password if using Gmail
 DEFAULT_FROM_EMAIL = "Aiden <daniel@hiaiden.com>"  # Change if needed
+
+# OpenAI settings
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')

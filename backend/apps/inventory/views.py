@@ -54,5 +54,20 @@ class WarehouseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.role == 'seller':
+            # Sellers can see and manage their own warehouses
             return Warehouse.objects.filter(seller__organization=user.organization)
-        return Warehouse.objects.none()
+        elif user.role == 'buyer':
+            # Buyers can only view warehouses that have active listings
+            return Warehouse.objects.filter(listing__listing_status='active').distinct()
+        # Admins can see all warehouses
+        return Warehouse.objects.all()
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action in ['update', 'partial_update', 'destroy']:
+            # Only sellers can modify their own warehouses
+            return [permissions.IsAuthenticated()]
+        # Anyone can view warehouse details
+        return [permissions.IsAuthenticated()]

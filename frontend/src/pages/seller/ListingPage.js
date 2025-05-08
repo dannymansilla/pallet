@@ -13,17 +13,19 @@ import {
   Td,
   useColorModeValue,
   Badge,
-  Switch,
-  FormControl,
-  FormLabel,
   Spinner,
   Alert,
   AlertIcon,
   AlertTitle,
-  AlertDescription
+  AlertDescription,
+  Center,
+  VStack,
+  Icon,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { getSellerListings } from "../../services/api";
+import { useDataMode } from "../../context/DataModeContext";
+import { InfoIcon } from "@chakra-ui/icons";
 
 /**
  * SAMPLE DATA for demonstration:
@@ -40,6 +42,8 @@ const sampleListings = [
     volumeAboveMSPPercent: 40,
     weightedAverageBidPricePerUnit: 2.25,
     recoveryRatePercent: 64,
+    // Optional: for "active" highlighting in the table
+    isCurrentMonth: false,
   },
   {
     id: "L02",
@@ -52,6 +56,7 @@ const sampleListings = [
     volumeAboveMSPPercent: 50,
     weightedAverageBidPricePerUnit: 2.5,
     recoveryRatePercent: 71,
+    isCurrentMonth: false,
   },
   {
     id: "L03",
@@ -64,94 +69,141 @@ const sampleListings = [
     volumeAboveMSPPercent: 60,
     weightedAverageBidPricePerUnit: 2.1,
     recoveryRatePercent: 55,
+    isCurrentMonth: false,
   },
-  // Add more...
 ];
+
+const EmptyStateMessage = ({ title, description }) => (
+  <Center p={8}>
+    <VStack spacing={4}>
+      <Icon as={InfoIcon} w={8} h={8} color="gray.400" />
+      <Text fontSize="lg" fontWeight="bold">{title}</Text>
+      <Text color="gray.600" textAlign="center">{description}</Text>
+    </VStack>
+  </Center>
+);
 
 const SellerListingsPage = () => {
   const navigate = useNavigate();
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const { useSampleData } = useDataMode();
 
-  // For demonstration, let's define the "current month" as 2025-03
-  const currentMonth = "2025-03";
+  // Current month in YYYY-MM format
+  const currentMonth = new Date().toISOString().slice(0, 7);
 
-  // State for filters — default to current month
+  // State for filters
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedBrand, setSelectedBrand] = useState("");
-  
-  // State for data and toggle
-  const [useSampleData, setUseSampleData] = useState(true);
+
+  // State for data
   const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [allMonths, setAllMonths] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
+  
+  // Loading/error
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Fetch data from backend when not using sample data
+  /**
+   * Transform the API’s real data into the same shape
+   * as your sample listings for consistent display.
+   */
+  const transformListing = (apiItem) => {
+    return {
+      id: apiItem.id,
+      // unify naming: monthYear vs month_year
+      monthYear: apiItem.month_year,
+      brand: apiItem.brand,
+      shortDescription: apiItem.short_description,
+      msrpPerUnit: parseFloat(apiItem.msrp_per_unit),
+      minSellingPricePerUnit: parseFloat(apiItem.min_selling_price_per_unit),
+      totalVolumeForSale: apiItem.total_volume_for_sale,
+      volumeAboveMSPPercent: apiItem.volume_above_msp_percent,
+      weightedAverageBidPricePerUnit: apiItem.weighted_average_bid_price_per_unit,
+      recoveryRatePercent: apiItem.recovery_rate_percent,
+      // Mark if it's current month from the API
+      // (or we can also check if month_year === currentMonth)
+      isCurrentMonth: apiItem.is_current_month,
+    };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!useSampleData) {
+      if (useSampleData) {
+        // Use sample data
+        setLoading(false);
+        setError(null);
+
+        // Mark sample data if it matches currentMonth
+        const updatedSamples = sampleListings.map((item) => ({
+          ...item,
+          isCurrentMonth: item.monthYear === currentMonth,
+        }));
+
+        setListings(updatedSamples);
+
+        // Extract unique months & brands
+        const months = [...new Set(updatedSamples.map(l => l.monthYear))].sort();
+        const brands = [...new Set(updatedSamples.map(l => l.brand))].sort();
+
+        setAllMonths(months);
+        setAllBrands(brands);
+      } else {
+        // Real data from your API
         setLoading(true);
+        setError(null);
         try {
+          // Build filters for the API
           const filters = {};
           if (selectedMonth) filters.month = selectedMonth;
           if (selectedBrand) filters.brand = selectedBrand;
-          
+
           const response = await getSellerListings(filters);
-          setListings(response.data);
-          
-          // Extract unique months and brands from the response
-          const months = [...new Set(response.data.map(item => item.month_year))].sort();
-          const brands = [...new Set(response.data.map(item => item.brand))].sort();
-          
+          if (!response) {
+            setListings([]);
+            setError("No response from server. Please try again later.");
+            setLoading(false);
+            return;
+          }
+
+          // If your API returns an array directly, transform each item
+          // If your API uses response.data, adjust accordingly
+          const rawData = response.data ?? response; 
+          const transformed = rawData.map(transformListing);
+
+          setListings(transformed);
+          setError(null);
+
+          // Extract unique months & brands from the transformed data
+          const months = [...new Set(transformed.map(item => item.monthYear))].sort();
+          const brands = [...new Set(transformed.map(item => item.brand))].sort();
+
           setAllMonths(months);
           setAllBrands(brands);
-          setError(null);
         } catch (err) {
           console.error("Failed to fetch listings:", err);
-          setError("Failed to load data. Using sample data instead.");
-          setUseSampleData(true);
+          setError("Failed to load data. Please try again later.");
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
-      } else {
-        // Use sample data
-        setListings(sampleListings);
-        setAllMonths([...new Set(sampleListings.map(l => l.monthYear))].sort());
-        setAllBrands([...new Set(sampleListings.map(l => l.brand))].sort());
       }
     };
 
     fetchData();
-  }, [useSampleData, selectedMonth, selectedBrand]);
+  }, [useSampleData, selectedMonth, selectedBrand, currentMonth]);
 
-  // Filter logic for sample data
-  const filteredData = useSampleData 
-    ? listings.filter((listing) => {
-        // If selectedMonth is not empty AND doesn't match listing's monthYear => filter out
-        if (selectedMonth && listing.monthYear !== selectedMonth) return false;
-        // If selectedBrand is not empty AND doesn't match listing's brand => filter out
-        if (selectedBrand && listing.brand !== selectedBrand) return false;
-        return true;
-      })
-    : listings;
+  // Filter logic for our *already-transformed* data
+  const filteredData = listings.filter((listing) => {
+    if (selectedMonth && listing.monthYear !== selectedMonth) return false;
+    if (selectedBrand && listing.brand !== selectedBrand) return false;
+    return true;
+  });
 
   return (
     <Box p={6} minH="100vh">
-      <Flex justify="space-between" align="center" mb={4}>
-        <Heading>Seller Listings</Heading>
-        <FormControl display="flex" alignItems="center" w="auto">
-          <FormLabel htmlFor="sample-data" mb="0" mr={2}>
-            Use Sample Data
-          </FormLabel>
-          <Switch
-            id="sample-data"
-            isChecked={useSampleData}
-            onChange={(e) => setUseSampleData(e.target.checked)}
-          />
-        </FormControl>
-      </Flex>
+      <Heading mb={4}>Seller Listings</Heading>
 
-      {/* Error Message if any */}
+      {/* Error Message */}
       {error && (
         <Alert status="error" mb={4}>
           <AlertIcon />
@@ -167,105 +219,122 @@ const SellerListingsPage = () => {
         </Flex>
       )}
 
-      {/* Filters */}
-      <Flex gap={4} mb={4} alignItems="center">
-        {/* Month Filter */}
-        <Flex direction="column">
-          <Text fontWeight="bold" mb={1}>Month:</Text>
-          <Select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            width="180px"
-            size="sm"
+      {/* Empty State (for real data mode) */}
+      {!useSampleData && !loading && listings.length === 0 && !error && (
+        <EmptyStateMessage
+          title="No Listings Available"
+          description="Your listings will appear here once you create your first listing."
+        />
+      )}
+
+      {/* Filters + Table Display (if we have data, or in sample mode) */}
+      {((!useSampleData && listings.length > 0) || useSampleData) && (
+        <>
+          {/* Filters */}
+          <Flex gap={4} mb={4} alignItems="center">
+            {/* Month Filter */}
+            <Flex direction="column">
+              <Text fontWeight="bold" mb={1}>
+                Month:
+              </Text>
+              <Select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                width="180px"
+                size="sm"
+              >
+                {/* "All Months" option */}
+                <option value="">All Months</option>
+                {allMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </Select>
+            </Flex>
+
+            {/* Brand Filter */}
+            <Flex direction="column">
+              <Text fontWeight="bold" mb={1}>
+                Brand:
+              </Text>
+              <Select
+                placeholder="All Brands"
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                width="180px"
+                size="sm"
+              >
+                {allBrands.map((brand) => (
+                  <option key={brand} value={brand}>
+                    {brand}
+                  </option>
+                ))}
+              </Select>
+            </Flex>
+          </Flex>
+
+          {/* Table of listings */}
+          <Box
+            border="1px solid"
+            borderColor={borderColor}
+            borderRadius="md"
+            overflowX="auto"
           >
-            {/* Option for seeing all months */}
-            <option value="">All Months</option>
-            {allMonths.map((month) => (
-              <option key={month} value={month}>
-                {month}
-              </option>
-            ))}
-          </Select>
-        </Flex>
-
-        {/* Brand Filter */}
-        <Flex direction="column">
-          <Text fontWeight="bold" mb={1}>Brand:</Text>
-          <Select
-            placeholder="All Brands"
-            value={selectedBrand}
-            onChange={(e) => setSelectedBrand(e.target.value)}
-            width="180px"
-            size="sm"
-          >
-            {allBrands.map((brand) => (
-              <option key={brand} value={brand}>
-                {brand}
-              </option>
-            ))}
-          </Select>
-        </Flex>
-      </Flex>
-
-      {/* Table of listings */}
-      <Box
-        border="1px solid"
-        borderColor={borderColor}
-        borderRadius="md"
-        overflowX="auto"
-      >
-        <Table variant="simple" size="md">
-          <Thead>
-            <Tr>
-              <Th>Listing Month</Th>
-              <Th>Brand</Th>
-              <Th>Short Description</Th>
-              <Th isNumeric>MSRP/Unit</Th>
-              <Th isNumeric>Min Selling Price</Th>
-              <Th isNumeric>Total Volume</Th>
-              <Th isNumeric>% Volume Above MSP</Th>
-              <Th isNumeric>Avg Bid Price</Th>
-              <Th isNumeric>% Recovery</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {filteredData.map((listing) => {
-              // Determine if listing month is the current month
-              const isCurrentMonth = listing.monthYear === currentMonth;
-
-              return (
-                <Tr
-                  key={listing.id}
-                  // Hover & click behavior only if it's current month
-                  _hover={isCurrentMonth ? { bg: "gray.50", cursor: "pointer" } : undefined}
-                  onClick={
-                    isCurrentMonth ? () => navigate(`/seller/listings/${listing.id}`) : undefined
-                  }
-                >
-                  <Td>
-                    {listing.monthYear}
-                    {isCurrentMonth && (
-                      <Badge ml={2} colorScheme="green">
-                        Active
-                      </Badge>
-                    )}
-                  </Td>
-                  <Td>{listing.brand}</Td>
-                  <Td>{listing.shortDescription}</Td>
-                  <Td isNumeric>${listing.msrpPerUnit.toFixed(2)}</Td>
-                  <Td isNumeric>${listing.minSellingPricePerUnit.toFixed(2)}</Td>
-                  <Td isNumeric>{listing.totalVolumeForSale.toLocaleString()}</Td>
-                  <Td isNumeric>{listing.volumeAboveMSPPercent}%</Td>
-                  <Td isNumeric>
-                    ${listing.weightedAverageBidPricePerUnit.toFixed(2)}
-                  </Td>
-                  <Td isNumeric>{listing.recoveryRatePercent}%</Td>
+            <Table variant="simple" size="md">
+              <Thead>
+                <Tr>
+                  <Th>Listing Month</Th>
+                  <Th>Brand</Th>
+                  <Th>Short Description</Th>
+                  <Th isNumeric>MSRP/Unit</Th>
+                  <Th isNumeric>Min Selling Price</Th>
+                  <Th isNumeric>Total Volume</Th>
+                  <Th isNumeric>% Volume Above Reserve Price</Th>
+                  <Th isNumeric>Avg Bid Price</Th>
+                  <Th isNumeric>% Recovery</Th>
                 </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </Box>
+              </Thead>
+              <Tbody>
+                {filteredData.map((listing) => {
+                  // If the API sets isCurrentMonth = true, use that
+                  // Or you can also do a fallback check: listing.monthYear === currentMonth
+                  const isCurrent = listing.isCurrentMonth === true;
+
+                  return (
+                    <Tr
+                      key={listing.id}
+                      _hover={isCurrent ? { bg: "gray.50", cursor: "pointer" } : undefined}
+                      onClick={
+                        isCurrent ? () => navigate(`/seller/listings/${listing.id}`) : undefined
+                      }
+                    >
+                      <Td>
+                        {listing.monthYear}
+                        {isCurrent && (
+                          <Badge ml={2} colorScheme="green">
+                            Active
+                          </Badge>
+                        )}
+                      </Td>
+                      <Td>{listing.brand}</Td>
+                      <Td>{listing.shortDescription}</Td>
+                      <Td isNumeric>${(listing.msrpPerUnit || 0).toFixed(2)}</Td>
+                      <Td isNumeric>${(listing.minSellingPricePerUnit || 0).toFixed(2)}</Td>
+                      <Td isNumeric>{(listing.totalVolumeForSale || 0).toLocaleString()}</Td>
+                      <Td isNumeric>{(listing.volumeAboveMSPPercent || 0).toFixed(2)}%</Td>
+                      <Td isNumeric>
+                        ${(listing.weightedAverageBidPricePerUnit || 0).toFixed(2)}
+                      </Td>
+                      <Td isNumeric>{(listing.recoveryRatePercent || 0).toFixed(2)}%</Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

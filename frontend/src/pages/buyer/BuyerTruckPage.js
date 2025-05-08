@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Heading,
@@ -17,7 +17,17 @@ import {
   Input,
   Button,
   useToast,
+  Center,
+  Spinner,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  VStack,
+  Text,
 } from "@chakra-ui/react";
+import { useDataMode } from "../../context/DataModeContext";
+import { fetchBuyerTrucks } from "../../services/api";
 
 /** 
  * SAMPLE DATA: 
@@ -360,10 +370,120 @@ const OrdersTable = ({ orders }) => {
  * Then each row in the table can be expanded to show awarded items.
  */
 const BuyerTrucksPage = () => {
+  const { useSampleData } = useDataMode();
+  const [monthsData, setMonthsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
+  const loadTrucks = useCallback(async () => {
+    if (useSampleData) {
+      setMonthsData(sampleMonthsData);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetchBuyerTrucks();
+      
+      if (!response) {
+        setError("No response received from the server. Please try again later.");
+        return;
+      }
+
+      if (!response.data || !response.data.trucks) {
+        setMonthsData([]);
+        return;
+      }
+
+      // Transform the API response to match our sample data structure
+      const transformedData = [
+        {
+          month: new Date().toISOString().slice(0, 7), // Current month in YYYY-MM format
+          orders: response.data.trucks.map(truck => ({
+            seller: truck.seller_name,
+            orderId: truck.truck_id,
+            numTrucks: 1,
+            totalValue: truck.truck_total_cost,
+            paymentDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+            isPaid: false,
+            items: truck.items.map(item => ({
+              brand: item.brand,
+              productName: item.name,
+              pricePerPallet: item.awarded_price_per_unit,
+              pallets: item.pallets
+            }))
+          }))
+        }
+      ];
+
+      setMonthsData(transformedData);
+    } catch (err) {
+      console.error("Error fetching trucks:", err);
+      let errorMessage = "Failed to load trucks. Please try again later.";
+      
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+            errorMessage = "Please log in to view your trucks.";
+            break;
+          case 403:
+            errorMessage = "You don't have permission to view trucks.";
+            break;
+          case 404:
+            errorMessage = "No trucks found for your account.";
+            break;
+          case 500:
+            errorMessage = "Server error. Please try again later.";
+            break;
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      }
+      
+      setError(errorMessage);
+      setMonthsData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [useSampleData]);
+
+  useEffect(() => {
+    loadTrucks();
+  }, [loadTrucks]);
+
+  if (loading) {
+    return (
+      <Center p={6}>
+        <VStack spacing={4}>
+          <Spinner size="xl" />
+          <Text color="gray.500">Loading your trucks...</Text>
+        </VStack>
+      </Center>
+    );
+  }
+
+  if (error) {
+    return (
+      <Center p={6}>
+        <Alert status="error" borderRadius="md" maxW="600px">
+          <AlertIcon />
+          <VStack align="start" spacing={2}>
+            <AlertTitle>Error loading trucks</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+            <Text fontSize="sm" color="gray.500" mt={2}>
+              If this problem persists, please contact support.
+            </Text>
+          </VStack>
+        </Alert>
+      </Center>
+    );
+  }
+
   // Sort months descending => the first item is the most recent
-  const sortedMonths = [...sampleMonthsData].sort((a, b) =>
+  const sortedMonths = [...monthsData].sort((a, b) =>
     b.month.localeCompare(a.month)
   );
 
@@ -376,42 +496,56 @@ const BuyerTrucksPage = () => {
         Your Trucks By Month
       </Heading>
 
-      <Accordion allowMultiple defaultIndex={defaultOpenIndices}>
-        {sortedMonths.map((monthObj) => {
-          // Convert "2025-03" -> "March 2025"
-          const [year, mon] = monthObj.month.split("-");
-          const date = new Date(+year, +mon - 1);
-          const monthLabel = date.toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          });
+      {sortedMonths.length === 0 ? (
+        <Center p={6}>
+          <Alert status="info" borderRadius="md" maxW="600px">
+            <AlertIcon />
+            <VStack align="start" spacing={2}>
+              <AlertTitle>No trucks found</AlertTitle>
+              <AlertDescription>
+                You don't have any trucks assigned to your account yet.
+              </AlertDescription>
+            </VStack>
+          </Alert>
+        </Center>
+      ) : (
+        <Accordion allowMultiple defaultIndex={defaultOpenIndices}>
+          {sortedMonths.map((monthObj) => {
+            // Convert "2025-03" -> "March 2025"
+            const [year, mon] = monthObj.month.split("-");
+            const date = new Date(+year, +mon - 1);
+            const monthLabel = date.toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            });
 
-          return (
-            <AccordionItem
-              key={monthObj.month}
-              mb={4}
-              border="1px solid"
-              borderColor={borderColor}
-              borderRadius="md"
-            >
-              <h2>
-                <AccordionButton px={4} py={2}>
-                  <Box flex="1" textAlign="left">
-                    <Heading size="md">{monthLabel}</Heading>
+            return (
+              <AccordionItem
+                key={monthObj.month}
+                mb={4}
+                border="1px solid"
+                borderColor={borderColor}
+                borderRadius="md"
+              >
+                <h2>
+                  <AccordionButton px={4} py={2}>
+                    <Box flex="1" textAlign="left">
+                      <Heading size="md">{monthLabel}</Heading>
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+
+                <AccordionPanel px={4} pb={4}>
+                  <Box overflowX="auto">
+                    <OrdersTable orders={monthObj.orders} />
                   </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-
-              <AccordionPanel px={4} pb={4}>
-                <Box overflowX="auto">
-                  <OrdersTable orders={monthObj.orders} />
-                </Box>
-              </AccordionPanel>
-            </AccordionItem>
-          );
-        })}
-      </Accordion>
+                </AccordionPanel>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+      )}
     </Box>
   );
 };

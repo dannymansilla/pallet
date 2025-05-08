@@ -12,8 +12,8 @@ lerna-debug.log*
 *.pot
 *.pyc
 __pycache__
-backend/palletproject/palletproject/__pycache__
-backend/palletproject/db.sqlite3
+backend/aidenproject/aidenproject/__pycache__
+backend/aidenproject/db.sqlite3
 db.sqlite3
 media
 

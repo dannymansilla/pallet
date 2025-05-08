@@ -44,6 +44,7 @@ urlpatterns = [
     path('api/orders/', include('apps.orders.urls')),
     path('api/integrations/', include('apps.integrations.urls')),
     path('api/notifications/', include('apps.notifications.urls')),
+    path('api/chat/', include('apps.chat.urls', namespace='chat')),
 ]
 
 if settings.DEBUG:

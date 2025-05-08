@@ -44,24 +44,9 @@ const Header = () => {
         About Us
       </Link>
 
-      <Link
-        as={NavLink}
-        to="/requestdemo"
-        variant="logo_accent"
-        style={({ isActive }) =>
-          isActive
-            ? {
-                background: "#3182ce",
-                color: "white",
-                borderRadius: "8px",
-                padding: "8px 12px",
-              }
-            : { color: "black", padding: "8px 12px" }
-        }
-        _hover={{ textDecoration: "underline" }}
-      >
+      <Button as={NavLink} to="/requestdemo" variant="logo_accent">
         Talk to Sales
-      </Link>
+      </Button>
 
       <Button as={NavLink} to="/login">
         Login
@@ -125,9 +110,10 @@ const Header = () => {
       top="0"
       left="0"
       width="100%"
-      zIndex="9999"
+      zIndex="999"
       bg="white"
       boxShadow="sm"
+      px={{ base: 8, md: 24 }}
     >
       <Flex
         {...containerStyles}

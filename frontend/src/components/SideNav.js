@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   VStack,
   Divider,
   Text,
   IconButton,
-  Flex
+  Flex,
+  FormControl,
+  FormLabel,
+  Switch,
+  useToast,
 } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { getSellerNetwork, getBuyerDashboard } from '../services/api';
+import { useDataMode } from '../context/DataModeContext';
 
 // Reusable function to style your links
 function linkStyle({ isActive }) {
@@ -29,21 +35,22 @@ function linkSellerStyle({ isActive }) {
     padding: '8px 12px',
     borderRadius: '8px',
     margin: '4px 0',
-    background:'transparent',
+    background: 'transparent',
     color: 'black',
     textDecoration: 'none',
   };
 }
 
-// SAMPLE DATA: old "buyer" accordion data you want to place in the new nav
-const yourSellersData = [
+// Sample data for fallback
+const sampleYourSellers = [
   { id: 'sellerA', name: 'Daily Health' },
   { id: 'sellerB', name: 'Best Snacks Co.' },
   { id: 'sellerH', name: 'Power Protein Inc.' },
   { id: 'sellerI', name: 'Alpha Foods' },
   { id: 'sellerJ', name: 'Healthy Snacks Inc.' },
 ];
-const moreSellersData = [
+
+const sampleMoreSellers = [
   { id: 'sellerC', name: 'Tasty Foods' },
   { id: 'sellerD', name: 'Organic Wholesale' },
   { id: 'sellerE', name: 'Global Gourmet' },
@@ -52,11 +59,73 @@ const moreSellersData = [
 ];
 
 export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
+  const toast = useToast();
+  const { useSampleData, toggleDataMode } = useDataMode();
+  
+  // State for data
+  const [yourSellers, setYourSellers] = useState([]);
+  const [moreSellers, setMoreSellers] = useState([]);
+
   // Expand/collapse states
   const [showBuyerSection, setShowBuyerSection] = useState(true);
   const [showSellerSection, setShowSellerSection] = useState(true);
   const [showYourSellers, setShowYourSellers] = useState(false);
   const [showMoreSellers, setShowMoreSellers] = useState(false);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!useSampleData && user?.role) {
+        try {
+          if (user.role === 'buyer') {
+            const response = await getBuyerDashboard();
+            // Transform the seller data to ensure consistent ID format
+            const transformedFavoriteSellers = (response.data?.favorite_sellers || []).map(seller => ({
+              id: seller.id.toString(),
+              name: seller.name
+            }));
+            const transformedOtherSellers = (response.data?.other_sellers || []).map(seller => ({
+              id: seller.id.toString(),
+              name: seller.name
+            }));
+            setYourSellers(transformedFavoriteSellers);
+            setMoreSellers(transformedOtherSellers);
+          } else if (user.role === 'seller') {
+            const response = await getSellerNetwork();
+            // Transform the seller data to ensure consistent ID format
+            const transformedActiveNetwork = (response.data?.active_network || []).map(seller => ({
+              id: seller.id.toString(),
+              name: seller.name
+            }));
+            const transformedPendingRequests = (response.data?.pending_requests || []).map(seller => ({
+              id: seller.id.toString(),
+              name: seller.name
+            }));
+            setYourSellers(transformedActiveNetwork);
+            setMoreSellers(transformedPendingRequests);
+          }
+        } catch (err) {
+          console.error("Failed to fetch seller data:", err);
+          // Only show error toast if there's an actual API failure
+          if (err.response?.status >= 400) {
+            toast({
+              title: "Error",
+              description: "Failed to load seller data. Please try again later.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            });
+          }
+        }
+      } else {
+        // Use sample data
+        setYourSellers(sampleYourSellers);
+        setMoreSellers(sampleMoreSellers);
+      }
+    };
+
+    fetchData();
+  }, [useSampleData, user?.role, toast, toggleDataMode]);
 
   // If user not logged in or not approved, hide entire sidebar
   if (!user || user?.organization?.approval_status !== 'approved') return null;
@@ -66,7 +135,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
   const isSeller = user.role === 'seller' || user.organization?.is_seller;
 
   // Get organization name from user context
-  const organizationName = user.organization?.name || 'Profile';
+  const organizationName = user.organization?.name || "Profile";
 
   // Adjust width if collapsed
   const sidebarWidth = isCollapsed ? '60px' : '200px';
@@ -82,7 +151,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
       bg="gray.100"
       overflowY="auto"
       overflowX="hidden"
-      zIndex={9998}
+      zIndex={998}
       transition="width 0.2s ease"
     >
       {/* Collapse Toggle */}
@@ -104,6 +173,26 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
       </Flex>
 
       <VStack align="stretch" spacing={1} p={4}>
+        {/* Data Toggle */}
+        {!isCollapsed && (
+          <FormControl display="flex" alignItems="center" mb={4}>
+            <FormLabel htmlFor="sample-data" mb="0" mr={2} fontSize="sm">
+              Sample Data
+            </FormLabel>
+            <Switch
+              id="sample-data"
+              isChecked={useSampleData}
+              onChange={(e) => {
+                toggleDataMode(e.target.checked);
+                // Clear the current sellers when switching data mode
+                setYourSellers([]);
+                setMoreSellers([]);
+              }}
+              size="sm"
+            />
+          </FormControl>
+        )}
+
         {/* If Buyer Role: Show Company Name Section */}
         {isBuyer && (
           <>
@@ -154,10 +243,10 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
             {!isCollapsed && showYourSellers && (
               <>
                 <Box pl={0}>
-                  {yourSellersData.map((seller) => (
+                  {yourSellers.map((seller) => (
                     <NavLink
                       key={seller.id}
-                      to="/sellerpage"
+                      to={`/sellerpage/${seller.id}`}
                       style={linkSellerStyle}
                     >
                       {seller.name}
@@ -185,10 +274,10 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
             {!isCollapsed && showMoreSellers && (
               <>
                 <Box pl={0}>
-                  {moreSellersData.map((seller) => (
+                  {moreSellers.map((seller) => (
                     <NavLink
                       key={seller.id}
-                      to="/sellerpage"
+                      to={`/sellerpage/${seller.id}`}
                       style={linkSellerStyle}
                     >
                       {seller.name}

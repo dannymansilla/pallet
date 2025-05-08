@@ -13,7 +13,8 @@ from .serializers import (
     SaleEventSerializer, ListingSerializer, DocumentSerializer,
     BidSerializer, BidAuditLogSerializer, OptimizationRunSerializer,
     OptimizedLoadSerializer, TruckLoadItemSerializer, SellerBuyerNetworkSerializer,
-    SellerListingSerializer, AuctionTruckSerializer, BuyerDashboardListingSerializer
+    SellerListingSerializer, AuctionTruckSerializer, BuyerDashboardListingSerializer,
+    SellerProductSerializer, SellerOpenBidSerializer,
 )
 from django.db.models import Count, Sum, F, Q, FloatField, Case, When, Value, BooleanField
 from datetime import datetime, timedelta
@@ -21,6 +22,9 @@ from django.db.models.functions import TruncMonth, ExtractYear, ExtractMonth
 from apps.inventory.models import SellerProfile, BuyerProfile
 from apps.orders.models import OrderLineItem, Order
 from apps.accounts.models import Organization
+from apps.orders.serializers import OrderSerializer
+from rest_framework import serializers
+import math
 
 # Create your views here.
 
@@ -62,25 +66,91 @@ class ListingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Listing.objects.all()
+        
         if user.role == 'seller':
-            return Listing.objects.filter(seller__organization=user.organization)
+            queryset = queryset.filter(
+                seller__organization=user.organization,
+                listing_status='active'
+            ).select_related(
+                'product',
+                'warehouse',
+                'sale_event',
+                'seller__organization'
+            ).prefetch_related(
+                'bid_set'
+            )
         elif user.role == 'buyer':
-            return Listing.objects.filter(listing_status='active')
-        return Listing.objects.all()
+            queryset = queryset.filter(listing_status='active')
+        
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.user.role == 'seller':
+            return SellerListingSerializer
+        return ListingSerializer
+
+    def create(self, request, *args, **kwargs):
+        # Check if this is a bulk create request
+        if isinstance(request.data, list):
+            serializer = self.get_serializer(data=request.data, many=True)
+        else:
+            serializer = self.get_serializer(data=request.data)
+        
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        # Validate that all listings belong to the user's organization if they're a seller
+        if self.request.user.role == 'seller':
+            # Get the seller IDs from the validated data
+            seller_ids = []
+            if isinstance(serializer.validated_data, list):
+                seller_ids = [item.get('seller').id for item in serializer.validated_data]
+            else:
+                seller_ids = [serializer.validated_data.get('seller').id]
+
+            # Check if all seller profiles belong to the user's organization
+            seller_profiles = SellerProfile.objects.filter(id__in=seller_ids)
+            for profile in seller_profiles:
+                if profile.organization != self.request.user.organization:
+                    raise serializers.ValidationError(
+                        f"Seller profile {profile.id} does not belong to your organization"
+                    )
+        serializer.save()
 
 class SellerListingsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def get(self, request):
-        # Get the current user's seller profile
-        seller_profile = request.user.organization.sellerprofile
+        # Ensure user is a seller
+        if request.user.role != 'seller':
+            return Response(
+                {"error": "Only sellers can access this endpoint"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        seller_profile, created = SellerProfile.objects.get_or_create(
+            organization=request.user.organization,
+            defaults={'seller_since': timezone.now().date()}
+        )
         
-        # Get filter parameters
         selected_month = request.query_params.get('month', '')
         selected_brand = request.query_params.get('brand', '')
         
-        # Base queryset for the seller's listings
-        queryset = Listing.objects.filter(seller=seller_profile)
+        queryset = Listing.objects.filter(
+            seller=seller_profile,
+            listing_status='active'
+        ).select_related(
+            'product',
+            'warehouse',
+            'sale_event',
+            'seller__organization'
+        ).prefetch_related(
+            'bid_set'
+        )
         
         # Filter by month if provided
         if selected_month:
@@ -94,29 +164,21 @@ class SellerListingsView(APIView):
         if selected_brand:
             queryset = queryset.filter(product__brand=selected_brand)
         
-        # Get current month for comparison
         current_date = timezone.now()
         current_month = current_date.strftime("%Y-%m")
         
-        # Annotate with bid data for calculations
+        # Annotate with bid data
         queryset = queryset.annotate(
-            # Total bid quantity for active bids
             total_bid_qty=Sum('bid__bid_quantity', filter=Q(bid__status='active')),
-            
-            # Sum of (bid_price * bid_quantity) for active bids
             sum_price_qty=Sum(
                 F('bid__bid_price') * F('bid__bid_quantity'),
                 filter=Q(bid__status='active'),
                 output_field=FloatField()
             ),
-            
-            # Volume above MSP (bids with price > reserve_price)
             volume_above_msp=Sum(
                 'bid__bid_quantity',
                 filter=Q(bid__status='active', bid__bid_price__gt=F('reserve_price'))
             ),
-            
-            # Flag for current month
             is_current_month=Case(
                 When(
                     sale_event__start_date__year=current_date.year,
@@ -128,42 +190,47 @@ class SellerListingsView(APIView):
             )
         )
         
-        # Serialize the data
         serializer = SellerListingSerializer(queryset, many=True)
-        
-        # Process the serialized data to add computed fields
         listings_data = serializer.data
         
         for listing in listings_data:
-            # Get the corresponding listing object
+            # Get the corresponding Listing instance
             listing_obj = queryset.get(id=listing['id'])
             
-            # Calculate weighted average bid price
+            # 1) Weighted average bid price
             total_bid_qty = listing_obj.total_bid_qty or 0
             sum_price_qty = listing_obj.sum_price_qty or 0
-            
             if total_bid_qty > 0:
                 weighted_avg_price = sum_price_qty / total_bid_qty
             else:
                 weighted_avg_price = 0
-                
             listing['weighted_average_bid_price_per_unit'] = round(weighted_avg_price, 2)
             
-            # Calculate volume above MSP percent
-            volume_above_msp = listing_obj.volume_above_msp or 0
-            quantity_available = listing_obj.quantity_available or 1  # Avoid division by zero
+            # 2) Convert listing_obj.quantity_available from pallets -> total units
+            #    product.units_per_case * product.cases_per_pallet
+            units_per_case = (listing_obj.product.units_per_case or 0)
+            cases_per_pallet = (listing_obj.product.cases_per_pallet or 0)
             
-            volume_above_msp_percent = (volume_above_msp / quantity_available) * 100
+            # listing_obj.quantity_available is presumably the number of pallets
+            pallet_count = listing_obj.quantity_available or 0
+            
+            actual_units_available = pallet_count * units_per_case * cases_per_pallet
+            if actual_units_available == 0:
+                actual_units_available = 1  # Prevent divide-by-zero
+            
+            # 3) volume_above_msp_percent = (units above MSP / total units) * 100
+            volume_above_msp = listing_obj.volume_above_msp or 0
+            volume_above_msp_percent = (volume_above_msp / actual_units_available) * 100
             listing['volume_above_msp_percent'] = round(volume_above_msp_percent, 2)
             
-            # Calculate recovery rate percent
-            msrp = listing_obj.product.msrp if hasattr(listing_obj.product, 'msrp') else 0
-            
-            if msrp and msrp > 0:
+            # 4) recovery rate percent = (weighted_avg_price / msrp) * 100
+            msrp = 0.0
+            if hasattr(listing_obj.product, 'msrp') and listing_obj.product.msrp:
+                msrp = float(listing_obj.product.msrp)
+            if msrp > 0:
                 recovery_rate = (weighted_avg_price / msrp) * 100
             else:
                 recovery_rate = 0
-                
             listing['recovery_rate_percent'] = round(recovery_rate, 2)
         
         return Response(listings_data)
@@ -182,13 +249,18 @@ class BidViewSet(viewsets.ModelViewSet):
         return Bid.objects.all()
 
     def perform_create(self, serializer):
-        # Create bid audit log entry
-        bid = serializer.save(buyer=self.request.user.buyerprofile)
-        BidAuditLog.objects.create(
-            bid=bid,
-            new_value=str(bid.bid_price),
-            changed_by=self.request.user
-        )
+        # Get the buyer profile for the current user's organization
+        try:
+            buyer_profile = BuyerProfile.objects.get(organization=self.request.user.organization)
+            # Create bid audit log entry
+            bid = serializer.save(buyer=buyer_profile)
+            BidAuditLog.objects.create(
+                bid=bid,
+                new_value=str(bid.bid_price),
+                changed_by=self.request.user
+            )
+        except BuyerProfile.DoesNotExist:
+            raise serializers.ValidationError("Buyer profile not found for this user's organization")
 
 class OptimizationRunViewSet(viewsets.ModelViewSet):
     queryset = OptimizationRun.objects.all()
@@ -806,25 +878,28 @@ class BuyerSearchView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def get(self, request):
-        query = request.query_params.get('q', '')
+        query = request.query_params.get('q', '').strip()  # Trim whitespace
         
         if not query:
             return Response({'results': []})
         
         # Search for buyers by organization name or email
-        organizations = Organization.objects.filter(
-            is_buyer=True,
-            name__icontains=query
-        )[:10]  # Limit results
-        
-        # Get buyer profiles for these organizations
         buyer_profiles = BuyerProfile.objects.filter(
-            organization__in=organizations
-        )
+            Q(organization__is_buyer=True) &
+            Q(organization__approval_status='approved') &
+            (Q(organization__name__icontains=query) | Q(organization__contact_email__icontains=query))
+        ).select_related('organization')
+        
+        # Log the query and results
+        print(f"Search query: {query}")
+        print(f"SQL Query: {buyer_profiles.query}")
+        print(f"Number of results: {buyer_profiles.count()}")
+        for profile in buyer_profiles:
+            print(f"Found: {profile.organization.name} ({profile.organization.contact_email})")
         
         # Format the results
         results = []
-        for profile in buyer_profiles:
+        for profile in buyer_profiles[:10]:  # Limit results after logging
             results.append({
                 'id': profile.id,
                 'name': profile.organization.name,
@@ -1048,3 +1123,166 @@ class RequestNetworkJoinView(APIView):
                 return Response({"message": "Already in network with this seller"})
         
         return Response({"message": "Network request submitted"})
+
+class SellerProductsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, seller_id):
+        try:
+            # Get the seller profile
+            seller_profile = SellerProfile.objects.get(id=seller_id)
+            
+            # Get active listings for this seller
+            listings = Listing.objects.filter(
+                seller=seller_profile,
+                listing_status='active',
+                sale_event__status='open'
+            ).select_related(
+                'product', 
+                'warehouse',
+                'sale_event'
+            ).prefetch_related('bid_set')
+            
+            # Check if buyer is in network with this seller
+            is_in_network = False
+            network_status = 'not_in_network'
+            if request.user.role == 'buyer':
+                try:
+                    buyer_profile = BuyerProfile.objects.get(organization=request.user.organization)
+                    network = SellerBuyerNetwork.objects.filter(
+                        seller=seller_profile,
+                        buyer=buyer_profile
+                    ).first()
+                    if network:
+                        is_in_network = network.status == 'active'
+                        network_status = network.status
+                except BuyerProfile.DoesNotExist:
+                    pass
+            
+            serializer = SellerProductSerializer(listings, many=True)
+            return Response({
+                'listings': serializer.data,
+                'is_in_network': is_in_network,
+                'network_status': network_status,
+                'seller_info': {
+                    'id': seller_profile.id,
+                    'name': seller_profile.organization.name,
+                    'description': seller_profile.organization.description if hasattr(seller_profile.organization, 'description') else ''
+                }
+            })
+            
+        except SellerProfile.DoesNotExist:
+            return Response(
+                {'error': 'Seller not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+class SellerOpenBidsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, seller_id):
+        try:
+            seller = SellerProfile.objects.get(id=seller_id)
+            bids = Bid.objects.filter(
+                listing__seller=seller,
+                status='active'
+            ).select_related(
+                'listing__product',
+                'buyer__organization'
+            )
+            
+            serializer = SellerOpenBidSerializer(bids, many=True)
+            return Response(serializer.data)
+        except SellerProfile.DoesNotExist:
+            return Response(
+                {"error": "Seller not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+class SellerOrderHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, seller_id):
+        try:
+            seller = SellerProfile.objects.get(id=seller_id)
+            orders = Order.objects.filter(
+                seller=seller,
+                order_status='completed'
+            ).select_related(
+                'buyer__organization',
+                'optimized_load'
+            ).prefetch_related(
+                'line_items__listing__product'
+            ).order_by('-order_date')
+            
+            serializer = OrderSerializer(orders, many=True)
+            return Response(serializer.data)
+        except SellerProfile.DoesNotExist:
+            return Response(
+                {"error": "Seller not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+class MyBidsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Ensure the user is a buyer
+        if request.user.role != 'buyer':
+            return Response(
+                {"error": "Only buyers can access this endpoint"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            # Get the buyer's profile
+            buyer_profile = BuyerProfile.objects.get(organization=request.user.organization)
+            
+            # Get all bids for this buyer with related data
+            bids = Bid.objects.filter(
+                buyer=buyer_profile
+            ).select_related(
+                'listing__product',
+                'listing__seller__organization',
+                'listing__warehouse',
+                'listing__sale_event'
+            ).order_by('-timestamp')
+
+            # Group bids by status
+            active_bids = bids.filter(status='active')
+            won_bids = bids.filter(status='accepted')
+            lost_bids = bids.filter(status__in=['rejected', 'withdrawn'])
+
+            # Transform the data to include all necessary information
+            def transform_bid(bid):
+                return {
+                    'id': bid.id,
+                    'listing': bid.listing.id,
+                    'sale_event': bid.sale_event.id,
+                    'buyer': bid.buyer.id,
+                    'bid_price': bid.bid_price,
+                    'bid_quantity': bid.bid_quantity,
+                    'status': bid.status,
+                    'timestamp': bid.timestamp,
+                    # Add listing details
+                    'listing_details': {
+                        'seller_name': bid.listing.seller.organization.name,
+                        'product_name': bid.listing.product.name,
+                        'product_brand': bid.listing.product.brand,
+                        'warehouse_name': bid.listing.warehouse.name,
+                        'product_id': bid.listing.product.id,
+                        'price_per_pallet': float(bid.bid_price) * (bid.listing.product.units_per_case * bid.listing.product.cases_per_pallet),
+                        'pallets': math.ceil(bid.bid_quantity / (bid.listing.product.units_per_case * bid.listing.product.cases_per_pallet))
+                    }
+                }
+
+            return Response({
+                'active': [transform_bid(bid) for bid in active_bids],
+                'won': [transform_bid(bid) for bid in won_bids],
+                'lost': [transform_bid(bid) for bid in lost_bids]
+            })
+        except BuyerProfile.DoesNotExist:
+            return Response(
+                {"error": "Buyer profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )

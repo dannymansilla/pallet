@@ -13,7 +13,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'sku', 'name', 'brand', 'description', 
             'length', 'width', 'height', 'weight',
             'units_per_case', 'cases_per_pallet',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at', 'msrp'
         ]
 
 class SellerProfileSerializer(serializers.ModelSerializer):

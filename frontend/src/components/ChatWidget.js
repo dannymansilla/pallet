@@ -7,177 +7,182 @@ import {
   Text,
   VStack,
   HStack,
+  Avatar,
   useColorModeValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { HiX } from "react-icons/hi";
 import Lottie from "lottie-react";
-import globeAnimation from "../assets/aiden_globe.json"; // Update path as needed
+import globeAnimation from "../assets/aiden_globe.json"; // Update path if needed
+import { sendChatMessage } from "../services/api";
 
-// 23 keyword entries
-const QA_DICT = [
-  {
-    keywords: ["bid", "place bid"],
-    answer: "To place a bid, navigate to your Auctions page and choose an item.",
-  },
-  {
-    keywords: ["inventory", "upload inventory"],
-    answer: "As a seller, you can upload inventory on your My Inventory page.",
-  },
-  {
-    keywords: ["hello", "hi", "hey", "greetings"],
-    answer: "Hey there! How can I help you today?",
-  },
-  {
-    keywords: ["payment method", "credit card", "paypal"],
-    answer:
-      "We accept various payment methods including credit cards and PayPal. Check your Account Settings for details.",
-  },
-  {
-    keywords: ["shipping", "shipment", "delivery"],
-    answer:
-      "Shipping times vary by location. Typically, items ship within 2-3 business days.",
-  },
-  {
-    keywords: ["refund", "return policy", "returns"],
-    answer:
-      "We offer a 14-day return policy on most items. Check the item page or contact support for more details.",
-  },
-  {
-    keywords: ["fees", "transaction fee", "service charge"],
-    answer:
-      "We charge a small service fee for each completed transaction. See our Fees page for the full breakdown.",
-  },
-  {
-    keywords: ["support", "help", "assist"],
-    answer:
-      "Our support team is here to help! Type your question or check our FAQ for common issues.",
-  },
-  {
-    keywords: ["auction rules", "bidding rules", "rules"],
-    answer:
-      "You can find the auction rules on our 'How It Works' page, which covers minimum bids, increments, and more.",
-  },
-  {
-    keywords: ["profile update", "change profile", "edit profile"],
-    answer:
-      "To update your profile, go to Account Settings, then click the 'Edit Profile' button.",
-  },
-  {
-    keywords: ["password reset", "forgot password"],
-    answer:
-      "Click 'Forgot Password' on the login page, and we'll send you an email to reset your password.",
-  },
-  {
-    keywords: ["notifications", "email alerts", "alerts"],
-    answer:
-      "Manage your notification settings in Account Settings under the Notifications tab.",
-  },
-  {
-    keywords: ["seller fees", "listing fees"],
-    answer:
-      "Sellers pay a small listing fee and final value fee. See Seller Fees for details.",
-  },
-  {
-    keywords: ["contact", "email", "phone number"],
-    answer:
-      "You can contact us via the Contact Us page or by emailing help@yourapp.com.",
-  },
-  {
-    keywords: ["withdraw funds", "payout", "money"],
-    answer:
-      "To withdraw funds, go to your Wallet and click 'Request Payout'. We process payouts within 2-5 days.",
-  },
-  {
-    keywords: ["recommended auctions", "hot items"],
-    answer:
-      "Check out our Trending Auctions section for items with the most views or bids!",
-  },
-  {
-    keywords: ["watchlist", "watch list", "favorites"],
-    answer:
-      "You can add items to your watchlist by clicking the 'Add to Watchlist' button on any item page.",
-  },
-  {
-    keywords: ["bulk upload", "import inventory"],
-    answer:
-      "For large catalogs, use our Bulk Upload tool under the Seller Dashboard.",
-  },
-  {
-    keywords: ["cancel bid", "remove bid", "retract bid"],
-    answer:
-      "To cancel or retract a bid, please contact support. Bids are generally final unless there's an error.",
-  },
-  {
-    keywords: ["end auction early", "close auction", "stop auction"],
-    answer:
-      "Sellers can end an auction early from the Seller Dashboard, but it may incur a fee for early closure.",
-  },
-  {
-    keywords: ["reserve price", "minimum price"],
-    answer:
-      "A reserve price is a hidden minimum. If bidding doesn't reach it, the item won't sell.",
-  },
-  {
-    keywords: ["live chat", "live assistance"],
-    answer:
-      "We offer live chat during business hours! Type your question here or schedule a call with our team.",
-  },
-  {
-    keywords: ["goodbye", "bye", "thank you"],
-    answer: "Thanks for chatting! Feel free to come back if you need anything else.",
-  },
-];
 
-// Simple helper: partial match user input to dictionary answer
-function findBotResponse(input) {
-  const lowerInput = input.toLowerCase();
-  for (let entry of QA_DICT) {
-    for (let kw of entry.keywords) {
-      if (lowerInput.includes(kw)) {
-        return entry.answer;
-      }
-    }
-  }
-  return "I'm not sure how to answer that yet, but I'll learn over time!";
+// Utility: format message timestamps as "6:30 PM"
+function formatTime(date) {
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+// Loading indicator component
+const LoadingIndicator = () => (
+  <HStack spacing={2} align="center">
+    <Spinner size="sm" color="blue.500" />
+    <Text fontSize="sm" color="gray.500">Aiden is thinking...</Text>
+  </HStack>
+);
+
+// Typing animation component
+const TypingAnimation = () => (
+  <HStack spacing={1} align="center">
+    <Box w="2" h="2" bg="gray.400" borderRadius="full" animation="bounce 1s infinite" />
+    <Box w="2" h="2" bg="gray.400" borderRadius="full" animation="bounce 1s infinite 0.2s" />
+    <Box w="2" h="2" bg="gray.400" borderRadius="full" animation="bounce 1s infinite 0.4s" />
+  </HStack>
+);
+
+// A small subcomponent to render each message bubble
+function MessageBubble({ message, userBubbleBg, userBubbleColor, botBubbleBg, botBubbleColor }) {
+  const isUser = message.role === "user";
+  // We'll align the chat bubble plus avatar: user on right, bot on left
+  return (
+    <Box alignSelf={isUser ? "flex-end" : "flex-start"} maxW="75%">
+      <HStack
+        spacing={3}
+        justifyContent={isUser ? "flex-end" : "flex-start"}
+        mb={1}
+      >
+        {/* Bot avatar on left side, user avatar on right side */}
+        {!isUser && (
+          <Box width="50px" height="50px" flexShrink={0}>
+            <Lottie
+              animationData={globeAnimation}
+              loop
+              style={{ width: "100%", height: "100%" }}
+            />
+          </Box>
+        )}
+
+        <Box
+          bg={isUser ? userBubbleBg : botBubbleBg}
+          color={isUser ? userBubbleColor : botBubbleColor}
+          px={4}
+          py={2}
+          borderRadius="xl"
+          boxShadow="md"
+          whiteSpace="pre-wrap"
+        >
+          {message.text}
+        </Box>
+
+        {isUser && (
+          <Avatar
+            name="You"
+            bg="gray.400"
+            color="white"
+            size="md"
+          />
+        )}
+      </HStack>
+
+      {/* Subtle name + time below the bubble */}
+      <HStack
+        spacing={2}
+        fontSize="xs"
+        color="gray.500"
+        justifyContent={isUser ? "flex-end" : "flex-start"}
+      >
+        <Text>{isUser ? "You" : "Aiden"}</Text>
+        <Text>·</Text>
+        <Text>{formatTime(message.time)}</Text>
+      </HStack>
+    </Box>
+  );
 }
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputVal, setInputVal] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
-  // Chakra color mode values
-  const chatBg = useColorModeValue("white", "gray.800");
-  const chatHeaderGradient = 'rgb(227, 97, 146)';
-  const chatInputBg = useColorModeValue("gray.50", "gray.700");
-  const chatBorderColor = useColorModeValue("gray.300", "gray.600");
-  const userBubbleBg = useColorModeValue("blue.50", "blue.900");
-  const botBubbleBg = useColorModeValue("gray.200", "gray.700");
-  const userTextColor = useColorModeValue("black", "white");
-  const botTextColor = useColorModeValue("black", "white");
-  const inputContainerBg = useColorModeValue("gray.100", "gray.900"); // NEW
+  // Color / style setup
+  const overlayBg = "rgba(0,0,0,0.15)";
+  const panelBg = useColorModeValue("white", "gray.700");
+  const panelRadius = "xl"; // more rounded
+  const panelShadow = "2xl";
+  const borderCol = useColorModeValue("gray.200", "gray.600");
 
+  // Bubbles
+  const userBubbleBg = useColorModeValue("blue.500", "blue.600"); 
+  const userBubbleColor = "white"; // user text color
+  const botBubbleBg = useColorModeValue("gray.100", "gray.600");
+  const botBubbleColor = useColorModeValue("black", "white");
 
-  // For auto-scroll
+  // Chat history colors
+  const historyItemBg = useColorModeValue("gray.100", "gray.600");
+  const historyItemColor = useColorModeValue("black", "white");
+  const historyItemHoverBg = useColorModeValue("gray.200", "gray.500");
+
+  // Each conversation in history: { id, title, messages: [...] }
+  const [chatHistory, setChatHistory] = useState([
+    {
+      id: 1,
+      title: "Persil Auctions info",
+      messages: [
+        {
+          id: 101,
+          role: "user",
+          text: "Hi Aiden, can you tell me about Persil auctions?",
+          time: new Date(),
+        },
+        {
+          id: 102,
+          role: "bot",
+          text: "Sure! Persil auctions start every Friday at 9am PST.",
+          time: new Date(),
+        },
+      ],
+    },
+    {
+      id: 2,
+      title: "Listing a product",
+      messages: [
+        {
+          id: 201,
+          role: "user",
+          text: "Hello, how do I list a new product?",
+          time: new Date(),
+        },
+        {
+          id: 202,
+          role: "bot",
+          text: "To list a product, click 'List Item' in your dashboard.",
+          time: new Date(),
+        },
+      ],
+    },
+  ]);
+
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  // Typewriter effect for bot messages
+  // Enhanced typewriter effect for bot messages
   const typeBotMessage = (fullText) => {
+    setIsTyping(true);
     let index = 0;
     const typingSpeed = 20; // ms per character
-
-    // Temporary ID for typed message
     const msgId = Date.now();
-    const emptyBotMsg = { id: msgId, role: "bot", text: "" };
-
-    // Add empty bot message
+    const emptyBotMsg = {
+      id: msgId,
+      role: "bot",
+      text: "",
+      time: new Date(),
+    };
     setMessages((prev) => [...prev, emptyBotMsg]);
 
     const typer = setInterval(() => {
@@ -186,37 +191,54 @@ export default function ChatWidget() {
         setMessages((prev) => {
           const lastMsg = prev[prev.length - 1];
           if (lastMsg?.id === msgId) {
-            const updated = { ...lastMsg, text: fullText.slice(0, index) };
+            const updated = {
+              ...lastMsg,
+              text: fullText.slice(0, index),
+            };
             return [...prev.slice(0, prev.length - 1), updated];
           }
           return prev;
         });
       } else {
         clearInterval(typer);
+        setIsTyping(false);
       }
     }, typingSpeed);
   };
 
-  // Send user message
-  const sendMessage = () => {
-    if (!inputVal.trim()) return;
+  // Enhanced send message function
+  const sendMessage = async () => {
+    if (!inputVal.trim() || isLoading) return;
+    
     const userMsg = {
       id: Date.now(),
       role: "user",
       text: inputVal.trim(),
+      time: new Date(),
     };
+    
     setMessages((prev) => [...prev, userMsg]);
     setInputVal("");
+    setIsLoading(true);
 
-    // Bot response
-    const botReply = findBotResponse(inputVal.trim());
-    typeBotMessage(botReply);
+    try {
+      const response = await sendChatMessage(inputVal.trim());
+      if (response && response.reply) {
+        typeBotMessage(response.reply);
+      } else {
+        typeBotMessage("I'm sorry, I couldn't process your request. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      typeBotMessage("I'm sorry, there was an error processing your request. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Toggle chat and show initial message if first open
+  // If opening for the first time, greet
   const toggleChat = () => {
     setIsOpen((prev) => {
-      // If about to open (prev === false) and no messages yet, show welcome
       if (!prev && messages.length === 0) {
         typeBotMessage("Hello, I'm Aiden! How can I assist you today?");
       }
@@ -224,9 +246,37 @@ export default function ChatWidget() {
     });
   };
 
+  // Start a new chat
+  const startNewChat = () => {
+    if (messages.length > 0) {
+      // Name the chat from first user message or a fallback
+      const firstUserMessage = messages.find((m) => m.role === "user");
+      const chatTitle =
+        firstUserMessage?.text?.slice(0, 20) ||
+        "New Chat " + new Date().toLocaleTimeString();
+
+      const newHistoryEntry = {
+        id: Date.now(),
+        title: chatTitle,
+        messages: messages,
+      };
+      setChatHistory((prev) => [...prev, newHistoryEntry]);
+    }
+
+    // Clear current chat, show welcome
+    setMessages([]);
+    typeBotMessage("Hello, I'm Aiden! How can I assist you today?");
+  };
+
+  // Load an old conversation
+  const loadChat = (historyItem) => {
+    setMessages(historyItem.messages);
+  };
+
   return (
     <Box position="fixed" bottom={8} right={16} zIndex={1000}>
-      {!isOpen ? (
+      {/* Floating open-chat button if not open */}
+      {!isOpen && (
         <IconButton
           aria-label="Open Chat"
           icon={
@@ -244,99 +294,185 @@ export default function ChatWidget() {
           _hover={{ transform: "scale(1.05)" }}
           transition="transform 0.2s"
         />
-      ) : (
+      )}
+
+      {isOpen && (
         <Box
-          width="350px"
-          height="520px"
-          bg={chatBg}
-          borderRadius="xl"
-          boxShadow="2xl"
-          border="1px solid"
-          borderColor={chatBorderColor}
-          display="flex"
-          flexDirection="column"
-          overflow="hidden"
+          position="fixed"
+          top={0}
+          left={0}
+          w="100vw"
+          h="100vh"
+          bg={overlayBg}
+          style={{ backdropFilter: "blur(6px)" }}
+          zIndex={999999}
         >
-          {/* Header */}
-          <Box
-            bg={chatHeaderGradient}
+          {/* Close button in top-right */}
+          <IconButton
+            icon={<HiX />}
+            zIndex={999999}
+            aria-label="Close Chat"
+            onClick={toggleChat}
+            position="absolute"
+            top="1rem"
+            right="1rem"
+            size="lg"
             color="white"
-            py={3}
-            px={4}
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            borderTopRadius="xl"
+            bg="black"
+            _hover={{ bg: "rgba(0,0,0,0.7)" }}
+          />
+
+          {/* LEFT BOX: 25% width, tall column */}
+          <Box
+            position="absolute"
+            top="2rem"
+            bottom="2rem"
+            left="2rem"
+            width="25%"
+            bg={panelBg}
+            borderRadius={panelRadius}
+            boxShadow={panelShadow}
+            border="1px solid"
+            borderColor={borderCol}
+            p={4}
+            overflowY="auto"
           >
-            <Text fontWeight="bold" fontSize="lg">
-              Aiden Chat
+            {/* "New Chat" */}
+            <Button
+              colorScheme="blue"
+              variant="solid"
+              bg='rgb(58, 144, 247)'
+              mb={4}
+              onClick={startNewChat}
+              width="100%"
+            >
+              + New Chat
+            </Button>
+
+            {/* Chat History */}
+            <Text fontSize="md" fontWeight="bold" mb={2} color="gray.500">
+              Past Conversations
             </Text>
-            <IconButton
-              icon={<HiX />}
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              aria-label="Close Chat"
-              onClick={toggleChat}
-              _hover={{ bg: "whiteAlpha.300" }}
+            <VStack align="stretch" spacing={2}>
+              {chatHistory.map((item) => (
+                <Box
+                  key={item.id}
+                  p={2}
+                  borderRadius="md"
+                  bg={historyItemBg}
+                  color={historyItemColor}
+                  cursor="pointer"
+                  _hover={{
+                    bg: historyItemHoverBg,
+                  }}
+                  onClick={() => loadChat(item)}
+                >
+                  {item.title}
+                </Box>
+              ))}
+            </VStack>
+          </Box>
+
+          {/* SEARCH BOX at top */}
+          <Box
+            position="absolute"
+            top="2rem"
+            left="calc(25% + 3rem)"
+            right="2rem"
+            height="64px"
+            bg={panelBg}
+            borderRadius={panelRadius}
+            boxShadow={panelShadow}
+            border="1px solid"
+            borderColor={borderCol}
+            p={4}
+            display="flex"
+            alignItems="center"
+          >
+            <Input
+              placeholder="Search..."
+              minW="100%"
+              variant="outline"
+              _placeholder={{ color: "gray.400" }}
+              borderRadius="full"
             />
           </Box>
 
-          {/* Messages Area */}
-          <VStack
-            flex={1}
-            p={3}
-            spacing={3}
-            overflowY="auto"
-            align="stretch"
-            bg={chatInputBg}
+          {/* MAIN CHAT BOX */}
+          <Box
+            position="absolute"
+            top="calc(2rem + 64px + 1rem)"
+            left="calc(25% + 3rem)"
+            right="2rem"
+            bottom="2rem"
+            bg={panelBg}
+            borderRadius={panelRadius}
+            boxShadow={panelShadow}
+            border="1px solid"
+            borderColor={borderCol}
+            p={4}
+            display="flex"
+            flexDirection="column"
           >
-            {messages.map((msg) => {
-              const isUser = msg.role === "user";
-              return (
-                <Box
-                  key={msg.id}
-                  alignSelf={isUser ? "flex-end" : "flex-start"}
-                  bg={isUser ? userBubbleBg : botBubbleBg}
-                  color={isUser ? userTextColor : botTextColor}
-                  px={4}
-                  py={2}
-                  borderRadius="xl"
-                  maxWidth="80%"
-                  whiteSpace="pre-wrap"
-                  boxShadow="md"
-                  fontSize="sm"
-                >
-                  {msg.text}
+            {/* MESSAGES */}
+            <VStack
+              flex={1}
+              spacing={4}
+              overflowY="auto"
+              align="stretch"
+              mb={3}
+              mt={2}
+            >
+              {messages.map((msg) => (
+                <MessageBubble 
+                  key={msg.id} 
+                  message={msg}
+                  userBubbleBg={userBubbleBg}
+                  userBubbleColor={userBubbleColor}
+                  botBubbleBg={botBubbleBg}
+                  botBubbleColor={botBubbleColor}
+                />
+              ))}
+              {isLoading && (
+                <Box alignSelf="flex-start" pl={4}>
+                  <LoadingIndicator />
                 </Box>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </VStack>
+              )}
+              {isTyping && (
+                <Box alignSelf="flex-start" pl={4}>
+                  <TypingAnimation />
+                </Box>
+              )}
+              <div ref={messagesEndRef} />
+            </VStack>
 
-          {/* Input Box */}
-          <HStack
-            p={3}
-            borderTop="1px solid"
-            borderColor={chatBorderColor}
-            bg={inputContainerBg} // Fixed to use top-level hook value
-          >
-            <Input
-              placeholder="Type a message..."
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  sendMessage();
-                }
-              }}
-              variant="outline"
-              _placeholder={{ color: "gray.500" }}
-            />
-            <Button colorScheme="blue" onClick={sendMessage}>
-              Send
-            </Button>
-          </HStack>
-
+            {/* INPUT at bottom */}
+            <HStack spacing={2}>
+              <Input
+                placeholder="Type a message..."
+                variant="outline"
+                borderRadius="full"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isLoading) {
+                    sendMessage();
+                  }
+                }}
+                isDisabled={isLoading}
+              />
+              <Button
+                colorScheme="blue"
+                onClick={sendMessage}
+                borderRadius="full"
+                bg='rgb(58, 144, 247)'
+                isLoading={isLoading}
+                isDisabled={isLoading || !inputVal.trim()}
+              >
+                Send
+              </Button>
+            </HStack>
+          </Box>
         </Box>
       )}
     </Box>

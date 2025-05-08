@@ -24,9 +24,14 @@ import {
   Alert,
   AlertIcon,
   Button,
+  Center,
+  VStack,
+  Icon,
 } from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
 import { useParams } from "react-router-dom";
 import { getAuctionTrucks } from "../../services/api";
+import { useDataMode } from "../../context/DataModeContext";
 
 // SAMPLE DATA for demonstration
 const sampleSellerMonthsData = [
@@ -268,11 +273,21 @@ const SellerOrdersTable = ({ orders }) => {
   );
 };
 
+const EmptyStateMessage = ({ title, description }) => (
+  <Center p={8}>
+    <VStack spacing={4}>
+      <Icon as={InfoIcon} w={8} h={8} color="gray.400" />
+      <Text fontSize="lg" fontWeight="bold">{title}</Text>
+      <Text color="gray.600" textAlign="center">{description}</Text>
+    </VStack>
+  </Center>
+);
+
 const AuctionTrucksPage = () => {
+  const { useSampleData } = useDataMode();
   const [auctionData, setAuctionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [useSampleData, setUseSampleData] = useState(true);
 
   // Hooks for styling
   const bgColor = useColorModeValue("white", "gray.800");
@@ -300,7 +315,11 @@ const AuctionTrucksPage = () => {
         });
       } else {
         const response = await getAuctionTrucks();
-        setAuctionData(response);
+        if (response?.data) {
+          setAuctionData(response.data);
+        } else {
+          setAuctionData(null);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch trucks", err);
@@ -316,31 +335,14 @@ const AuctionTrucksPage = () => {
     loadTrucks();
   }, [loadTrucks]);
 
-  // Toggle sample vs. real data
-  const handleToggleChange = () => {
-    setUseSampleData(!useSampleData);
-  };
-
   // ----------------------
   // Render
   // ----------------------
   return (
     <Box bg={bgColor} p={6} minH="100vh">
-      {/* Header with summary and toggle */}
+      {/* Header with summary */}
       <Flex direction="column" mb={6}>
-        <Flex justify="space-between" alignItems="center" mb={4}>
-          <Heading size="lg">Trucks by Month (Seller View)</Heading>
-          <FormControl display="flex" alignItems="center" w="auto">
-            <FormLabel htmlFor="sample-data" mb="0" mr={2}>
-              Use Sample Data
-            </FormLabel>
-            <Switch
-              id="sample-data"
-              isChecked={useSampleData}
-              onChange={handleToggleChange}
-            />
-          </FormControl>
-        </Flex>
+        <Heading size="lg" mb={4}>Trucks by Month (Seller View)</Heading>
 
         {/* Auction Summary */}
         {auctionData?.auction_summary && (
@@ -389,9 +391,12 @@ const AuctionTrucksPage = () => {
         </Box>
       )}
 
-      {/* No Data State */}
-      {!loading && !error && !auctionData && (
-        <Text p={6}>No truck data available</Text>
+      {/* Empty State */}
+      {!loading && !error && !auctionData && !useSampleData && (
+        <EmptyStateMessage
+          title="No Truck Data Available"
+          description="Your truck data will appear here once you have active auctions and orders."
+        />
       )}
 
       {/* Main Content */}

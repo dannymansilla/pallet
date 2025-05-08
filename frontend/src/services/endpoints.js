@@ -15,6 +15,7 @@ const endpoints = {
   
   // Registration endpoint
   companyRegister: `${BASE_URL}/accounts/register/`,
+  chat: `${BASE_URL}/chat/chat/`,
 };
 
 export default endpoints;

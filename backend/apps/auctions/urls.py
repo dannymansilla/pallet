@@ -8,7 +8,9 @@ from .views import (
     ActiveAuctionsView, CurrentBidsView, AuctionPerformanceView,
     monthly_stats, get_seller_dashboard_tables, SellerListingsView,
     SellerNetworkView, BuyerSearchView, BulkUploadBuyersView,
-    AuctionTruckView, BuyerDashboardView, RequestNetworkJoinView
+    AuctionTruckView, BuyerDashboardView, RequestNetworkJoinView,
+    SellerOpenBidsView, SellerOrderHistoryView, SellerProductsView,
+    MyBidsView
 )
 
 app_name = 'auctions'
@@ -41,4 +43,8 @@ urlpatterns = [
     path('auctions/<int:auction_id>/trucks/', AuctionTruckView.as_view(), name='auction-trucks'),
     path('buyer/dashboard/', BuyerDashboardView.as_view(), name='buyer-dashboard'),
     path('buyer/request-network-join/', RequestNetworkJoinView.as_view(), name='request-network-join'),
+    path('seller/<int:seller_id>/products/', SellerProductsView.as_view(), name='seller-products'),
+    path('seller/<int:seller_id>/bids/', SellerOpenBidsView.as_view(), name='seller-open-bids'),
+    path('seller/<int:seller_id>/orders/', SellerOrderHistoryView.as_view(), name='seller-order-history'),
+    path('my-bids/', MyBidsView.as_view(), name='my-bids'),
 ] 
