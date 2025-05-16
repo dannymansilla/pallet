@@ -116,19 +116,75 @@ const SellerPage = () => {
     {
       id: "L-001",
       product_name: "Protein Bar - Chocolate",
-      product_description: "High-protein chocolate bar.",
+      product_description: "High-protein chocolate bar made with organic whey and no added sugar.",
       product_brand: "PowerProtein",
       warehouse_name: "Warehouse A",
       quantity_available: 1000,
       reserve_price: 1.50,
-      end_date: "2025-04-10T23:59:59Z",
+      end_date: "2025-05-25T23:59:59Z",
       current_highest_bid: {
         price: 1.75,
         quantity: 500
       }
     },
-    // ... more sample products
+    {
+      id: "L-002",
+      product_name: "Vegan Trail Mix",
+      product_description: "Gluten-free mix of nuts, seeds, and dried fruit. Perfect for snacking.",
+      product_brand: "Daily Health Snacks",
+      warehouse_name: "Warehouse A",
+      quantity_available: 800,
+      reserve_price: 2.20,
+      end_date: "2025-05-28T23:59:59Z",
+      current_highest_bid: {
+        price: 2.40,
+        quantity: 600
+      }
+    },
+    {
+      id: "L-003",
+      product_name: "Coconut Water Electrolyte Drink",
+      product_description: "Hydrating beverage with natural electrolytes and no added sugar.",
+      product_brand: "HydraLife",
+      warehouse_name: "Warehouse B",
+      quantity_available: 1200,
+      reserve_price: 1.10,
+      end_date: "2025-05-30T23:59:59Z",
+      current_highest_bid: {
+        price: 1.20,
+        quantity: 400
+      }
+    },
+    {
+      id: "L-004",
+      product_name: "Organic Granola Clusters",
+      product_description: "Whole grain oats with honey and chia seeds in snackable clusters.",
+      product_brand: "Daily Health Pantry",
+      warehouse_name: "Warehouse B",
+      quantity_available: 900,
+      reserve_price: 3.00,
+      end_date: "2025-05-27T23:59:59Z",
+      current_highest_bid: {
+        price: 3.25,
+        quantity: 750
+      }
+    },
+    {
+      id: "L-005",
+      product_name: "Herbal Disinfectant Wipes",
+      product_description: "Plant-based surface wipes with essential oils. Alcohol-free.",
+      product_brand: "EcoClean Home",
+      warehouse_name: "Warehouse C",
+      quantity_available: 1500,
+      reserve_price: 2.50,
+      end_date: "2025-05-29T23:59:59Z",
+      current_highest_bid: {
+        price: 2.70,
+        quantity: 1000
+      }
+    }
   ], []);
+  
 
   const sampleBids = [
     {
@@ -136,7 +192,7 @@ const SellerPage = () => {
       listing_id: "L-001",
       product_name: "Protein Bar - Chocolate",
       bid_price: 1.75,
-      bid_quantity: 500,
+      bid_quantity: 400,
       timestamp: "2025-03-28T14:30:00Z"
     },
     // ... more sample bids
@@ -269,9 +325,9 @@ const SellerPage = () => {
                   <Badge colorScheme="blue">{prod.product_brand}</Badge>
                   <Badge colorScheme="purple">{prod.warehouse_name}</Badge>
                 </HStack>
-                <Text fontSize="sm" fontWeight="bold">
+                {/* <Text fontSize="sm" fontWeight="bold">
                   Reserve Price: ${prod.reserve_price}
-                </Text>
+                </Text> */}
                 <Text fontSize="sm">
                   Available: {prod.quantity_available} units
                 </Text>
@@ -304,7 +360,11 @@ const SellerPage = () => {
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="md">Your Open Bids</Heading>
       </Flex>
-      <OpenBidsTable sellerId={sellerId} useSampleData={useSampleData} />
+      <OpenBidsTable 
+        sellerId={sellerId} 
+        useSampleData={useSampleData} 
+        bids={sellerData?.bids || []}
+      />
     </Box>
   );
 

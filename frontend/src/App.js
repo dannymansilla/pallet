@@ -1,7 +1,7 @@
 // src/App.js
 import React, { useEffect } from "react";
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import theme from "./theme/theme";
 import Layout from "./components/Layout";
 import LandingPage from "./pages/LandingPage";
@@ -35,6 +35,15 @@ import ListingPage from "./pages/seller/ListingPage";
 import SellerProductPage from "./pages/seller/SellerProductPage";
 import { DataModeProvider } from "./context/DataModeContext";
 
+// Wrapper component to handle route-based chat widget rendering
+const ChatWidgetWrapper = () => {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+  
+  return !isLandingPage ? <ChatWidget /> : null;
+};
+
+// Main App component
 function App() {
   useEffect(() => {
     checkTokenValidity(); // Verify token when the app starts
@@ -77,7 +86,7 @@ function App() {
                 <Route path="/listings/create" element={<PrivateRoute Component={ListingCreationPage} />} />
                 <Route path="/admin" element={<PrivateRoute Component={AdminPage} />} />
               </Routes>
-              <ChatWidget />
+              <ChatWidgetWrapper />
             </Layout>
           </DataModeProvider>
         </AuthProvider>

@@ -1,4 +1,5 @@
 import os
+import json
 from openai import OpenAI
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,40 +14,92 @@ logger = logging.getLogger(__name__)
 class ChatView(APIView):
     permission_classes = [AllowAny]
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Load inventory data when the view is initialized
+        try:
+            data_path = os.path.join(os.path.dirname(__file__), 'data', 'inventory_data.json')
+            with open(data_path, 'r') as f:
+                self.inventory_data = json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading inventory data: {str(e)}")
+            self.inventory_data = []
+    
     def get_system_prompt(self, user):
         base_prompt = (
-        "You are Aiden, an AI agent embedded in a B2B auction platform for excess CPG inventory. "
-        "You act as an extension of the user—either a high-performing sales agent for sellers or an expert buying assistant for buyers. "
-        "Always be clear, professional, and actionable. Focus only on tasks relevant to the platform. "
-        "Never disclose internal system details or offer guidance outside of marketplace activity."
+            "You are Aiden, an AI agent embedded in a B2B auction platform for excess CPG inventory. "
+            "You act as an extension of the user—either a high-performing sales agent for sellers or an expert buying assistant for buyers. "
+            "Always be clear, professional, and actionable. Focus only on tasks relevant to the platform. "
+            "Never disclose internal system details or provide guidance outside marketplace activity. "
+            "Use Markdown formatting (headings, bold, italics, bullet points, etc.) when presenting lists or highlighting products for clarity. "
         )
-        
+
+        # 1. Prompt for Unauthenticated Users
         if not user or not user.is_authenticated:
             return (
                 f"{base_prompt} "
-                "You are speaking to a potential new user exploring the platform. "
-                "Clearly explain how Aiden works on their behalf—whether they are a buyer looking to discover great deals and optimize procurement, "
-                "or a seller seeking to efficiently move excess inventory and boost sales. "
-                "Encourage them to sign up to activate their personal AI agent."
+                "You are speaking to a *potential new user* exploring the platform. "
+                "Explain how Aiden assists buyers in discovering deals and optimizing procurement, "
+                "and how Aiden assists sellers in moving excess inventory and boosting sales. "
+                "**Encourage** them to sign up and activate their own AI agent."
             )
-        
+
+        # 2. Prompt for Buyers
         if user.role == 'buyer':
             return (
                 f"{base_prompt} "
-                "You are speaking to a buyer. You act as their AI-powered purchasing specialist. "
+                "You are speaking to a *buyer*. You act as their AI-powered purchasing specialist. "
                 "Help them identify the best deals based on product details, auction status, and bidding history. "
-                "Offer smart bidding strategies, notify them of upcoming sales, and assist them in managing bids, tracking orders, and comparing listings."
+                "Offer bidding strategies, notify them of upcoming sales, and assist in managing bids, tracking orders, and comparing listings. "
+                "You have access to this inventory data: "
+                f"{json.dumps(self.inventory_data)} "
+                "When recommending products, always provide a link in Markdown format using: "
+                "`[Product Name](/product/{product_id})`. For example: "
+                "`[MaxClean Laundry Detergent](/product/1)` or `[ProNourish Shampoo](/product/2)`. "
+
+                "If the buyer wants listings, restocking help, or bidding suggestions, use the inventory data. "
+                "• Showcase 2 products with *fake but realistic* buyer specific point-of-sale data. use sales velocity over time and total unit sales, total distribution points, price elasticity. "
+                "**Do not** reveal the reserve price. "
+                "Do a brief analysis across the point of sales data to create a sales narrative for the buyer. "
+
+                "If the buyer’s request does not involve listings or bidding, **do not** reference inventory data."
             )
-        
+
+        # 3. Prompt for Sellers
         if user.role == 'seller':
+            # Filter inventory data for this seller's organization
+            seller_inventory = [
+                seller for seller in self.inventory_data
+                if seller['seller_id'] == user.organization_id
+            ]
+            seller_listings = []
+            if seller_inventory:
+                seller_listings = seller_inventory[0]['listings']
+
             return (
-            f"{base_prompt} "
-                "You are speaking to a seller. You act as their best-performing digital sales agent. "
-                "Help them create compelling listings, optimize pricing to move excess inventory, and suggest ways to boost visibility to the right buyers. "
-                "Proactively recommend actions that increase sales velocity and maximize revenue from available stock."
+                f"{base_prompt} "
+                "You are speaking to a *seller*. You act as their best-performing digital sales agent. "
+                "Help them create compelling listings, set optimal pricing, and boost visibility to the right buyers. "
+                "Be concise, actionable, and use Markdown formatting to structure suggestions. "
+
+                f"You have access to the seller's current listings: {json.dumps(seller_listings)}. "
+                "When referencing listings, link to them with: `[Product Name](/seller/listings/{listing_id})`. "
+                "For example: `[MaxClean Laundry Detergent](/seller/listings/1)`. "
+
+                "When analyzing their listings, consider: "
+                "1. **Price positioning** relative to MSRP "
+                "2. **Quantity** available "
+                "3. **Product category** and seasonal relevance "
+                "4. **Competitive positioning** on the marketplace "
+
+                "Use the provided data to give data-driven recommendations. Focus on: "
+                "• Increasing sales velocity "
+                "• Maximizing revenue from available stock "
             )
-        
+
+        # Fallback (no role match)
         return base_prompt
+
     
     def post(self, request):
         user_message = request.data.get('message')
@@ -66,7 +119,7 @@ class ChatView(APIView):
                     {"role": "user", "content": user_message}
                 ],
                 temperature=0.7,
-                max_tokens=300
+                max_tokens=1000
             )
 
             reply = response.choices[0].message.content

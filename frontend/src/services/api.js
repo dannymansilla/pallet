@@ -364,8 +364,9 @@ export const placeBid = (bidData) => {
   });
 };
 
+// Fetch bids for a specific listing
 export const getListingBids = (listingId) => {
-  return API.get(`/listings/${listingId}/bids/`);
+  return API.get(`/auctions/bids/?listing=${listingId}`);
 };
 
 export const fetchMyBids = async () => {

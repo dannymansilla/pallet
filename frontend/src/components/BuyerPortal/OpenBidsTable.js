@@ -34,48 +34,34 @@ import { useDataMode } from "../../context/DataModeContext";
 const sampleOpenBids = [
   {
     warehouseId: "W1",
-    warehouseName: "Warehouse A",
+    warehouseName: "All Bids",
     bids: [
       {
-        productId: "P-001",
-        productName: "Protein Bar - Chocolate",
-        brand: "Healthy Foods",
-        imageUrl: "/images/placeholder.png",
-        pricePerPallet: 2000,
+        id: "B-001",
+        product_brand: "Healthy Foods",
+        product_name: "Protein Bar - Chocolate",
+        bid_price: 2000,
+        bid_quantity: 500,
         pallets: 5,
+        units_per_pallet: 100,
+        buyer_name: "Buyer Company A",
+        timestamp: "2024-03-21T12:00:00Z",
+        timestamp_formatted: "Mar 21, 2024"
       },
       {
-        productId: "P-002",
-        productName: "Energy Drink - Citrus",
-        brand: "Power Drinks",
-        imageUrl: "/images/placeholder.png",
-        pricePerPallet: 1800,
+        id: "B-002",
+        product_brand: "Power Drinks",
+        product_name: "Energy Drink - Citrus",
+        bid_price: 1800,
+        bid_quantity: 300,
         pallets: 3,
-      },
-    ],
-  },
-  {
-    warehouseId: "W2",
-    warehouseName: "Warehouse B",
-    bids: [
-      {
-        productId: "P-004",
-        productName: "Whey Isolate",
-        brand: "Muscle Co.",
-        imageUrl: "/images/placeholder.png",
-        pricePerPallet: 2200,
-        pallets: 2,
-      },
-      {
-        productId: "P-005",
-        productName: "Casein Protein",
-        brand: "FitnessFuel",
-        imageUrl: "/images/placeholder.png",
-        pricePerPallet: 1500,
-        pallets: 10,
-      },
-    ],
-  },
+        units_per_pallet: 100,
+        buyer_name: "Buyer Company B",
+        timestamp: "2024-03-21T11:30:00Z",
+        timestamp_formatted: "Mar 21, 2024"
+      }
+    ]
+  }
 ];
 
 /**
@@ -231,70 +217,20 @@ const WarehouseBidsTable = ({ bids }) => {
   );
 };
 
-const OpenBidsTable = ({ sellerId }) => {
-  const { useSampleData } = useDataMode();
+const OpenBidsTable = ({ sellerId, useSampleData, bids: propBids }) => {
+  const navigate = useNavigate();
+  const { useSampleData: globalUseSampleData } = useDataMode();
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Sample data for development
-  const sampleOpenBids = useMemo(() => [
-    {
-      warehouseId: "W1",
-      warehouseName: "Warehouse A",
-      bids: [
-        {
-          id: 1,
-          product_name: "Protein Bar - Chocolate",
-          product_brand: "Healthy Foods",
-          bid_price: 2000,
-          bid_quantity: 5,
-          buyer_name: "Discount Mart",
-          timestamp_formatted: "2024-03-15 14:30",
-        },
-        {
-          id: 2,
-          product_name: "Energy Drink - Citrus",
-          product_brand: "Power Drinks",
-          bid_price: 1800,
-          bid_quantity: 3,
-          buyer_name: "Smart Deals",
-          timestamp_formatted: "2024-03-15 15:45",
-        },
-      ],
-    },
-    {
-      warehouseId: "W2",
-      warehouseName: "Warehouse B",
-      bids: [
-        {
-          id: 3,
-          product_name: "Whey Isolate",
-          product_brand: "Muscle Co.",
-          bid_price: 2200,
-          bid_quantity: 2,
-          buyer_name: "Discount Mart",
-          timestamp_formatted: "2024-03-15 16:30",
-        },
-        {
-          id: 4,
-          product_name: "Casein Protein",
-          product_brand: "FitnessFuel",
-          bid_price: 1500,
-          bid_quantity: 10,
-          buyer_name: "Smart Deals",
-          timestamp_formatted: "2024-03-15 17:15",
-        },
-      ],
-    },
-  ], []);
 
   // Column definitions
   const columns = [
     { key: "product_brand", label: "Brand", isNumeric: false },
     { key: "product_name", label: "Product Name", isNumeric: false },
     { key: "bid_price", label: "Bid Price", isNumeric: true },
-    { key: "bid_quantity", label: "Quantity", isNumeric: true },
+    { key: "bid_quantity", label: "Units", isNumeric: true },
+    { key: "pallets", label: "Pallets", isNumeric: true },
     { key: "buyer_name", label: "Buyer", isNumeric: false },
     { key: "timestamp_formatted", label: "Date", isNumeric: false },
   ];
@@ -308,34 +244,29 @@ const OpenBidsTable = ({ sellerId }) => {
 
   useEffect(() => {
     const fetchBids = async () => {
-      if (!useSampleData) {
+      if (!globalUseSampleData) {
         try {
           setLoading(true);
-          const response = await getSellerOpenBids(sellerId);
-          
-          // Handle empty or invalid response
-          if (!response?.data) {
-            setBids([]);
-            return;
+          // If we have bids passed as props, use those
+          if (propBids && propBids.length > 0) {
+            console.log('Using prop bids:', propBids); // Debug log
+            setBids([{
+              warehouseId: "W1",
+              warehouseName: "All Bids",
+              bids: propBids
+            }]);
+          } else {
+            const response = await getSellerOpenBids(sellerId);
+            if (!response?.data) {
+              setBids([]);
+              return;
+            }
+            setBids([{
+              warehouseId: "W1",
+              warehouseName: "All Bids",
+              bids: response.data
+            }]);
           }
-
-          // Transform API response to match our warehouse structure
-          const transformedBids = Array.isArray(response.data) 
-            ? response.data.reduce((acc, bid) => {
-                const warehouseId = bid.warehouse_id || "W1";
-                const warehouseName = bid.warehouse_name || "Warehouse A";
-                
-                let warehouse = acc.find(w => w.warehouseId === warehouseId);
-                if (!warehouse) {
-                  warehouse = { warehouseId, warehouseName, bids: [] };
-                  acc.push(warehouse);
-                }
-                warehouse.bids.push(bid);
-                return acc;
-              }, [])
-            : [];
-
-          setBids(transformedBids);
         } catch (err) {
           console.error("Error fetching bids:", err);
           setError("Failed to load bids. Please try again later.");
@@ -349,7 +280,7 @@ const OpenBidsTable = ({ sellerId }) => {
     };
 
     fetchBids();
-  }, [sellerId, useSampleData, sampleOpenBids]);
+  }, [sellerId, globalUseSampleData, propBids]);
 
   // Filter function
   const filterRows = (rows) => {
@@ -403,6 +334,13 @@ const OpenBidsTable = ({ sellerId }) => {
     }
   };
 
+  // Add handleRowClick function
+  const handleRowClick = (bid) => {
+    if (bid.listing_id) {
+      navigate(`/product/${bid.listing_id}`);
+    }
+  };
+
   // Color mode values
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const bgColor = useColorModeValue("white", "gray.800");
@@ -426,6 +364,7 @@ const OpenBidsTable = ({ sellerId }) => {
   }
 
   if (!bids.length) {
+    console.log('No bids to display. Current bids state:', bids); // Debug log
     return (
       <Center p={6}>
         <VStack spacing={4}>
@@ -493,11 +432,16 @@ const OpenBidsTable = ({ sellerId }) => {
                   </Thead>
                   <Tbody>
                     {processedWarehouse.bids.map((bid) => (
-                      <Tr key={bid.id} _hover={{ bg: hoverColor }}>
+                      <Tr 
+                        key={bid.id} 
+                        _hover={{ bg: hoverColor, cursor: 'pointer' }}
+                        onClick={() => handleRowClick(bid)}
+                      >
                         <Td>{bid.product_brand}</Td>
                         <Td>{bid.product_name}</Td>
                         <Td isNumeric>${bid.bid_price.toLocaleString()}</Td>
-                        <Td isNumeric>{bid.bid_quantity}</Td>
+                        <Td isNumeric>{bid.bid_quantity.toLocaleString()}</Td>
+                        <Td isNumeric>{bid.pallets.toLocaleString()}</Td>
                         <Td>{bid.buyer_name}</Td>
                         <Td>{bid.timestamp_formatted}</Td>
                       </Tr>

@@ -32,56 +32,70 @@ import { useDataMode } from "../../context/DataModeContext";
 import { fetchMyBids } from "../../services/api";
 
 // SAMPLE DATA: Replace with real data from your backend or state
-const sampleMyBids = [
-  {
-    month: "2025-03",
-    isCurrentMonth: true,
-    bids: [
-      {
-        seller: "Henkel",
-        brand: "Persil",
-        warehouse: "Warehouse X",
-        productName: "Persil Detergent",
-        pricePerPallet: 2500,
-        pallets: 3,
-        status: "Open",
-      },
-      {
-        seller: "P&G",
-        brand: "Tide",
-        warehouse: "Warehouse B",
-        productName: "Tide Liquid",
-        pricePerPallet: 2000,
-        pallets: 2,
-        status: "Open",
-      },
-    ],
-  },
-  {
-    month: "2025-02",
-    isCurrentMonth: false,
-    bids: [
-      {
-        seller: "Unilever",
-        brand: "Dove",
-        warehouse: "Warehouse Y",
-        productName: "Dove Soap - 24 Pack",
-        pricePerPallet: 1800,
-        pallets: 5,
-        status: "Won",
-      },
-      {
-        seller: "P&G",
-        brand: "Tide",
-        warehouse: "Warehouse A",
-        productName: "Tide Pods",
-        pricePerPallet: 2200,
-        pallets: 2,
-        status: "Lost",
-      },
-    ],
-  },
-];
+const sampleMyBids = {
+  "active": [
+    {
+      "id": 101,
+      "listing": 201,
+      "sale_event": 9,
+      "buyer": 42,
+      "bid_price": 7.00,
+      "bid_quantity": 4800,
+      "status": "active",
+      "timestamp": "2025-05-16T12:01:33.000000Z",
+      "listing_details": {
+        "seller_name": "Daily Health",
+        "product_name": "Protein Bar - Chocolate",
+        "product_brand": "PowerProtein",
+        "warehouse_name": "Main Warehouse",
+        "product_id": "L-001",
+        "price_per_pallet": 2500,
+        "pallets": 4
+      }
+    },
+    {
+      "id": 102,
+      "listing": 202,
+      "sale_event": 9,
+      "buyer": 42,
+      "bid_price": 22.00,
+      "bid_quantity": 3600,
+      "status": "active",
+      "timestamp": "2025-05-16T12:03:55.000000Z",
+      "listing_details": {
+        "seller_name": "Daily Health",
+        "product_name": "Vegan Trail Mix",
+        "product_brand": "Daily Health Snacks",
+        "warehouse_name": "Main Warehouse",
+        "product_id": "L-002",
+        "price_per_pallet": 3200,
+        "pallets": 3
+      }
+    },
+    {
+      "id": 103,
+      "listing": 203,
+      "sale_event": 9,
+      "buyer": 42,
+      "bid_price": 3.25,
+      "bid_quantity": 4200,
+      "status": "active",
+      "timestamp": "2025-05-16T12:05:20.000000Z",
+      "listing_details": {
+        "seller_name": "Daily Health",
+        "product_name": "Coconut Water Electrolyte Drink",
+        "product_brand": "HydraLife",
+        "warehouse_name": "Main Warehouse",
+        "product_id": "L-003",
+        "price_per_pallet": 2100,
+        "pallets": 3
+      }
+    }
+  ],
+  "won": [],
+  "lost": []
+}
+
 
 const MyBidsTable = ({ bids }) => {
   const navigate = useNavigate();
@@ -238,8 +252,25 @@ const MyBidsPage = () => {
   useEffect(() => {
     const fetchBids = async () => {
       if (useSampleData) {
-        // SAMPLE DATA
-        setBids(sampleMyBids);
+        // Transform sample data into the expected format
+        const currentMonth = new Date().toISOString().slice(0, 7); // e.g. "2025-05"
+        const transformedBids = [
+          {
+            month: currentMonth,
+            isCurrentMonth: true,
+            bids: sampleMyBids.active.map(bid => ({
+              seller: bid.listing_details.seller_name,
+              brand: bid.listing_details.product_brand,
+              warehouse: bid.listing_details.warehouse_name,
+              productName: bid.listing_details.product_name,
+              pricePerPallet: bid.listing_details.price_per_pallet,
+              pallets: bid.listing_details.pallets,
+              status: "Open",
+              productId: bid.listing_details.product_id
+            }))
+          }
+        ];
+        setBids(transformedBids);
         setLoading(false);
         return;
       }

@@ -34,52 +34,166 @@ import { useDataMode } from "../context/DataModeContext";
 import cardboardbox from "../images/cardboardbox.png";
 import { getListingDetails, getProductDetails, getWarehouseDetails, placeBid } from "../services/api";
 
-const sampleProduct = {
-  id: "P-001",
-  photoUrl: "/images/placeholder.png",
-  brand: "Healthy Foods Inc.",
-  name: "Protein Bar - Chocolate",
-  description: "High-protein chocolate bar, perfect for active lifestyles.",
-  msrpPerPallet: 2500,
-  warehouseLocation: "Warehouse A (W1)",
-  expirationDate: "2025-11-01",
-  sellByDate: "2025-10-15",
-  upc: "123456789012",
-  batchNumber: "BN-5678",
-  dateOfManufacture: "2024-12-01",
-  salesUnit: "Case (12 bars)",
-  ingredients: ["Whey Protein", "Cocoa", "Sugar", "Natural Flavors"],
-  shelfLife: "12 Months",
-  stopShipDate: "2025-10-25",
-  consumableUnitsPerPallet: 4800,
-  palletSpecs: {
-    length: "48 in",
-    width: "40 in",
-    height: "60 in",
-    weight: "400 lbs",
-    stackable: true,
+const sampleProduct = [
+  {
+    id: "P-001",
+    sku: "DHL-001",
+    name: "Protein Bar - Chocolate",
+    brand: "PowerProtein",
+    description: "High-protein chocolate bar made with organic whey and no added sugar.",
+    length: "9.60",
+    width: "8.00",
+    height: "12.00",
+    weight: "80.00",
+    units_per_case: 12,
+    cases_per_pallet: 400,
+    created_at: "2025-05-16T00:00:00Z",
+    updated_at: "2025-05-16T00:00:00Z",
+    msrp: "6.25"
   },
-};
+  {
+    id: "P-002",
+    sku: "DHL-002",
+    name: "Vegan Trail Mix",
+    brand: "Daily Health Snacks",
+    description: "Gluten-free mix of nuts, seeds, and dried fruit. Perfect for snacking.",
+    length: "9.60",
+    width: "8.00",
+    height: "11.60",
+    weight: "84.00",
+    units_per_case: 24,
+    cases_per_pallet: 150,
+    created_at: "2025-05-16T00:00:00Z",
+    updated_at: "2025-05-16T00:00:00Z",
+    msrp: "21.33"
+  },
+  {
+    id: "P-003",
+    sku: "DHL-003",
+    name: "Coconut Water Electrolyte Drink",
+    brand: "HydraLife",
+    description: "Hydrating beverage with natural electrolytes and no added sugar.",
+    length: "9.60",
+    width: "8.00",
+    height: "11.00",
+    weight: "76.00",
+    units_per_case: 6,
+    cases_per_pallet: 700,
+    created_at: "2025-05-16T00:00:00Z",
+    updated_at: "2025-05-16T00:00:00Z",
+    msrp: "3.00"
+  },
+  {
+    id: "P-004",
+    sku: "DHL-004",
+    name: "Organic Granola Clusters",
+    brand: "Daily Health Pantry",
+    description: "Whole grain oats with honey and chia seeds in snackable clusters.",
+    length: "9.60",
+    width: "8.00",
+    height: "12.00",
+    weight: "82.00",
+    units_per_case: 10,
+    cases_per_pallet: 390,
+    created_at: "2025-05-16T00:00:00Z",
+    updated_at: "2025-05-16T00:00:00Z",
+    msrp: "7.05"
+  },
+  {
+    id: "P-005",
+    sku: "DHL-005",
+    name: "Herbal Disinfectant Wipes",
+    brand: "EcoClean Home",
+    description: "Plant-based surface wipes with essential oils. Alcohol-free.",
+    length: "9.60",
+    width: "8.00",
+    height: "12.00",
+    weight: "86.00",
+    units_per_case: 20,
+    cases_per_pallet: 155,
+    created_at: "2025-05-16T00:00:00Z",
+    updated_at: "2025-05-16T00:00:00Z",
+    msrp: "21.94"
+  }
+];
 
-const sampleListing = {
-  id: "L-001",
-  product: "P-001",
-  quantity_available: 1000,
-  reserve_price: 15.99,
-  end_date: "2025-04-15",
-  seller_name: "Daily Health",
-  seller_id: 1,
-  network_status: "active",
-  warehouse: "W-001",
-  warehouse_name: "Main Warehouse",
-  warehouse_address: "123 Storage Lane, Chicago, IL 60601",
-};
+
+
+const sampleListing = [
+  {
+    id: "L-001",
+    product: "P-001",
+    quantity_available: 1000,
+    reserve_price: 15.99,
+    end_date: "2025-05-25",
+    seller_name: "Daily Health",
+    seller_id: 1,
+    network_status: "active",
+    warehouse: "W-001",
+    warehouse_name: "Main Warehouse",
+    warehouse_address: "123 Storage Lane, Chicago, IL 60601",
+  },
+  {
+    id: "L-002",
+    product: "P-002",
+    quantity_available: 800,
+    reserve_price: 18.49,
+    end_date: "2025-05-28",
+    seller_name: "Daily Health",
+    seller_id: 1,
+    network_status: "active",
+    warehouse: "W-001",
+    warehouse_name: "Main Warehouse",
+    warehouse_address: "123 Storage Lane, Chicago, IL 60601",
+  },
+  {
+    id: "L-003",
+    product: "P-003",
+    quantity_available: 1200,
+    reserve_price: 13.20,
+    end_date: "2025-05-30",
+    seller_name: "Daily Health",
+    seller_id: 1,
+    network_status: "active",
+    warehouse: "W-001",
+    warehouse_name: "Main Warehouse",
+    warehouse_address: "123 Storage Lane, Chicago, IL 60601",
+  },
+  {
+    id: "L-004",
+    product: "P-004",
+    quantity_available: 900,
+    reserve_price: 17.00,
+    end_date: "2025-05-27",
+    seller_name: "Daily Health",
+    seller_id: 1,
+    network_status: "active",
+    warehouse: "W-001",
+    warehouse_name: "Main Warehouse",
+    warehouse_address: "123 Storage Lane, Chicago, IL 60601",
+  },
+  {
+    id: "L-005",
+    product: "P-005",
+    quantity_available: 1500,
+    reserve_price: 21.00,
+    end_date: "2025-05-29",
+    seller_name: "Daily Health",
+    seller_id: 1,
+    network_status: "active",
+    warehouse: "W-001",
+    warehouse_name: "Main Warehouse",
+    warehouse_address: "123 Storage Lane, Chicago, IL 60601",
+  },
+];
+
 
 const sampleWarehouse = {
   id: "W-001",
   name: "Main Warehouse",
   address: "123 Storage Lane, Chicago, IL 60601",
   status: "active",
+  capacity: 100000
 };
 
 const recommendedProducts = [
@@ -142,8 +256,19 @@ const ProductDetailPage = () => {
         setLoading(true);
         setError(null);
         if (useSampleData) {
-          setListing(sampleListing);
-          setProduct(sampleProduct);
+          // Find the matching listing and product from sample data
+          const foundListing = sampleListing.find(l => l.id === id);
+          if (!foundListing) {
+            throw new Error("Listing not found");
+          }
+          setListing(foundListing);
+
+          // Find the matching product
+          const foundProduct = sampleProduct.find(p => p.id === foundListing.product);
+          if (!foundProduct) {
+            throw new Error("Product not found");
+          }
+          setProduct(foundProduct);
           setWarehouse(sampleWarehouse);
         } else {
           const listingResponse = await getListingDetails(id);

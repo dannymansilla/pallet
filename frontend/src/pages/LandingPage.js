@@ -180,6 +180,13 @@ const LandingPage = () => {
     window.history.replaceState({}, document.title, url.pathname);
   }, []);
 
+  useEffect(() => {
+    const chatWidget = document.querySelector('[data-chat-widget]');
+    if (chatWidget) {
+      chatWidget.style.display = 'none';
+    }
+  }, []);
+
   return (
     <Box bg="transparent" color="black" minW="100vw">
       {/* Hero Section */}
@@ -217,7 +224,7 @@ const LandingPage = () => {
             {/* 
               Overlay behind the heading area.
               White with some transparency & subtle blur 
-              so lines under the text get “softened.” 
+              so lines under the text get "softened." 
             */}
             <Box
               position="absolute"

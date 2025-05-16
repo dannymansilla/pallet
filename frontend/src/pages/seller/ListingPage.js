@@ -30,48 +30,67 @@ import { InfoIcon } from "@chakra-ui/icons";
 /**
  * SAMPLE DATA for demonstration:
  */
-const sampleListings = [
-  {
-    id: "L01",
-    monthYear: "2025-03",
-    brand: "Henkel",
-    shortDescription: "Persil Detergent",
-    msrpPerUnit: 3.5,
-    minSellingPricePerUnit: 2.0,
-    totalVolumeForSale: 10000,
-    volumeAboveMSPPercent: 40,
-    weightedAverageBidPricePerUnit: 2.25,
-    recoveryRatePercent: 64,
-    // Optional: for "active" highlighting in the table
-    isCurrentMonth: false,
-  },
-  {
-    id: "L02",
-    monthYear: "2025-03",
-    brand: "Henkel",
-    shortDescription: "Persil Tabs",
-    msrpPerUnit: 3.8,
-    minSellingPricePerUnit: 2.1,
-    totalVolumeForSale: 5000,
-    volumeAboveMSPPercent: 50,
-    weightedAverageBidPricePerUnit: 2.5,
-    recoveryRatePercent: 71,
-    isCurrentMonth: false,
-  },
-  {
-    id: "L03",
-    monthYear: "2025-02",
-    brand: "Henkel",
-    shortDescription: "Persil Pods",
-    msrpPerUnit: 3.2,
-    minSellingPricePerUnit: 1.9,
-    totalVolumeForSale: 8000,
-    volumeAboveMSPPercent: 60,
-    weightedAverageBidPricePerUnit: 2.1,
-    recoveryRatePercent: 55,
-    isCurrentMonth: false,
-  },
-];
+const sampleListings = [{
+  "id": 1,
+  "month_year": "2025-05",
+  "brand": "Henkelish",
+  "short_description": "MaxClean Laundry Detergent",
+  "msrp_per_unit": "11.99",
+  "min_selling_price_per_unit": "8.39",
+  "total_volume_for_sale": 10,
+  "is_current_month": true,
+  "weighted_average_bid_price_per_unit": 11.0,
+  "volume_above_msp_percent": 40.0,
+  "recovery_rate_percent": 91.74
+}, {
+  "id": 2,
+  "month_year": "2025-05",
+  "brand": "Henkelish",
+  "short_description": "ProNourish Shampoo",
+  "msrp_per_unit": "6.49",
+  "min_selling_price_per_unit": "4.54",
+  "total_volume_for_sale": 10,
+  "is_current_month": true,
+  "weighted_average_bid_price_per_unit": 0,
+  "volume_above_msp_percent": 0.0,
+  "recovery_rate_percent": 0.0
+}, {
+  "id": 3,
+  "month_year": "2025-05",
+  "brand": "Henkelish",
+  "short_description": "AquaShield Body Wash",
+  "msrp_per_unit": "7.99",
+  "min_selling_price_per_unit": "5.59",
+  "total_volume_for_sale": 10,
+  "is_current_month": true,
+  "weighted_average_bid_price_per_unit": 7.0,
+  "volume_above_msp_percent": 30.0,
+  "recovery_rate_percent": 87.61
+}, {
+  "id": 4,
+  "month_year": "2025-05",
+  "brand": "Henkelish",
+  "short_description": "FreshGuard Hand Soap",
+  "msrp_per_unit": "4.99",
+  "min_selling_price_per_unit": "3.49",
+  "total_volume_for_sale": 10,
+  "is_current_month": true,
+  "weighted_average_bid_price_per_unit": 0,
+  "volume_above_msp_percent": 0.0,
+  "recovery_rate_percent": 0.0
+}, {
+  "id": 5,
+  "month_year": "2025-05",
+  "brand": "Henkelish",
+  "short_description": "SparkClean Dish Soap",
+  "msrp_per_unit": "3.99",
+  "min_selling_price_per_unit": "2.79",
+  "total_volume_for_sale": 10,
+  "is_current_month": true,
+  "weighted_average_bid_price_per_unit": 0,
+  "volume_above_msp_percent": 0.0,
+  "recovery_rate_percent": 0.0
+}];
 
 const EmptyStateMessage = ({ title, description }) => (
   <Center p={8}>
@@ -105,7 +124,7 @@ const SellerListingsPage = () => {
   const [error, setError] = useState(null);
 
   /**
-   * Transform the API’s real data into the same shape
+   * Transform the API's real data into the same shape
    * as your sample listings for consistent display.
    */
   const transformListing = (apiItem) => {
@@ -134,10 +153,19 @@ const SellerListingsPage = () => {
         setLoading(false);
         setError(null);
 
-        // Mark sample data if it matches currentMonth
+        // Transform sample data to match the expected format
         const updatedSamples = sampleListings.map((item) => ({
-          ...item,
-          isCurrentMonth: item.monthYear === currentMonth,
+          id: item.id,
+          monthYear: item.month_year,
+          brand: item.brand,
+          shortDescription: item.short_description,
+          msrpPerUnit: parseFloat(item.msrp_per_unit),
+          minSellingPricePerUnit: parseFloat(item.min_selling_price_per_unit),
+          totalVolumeForSale: item.total_volume_for_sale,
+          volumeAboveMSPPercent: item.volume_above_msp_percent,
+          weightedAverageBidPricePerUnit: item.weighted_average_bid_price_per_unit,
+          recoveryRatePercent: item.recovery_rate_percent,
+          isCurrentMonth: item.month_year === currentMonth
         }));
 
         setListings(updatedSamples);

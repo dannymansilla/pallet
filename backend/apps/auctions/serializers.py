@@ -56,13 +56,33 @@ class SellerListingSerializer(serializers.ModelSerializer):
         return None
 
 class BidSerializer(serializers.ModelSerializer):
+    buyer_company = serializers.CharField(source='buyer.organization.name', read_only=True)
+    pallets = serializers.SerializerMethodField()
+    units_per_pallet = serializers.SerializerMethodField()
+
     class Meta:
         model = Bid
         fields = [
-            'id', 'listing', 'sale_event', 'buyer', 'bid_price',
-            'bid_quantity', 'status', 'timestamp'
+            'id', 'listing', 'sale_event', 'buyer', 'buyer_company', 'bid_price',
+            'bid_quantity', 'pallets', 'units_per_pallet', 'status', 'timestamp'
         ]
         read_only_fields = ['buyer', 'status', 'timestamp']
+
+    def get_pallets(self, obj):
+        # Get the product's cases per pallet
+        cases_per_pallet = obj.listing.product.cases_per_pallet or 1
+        units_per_case = obj.listing.product.units_per_case or 1
+        units_per_pallet = cases_per_pallet * units_per_case
+        
+        # Calculate number of pallets
+        if units_per_pallet > 0:
+            return round(obj.bid_quantity / units_per_pallet, 2)
+        return 0
+
+    def get_units_per_pallet(self, obj):
+        cases_per_pallet = obj.listing.product.cases_per_pallet or 1
+        units_per_case = obj.listing.product.units_per_case or 1
+        return cases_per_pallet * units_per_case
 
 class BidAuditLogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -257,13 +277,33 @@ class SellerOpenBidSerializer(serializers.ModelSerializer):
     product_brand = serializers.CharField(source='listing.product.brand', read_only=True)
     buyer_name = serializers.CharField(source='buyer.organization.name', read_only=True)
     timestamp_formatted = serializers.SerializerMethodField()
-    
+    pallets = serializers.SerializerMethodField()
+    units_per_pallet = serializers.SerializerMethodField()
+    listing_id = serializers.IntegerField(source='listing.id', read_only=True)
+
     class Meta:
         model = Bid
         fields = [
             'id', 'product_name', 'product_brand', 'buyer_name',
-            'bid_price', 'bid_quantity', 'timestamp', 'timestamp_formatted'
+            'bid_price', 'bid_quantity', 'pallets', 'units_per_pallet',
+            'timestamp', 'timestamp_formatted', 'listing_id'
         ]
-    
+
     def get_timestamp_formatted(self, obj):
-        return obj.timestamp.strftime("%Y-%m-%d %H:%M:%S") 
+        return obj.timestamp.strftime("%b %d, %Y")
+
+    def get_pallets(self, obj):
+        # Get the product's cases per pallet
+        cases_per_pallet = obj.listing.product.cases_per_pallet or 1
+        units_per_case = obj.listing.product.units_per_case or 1
+        units_per_pallet = cases_per_pallet * units_per_case
+        
+        # Calculate number of pallets
+        if units_per_pallet > 0:
+            return round(obj.bid_quantity / units_per_pallet, 2)
+        return 0
+
+    def get_units_per_pallet(self, obj):
+        cases_per_pallet = obj.listing.product.cases_per_pallet or 1
+        units_per_case = obj.listing.product.units_per_case or 1
+        return cases_per_pallet * units_per_case 

@@ -36,7 +36,7 @@ import { useDataMode } from "../../context/DataModeContext";
 // SAMPLE DATA for demonstration
 const sampleSellerMonthsData = [
   {
-    month: "2025-03",
+    month: "2025-04",
     orders: [
       {
         buyer: "Acme Retailers",
@@ -64,7 +64,7 @@ const sampleSellerMonthsData = [
     ],
   },
   {
-    month: "2025-02",
+    month: "2025-03",
     orders: [
       {
         buyer: "Best Snacks Inc.",
@@ -305,7 +305,7 @@ const AuctionTrucksPage = () => {
       if (useSampleData) {
         setAuctionData({
           auction_summary: {
-            auction_name: "Sample Auction",
+            auction_name: "Closed Auction",
             auction_closed: "2025-03-31",
             total_trucks: 6,
             total_buyers_awarded: 3,
@@ -342,7 +342,7 @@ const AuctionTrucksPage = () => {
     <Box bg={bgColor} p={6} minH="100vh">
       {/* Header with summary */}
       <Flex direction="column" mb={6}>
-        <Heading size="lg" mb={4}>Trucks by Month (Seller View)</Heading>
+        <Heading size="lg" mb={4}>Trucks by Month</Heading>
 
         {/* Auction Summary */}
         {auctionData?.auction_summary && (

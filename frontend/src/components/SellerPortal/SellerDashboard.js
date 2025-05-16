@@ -63,18 +63,18 @@ const sampleSellerStats = {
  *    - actualSales   (the real dollars generated from those sold products)
  */
 const sampleMonthlyData = [
-  { month: "Jan '25", listValue: 100000, soldListValue: 80000, actualSales: 78000 },
-  { month: "Feb '25", listValue: 110000, soldListValue: 85000, actualSales: 82000 },
-  { month: "Mar '25", listValue: 120000, soldListValue: 90000, actualSales: 87000 },
-  { month: "Apr '25", listValue: 95000,  soldListValue: 75000, actualSales: 71000 },
-  { month: "May '25", listValue: 105000, soldListValue: 82000, actualSales: 80000 },
-  { month: "Jun '25", listValue: 125000, soldListValue: 93000, actualSales: 89000 },
-  { month: "Jul '25", listValue: 130000, soldListValue: 100000, actualSales: 96000 },
-  { month: "Aug '25", listValue: 140000, soldListValue: 108000, actualSales: 100000 },
-  { month: "Sep '25", listValue: 145000, soldListValue: 110000, actualSales: 104000 },
-  { month: "Oct '25", listValue: 150000, soldListValue: 115000, actualSales: 108000 },
-  { month: "Nov '25", listValue: 155000, soldListValue: 118000, actualSales: 112000 },
-  { month: "Dec '25", listValue: 160000, soldListValue: 120000, actualSales: 115000 },
+  { month: "May '24", listValue: 100000, soldListValue: 80000, actualSales: 78000 },
+  { month: "Jun '24", listValue: 110000, soldListValue: 85000, actualSales: 82000 },
+  { month: "Jul '24", listValue: 120000, soldListValue: 90000, actualSales: 87000 },
+  { month: "Aug '24", listValue: 95000,  soldListValue: 75000, actualSales: 71000 },
+  { month: "Sep '24", listValue: 105000, soldListValue: 82000, actualSales: 80000 },
+  { month: "Oct '24", listValue: 125000, soldListValue: 93000, actualSales: 89000 },
+  { month: "Nov '24", listValue: 130000, soldListValue: 100000, actualSales: 96000 },
+  { month: "Dec '24", listValue: 140000, soldListValue: 108000, actualSales: 100000 },
+  { month: "Jan '25", listValue: 145000, soldListValue: 110000, actualSales: 104000 },
+  { month: "Feb '25", listValue: 150000, soldListValue: 115000, actualSales: 108000 },
+  { month: "Mar '25", listValue: 155000, soldListValue: 118000, actualSales: 112000 },
+  { month: "Apr '25", listValue: 160000, soldListValue: 120000, actualSales: 115000 },
 ];
 
 /**
@@ -85,25 +85,25 @@ const sampleAuctions = [
     auctionId: "AUC-001",
     products: 45,
     totalBids: 32,
-    startDate: "2025-03-01",
-    endDate: "2025-03-05",
+    startDate: "2025-02-01",
+    endDate: "2025-02-30",
     status: "Completed",
   },
   {
     auctionId: "AUC-002",
     products: 36,
     totalBids: 27,
-    startDate: "2025-03-10",
-    endDate: "2025-03-15",
+    startDate: "2025-03-01",
+    endDate: "2025-03-30",
     status: "Completed",
   },
   {
     auctionId: "AUC-003",
     products: 50,
     totalBids: 40,
-    startDate: "2025-03-20",
-    endDate: "2025-03-25",
-    status: "Live",
+    startDate: "2025-04-01",
+    endDate: "2025-04-30",
+    status: "Completed",
   },
 ];
 
@@ -163,6 +163,7 @@ const SellerDashboard = () => {
   const cardBg = useColorModeValue("white", "gray.800");
   const cardBorderColor = useColorModeValue("gray.200", "gray.700");
   const { useSampleData } = useDataMode();
+  // const { useSampleData } = true;
   const [metrics, setMetrics] = useState(null);
   const [monthlyData, setMonthlyData] = useState(null);
   const [tableData, setTableData] = useState(null);

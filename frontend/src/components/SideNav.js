@@ -177,7 +177,7 @@ export default function SideNav({ user, isCollapsed, onToggleCollapse }) {
         {!isCollapsed && (
           <FormControl display="flex" alignItems="center" mb={4}>
             <FormLabel htmlFor="sample-data" mb="0" mr={2} fontSize="sm">
-              Sample Data
+              {/* Sample Data */}
             </FormLabel>
             <Switch
               id="sample-data"

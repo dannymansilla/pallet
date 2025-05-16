@@ -1,0 +1,246 @@
+[
+    {
+      "seller_id": 6,
+      "seller_name": "Henkelish Solutions",
+      "contact_email": "overstock@henkelish.com",
+      "warehouse": {
+        "name": "Henkelish Midwest Hub",
+        "address": "789 Industrial Park, Chicago, IL"
+      },
+      "listings": [
+        {
+          "listing_id": 1,
+          "quantity_available": 10,
+          "reserve_price": 8.39,
+          "status": "active",
+          "product": {
+            "id": 1,
+            "sku": "HENK-001",
+            "name": "MaxClean Laundry Detergent",
+            "brand": "Henkelish",
+            "description": "High-efficiency liquid laundry detergent for tough stains",
+            "msrp": 11.99
+          }
+        },
+        {
+          "listing_id": 2,
+          "quantity_available": 10,
+          "reserve_price": 4.54,
+          "status": "active",
+          "product": {
+            "id": 2,
+            "sku": "HENK-002",
+            "name": "ProNourish Shampoo",
+            "brand": "Henkelish",
+            "description": "Gentle shampoo infused with vitamins for daily use",
+            "msrp": 6.49
+          }
+        },
+        {
+          "listing_id": 3,
+          "quantity_available": 10,
+          "reserve_price": 5.59,
+          "status": "active",
+          "product": {
+            "id": 3,
+            "sku": "HENK-003",
+            "name": "AquaShield Body Wash",
+            "brand": "Henkelish",
+            "description": "Moisturizing body wash formulated for sensitive skin",
+            "msrp": 7.99
+          }
+        },
+        {
+          "listing_id": 4,
+          "quantity_available": 10,
+          "reserve_price": 3.49,
+          "status": "active",
+          "product": {
+            "id": 4,
+            "sku": "HENK-004",
+            "name": "FreshGuard Hand Soap",
+            "brand": "Henkelish",
+            "description": "Antibacterial liquid hand soap with a refreshing scent",
+            "msrp": 4.99
+          }
+        },
+        {
+          "listing_id": 5,
+          "quantity_available": 10,
+          "reserve_price": 2.79,
+          "status": "active",
+          "product": {
+            "id": 5,
+            "sku": "HENK-005",
+            "name": "SparkClean Dish Soap",
+            "brand": "Henkelish",
+            "description": "Concentrated dishwashing liquid for tough grease",
+            "msrp": 3.99
+          }
+        }
+      ]
+    },
+    {
+      "seller_id": 5,
+      "seller_name": "ProPure & Co",
+      "contact_email": "excess@propureco.com",
+      "warehouse": {
+        "name": "ProPure Western Fulfillment",
+        "address": "1425 Warehouse Way, Denver, CO"
+      },
+      "listings": [
+        {
+          "listing_id": 6,
+          "quantity_available": 10,
+          "reserve_price": 11.19,
+          "status": "active",
+          "product": {
+            "id": 6,
+            "sku": "PROP-001",
+            "name": "UltraWhite Paper Towels",
+            "brand": "ProPure",
+            "description": "2-ply jumbo paper towels with extra absorbency",
+            "msrp": 15.99
+          }
+        },
+        {
+          "listing_id": 7,
+          "quantity_available": 10,
+          "reserve_price": 17.49,
+          "status": "active",
+          "product": {
+            "id": 7,
+            "sku": "PROP-002",
+            "name": "BabyCare Diapers Size 4",
+            "brand": "ProPure",
+            "description": "Comfortable, leak-proof diapers with flexible fit",
+            "msrp": 24.99
+          }
+        },
+        {
+          "listing_id": 8,
+          "quantity_available": 10,
+          "reserve_price": 4.19,
+          "status": "active",
+          "product": {
+            "id": 8,
+            "sku": "PROP-003",
+            "name": "GentleClean Wipes",
+            "brand": "ProPure",
+            "description": "Multi-purpose disinfecting wipes for home and office",
+            "msrp": 5.99
+          }
+        },
+        {
+          "listing_id": 9,
+          "quantity_available": 10,
+          "reserve_price": 2.09,
+          "status": "active",
+          "product": {
+            "id": 9,
+            "sku": "PROP-004",
+            "name": "CavityShield Toothpaste",
+            "brand": "ProPure",
+            "description": "Fluoride toothpaste for cavity protection and fresh breath",
+            "msrp": 2.99
+          }
+        },
+        {
+          "listing_id": 10,
+          "quantity_available": 10,
+          "reserve_price": 3.14,
+          "status": "active",
+          "product": {
+            "id": 10,
+            "sku": "PROP-005",
+            "name": "FreshDefense Deodorant",
+            "brand": "ProPure",
+            "description": "Long-lasting deodorant with sweat-blocking technology",
+            "msrp": 4.49
+          }
+        }
+      ]
+    },
+    {
+      "seller_id": 4,
+      "seller_name": "DermaBeiers Essentials",
+      "contact_email": "inventory@dermabeiers.com",
+      "warehouse": {
+        "name": "DermaBeiers Coastal Depot",
+        "address": "3327 Logistics Blvd, Newark, NJ"
+      },
+      "listings": [
+        {
+          "listing_id": 11,
+          "quantity_available": 10,
+          "reserve_price": 10.49,
+          "status": "active",
+          "product": {
+            "id": 11,
+            "sku": "DBE-001",
+            "name": "HydraLift Face Moisturizer",
+            "brand": "DermaBeiers",
+            "description": "Daily facial moisturizer with hyaluronic acid",
+            "msrp": 14.99
+          }
+        },
+        {
+          "listing_id": 12,
+          "quantity_available": 10,
+          "reserve_price": 4.89,
+          "status": "active",
+          "product": {
+            "id": 12,
+            "sku": "DBE-002",
+            "name": "SilkCare Hand Cream",
+            "brand": "DermaBeiers",
+            "description": "Nourishing hand cream for dry skin relief",
+            "msrp": 6.99
+          }
+        },
+        {
+          "listing_id": 13,
+          "quantity_available": 10,
+          "reserve_price": 5.94,
+          "status": "active",
+          "product": {
+            "id": 13,
+            "sku": "DBE-003",
+            "name": "GlowRestore Body Lotion",
+            "brand": "DermaBeiers",
+            "description": "Body lotion with vitamin E for radiant skin",
+            "msrp": 8.49
+          }
+        },
+        {
+          "listing_id": 14,
+          "quantity_available": 10,
+          "reserve_price": 9.09,
+          "status": "active",
+          "product": {
+            "id": 14,
+            "sku": "DBE-004",
+            "name": "SunGuard SPF 50 Sunscreen",
+            "brand": "DermaBeiers",
+            "description": "Broad-spectrum sunscreen for daily UV protection",
+            "msrp": 12.99
+          }
+        },
+        {
+          "listing_id": 15,
+          "quantity_available": 10,
+          "reserve_price": 2.44,
+          "status": "active",
+          "product": {
+            "id": 15,
+            "sku": "DBE-005",
+            "name": "Nourish+ Lip Balm",
+            "brand": "DermaBeiers",
+            "description": "Hydrating lip balm with aloe and vitamin E",
+            "msrp": 3.49
+          }
+        }
+      ]
+    }
+  ]
+  

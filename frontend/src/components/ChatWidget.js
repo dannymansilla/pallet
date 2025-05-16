@@ -10,12 +10,14 @@ import {
   Avatar,
   useColorModeValue,
   Spinner,
+  Link,
 } from "@chakra-ui/react";
 import { HiX } from "react-icons/hi";
 import Lottie from "lottie-react";
+import ReactMarkdown from "react-markdown";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import globeAnimation from "../assets/aiden_globe.json"; // Update path if needed
 import { sendChatMessage } from "../services/api";
-
 
 // Utility: format message timestamps as "6:30 PM"
 function formatTime(date) {
@@ -26,31 +28,88 @@ function formatTime(date) {
 const LoadingIndicator = () => (
   <HStack spacing={2} align="center">
     <Spinner size="sm" color="blue.500" />
-    <Text fontSize="sm" color="gray.500">Aiden is thinking...</Text>
+    <Text fontSize="sm" color="gray.500">
+      Aiden is thinking...
+    </Text>
   </HStack>
 );
 
 // Typing animation component
 const TypingAnimation = () => (
   <HStack spacing={1} align="center">
-    <Box w="2" h="2" bg="gray.400" borderRadius="full" animation="bounce 1s infinite" />
-    <Box w="2" h="2" bg="gray.400" borderRadius="full" animation="bounce 1s infinite 0.2s" />
-    <Box w="2" h="2" bg="gray.400" borderRadius="full" animation="bounce 1s infinite 0.4s" />
+    <Box
+      w="2"
+      h="2"
+      bg="gray.400"
+      borderRadius="full"
+      animation="bounce 1s infinite"
+    />
+    <Box
+      w="2"
+      h="2"
+      bg="gray.400"
+      borderRadius="full"
+      animation="bounce 1s infinite 0.2s"
+    />
+    <Box
+      w="2"
+      h="2"
+      bg="gray.400"
+      borderRadius="full"
+      animation="bounce 1s infinite 0.4s"
+    />
   </HStack>
 );
 
 // A small subcomponent to render each message bubble
-function MessageBubble({ message, userBubbleBg, userBubbleColor, botBubbleBg, botBubbleColor }) {
+function MessageBubble({
+  message,
+  userBubbleBg,
+  userBubbleColor,
+  botBubbleBg,
+  botBubbleColor,
+  closeChat // [ADDED] We receive closeChat here
+}) {
   const isUser = message.role === "user";
+  const navigate = useNavigate();
+
+  // Custom link component for ReactMarkdown
+  const CustomLink = ({ href, children }) => {
+    // Check if it's an internal link (starts with '/')
+    if (href.startsWith("/")) {
+      return (
+        <Link
+          as={RouterLink}
+          to={href}
+          color="blue.500"
+          textDecoration="underline"
+          _hover={{ color: "blue.600" }}
+          onClick={() => closeChat()} // [ADDED] Close chat on internal link click
+        >
+          {children}
+        </Link>
+      );
+    }
+    // External links open in new tab
+    return (
+      <Link
+        href={href}
+        color="blue.500"
+        textDecoration="underline"
+        isExternal
+        _hover={{ color: "blue.600" }}
+        onClick={() => closeChat()} // [ADDED] Close chat on external link click too
+      >
+        {children}
+      </Link>
+    );
+  };
+
   // We'll align the chat bubble plus avatar: user on right, bot on left
   return (
     <Box alignSelf={isUser ? "flex-end" : "flex-start"} maxW="75%">
-      <HStack
-        spacing={3}
-        justifyContent={isUser ? "flex-end" : "flex-start"}
-        mb={1}
-      >
-        {/* Bot avatar on left side, user avatar on right side */}
+      <HStack spacing={3} justifyContent={isUser ? "flex-end" : "flex-start"} mb={1}>
+        {/* Bot avatar on the left side, user avatar on the right side */}
         {!isUser && (
           <Box width="50px" height="50px" flexShrink={0}>
             <Lottie
@@ -70,16 +129,50 @@ function MessageBubble({ message, userBubbleBg, userBubbleColor, botBubbleBg, bo
           boxShadow="md"
           whiteSpace="pre-wrap"
         >
-          {message.text}
+          {isUser ? (
+            message.text
+          ) : (
+            <ReactMarkdown
+              components={{
+                h1: ({ node, ...props }) => (
+                  <Text as="h1" fontSize="xl" fontWeight="bold" mb={-1} {...props} />
+                ),
+                h2: ({ node, ...props }) => (
+                  <Text as="h2" fontSize="lg" fontWeight="bold" mb={-1} {...props} />
+                ),
+                h3: ({ node, ...props }) => (
+                  <Text as="h3" fontSize="md" fontWeight="bold" mb={-1} {...props} />
+                ),
+                p: ({ node, ...props }) => <Text as="p" mb={-1} {...props} />,
+                ul: ({ node, ...props }) => <Box as="ul" pl={4} mb={-1} {...props} />,
+                ol: ({ node, ...props }) => <Box as="ol" pl={4} mb={-1} {...props} />,
+                li: ({ node, ...props }) => <Text as="li" mb={-1} {...props} />,
+                strong: ({ node, ...props }) => (
+                  <Text as="strong" fontWeight="bold" {...props} />
+                ),
+                em: ({ node, ...props }) => (
+                  <Text as="em" fontStyle="italic" {...props} />
+                ),
+                code: ({ node, ...props }) => (
+                  <Text
+                    as="code"
+                    bg="gray.100"
+                    px={1}
+                    py={0.5}
+                    borderRadius="md"
+                    {...props}
+                  />
+                ),
+                a: ({ node, ...props }) => <CustomLink {...props} />,
+              }}
+            >
+              {message.text}
+            </ReactMarkdown>
+          )}
         </Box>
 
         {isUser && (
-          <Avatar
-            name="You"
-            bg="gray.400"
-            color="white"
-            size="md"
-          />
+          <Avatar name="You" bg="gray.400" color="white" size="md" />
         )}
       </HStack>
 
@@ -98,12 +191,13 @@ function MessageBubble({ message, userBubbleBg, userBubbleColor, botBubbleBg, bo
   );
 }
 
-export default function ChatWidget() {
+export default function ChatWidget({ hideOnLanding = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputVal, setInputVal] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
 
   // Color / style setup
   const overlayBg = "rgba(0,0,0,0.15)";
@@ -113,7 +207,7 @@ export default function ChatWidget() {
   const borderCol = useColorModeValue("gray.200", "gray.600");
 
   // Bubbles
-  const userBubbleBg = useColorModeValue("blue.500", "blue.600"); 
+  const userBubbleBg = useColorModeValue("blue.500", "blue.600");
   const userBubbleColor = "white"; // user text color
   const botBubbleBg = useColorModeValue("gray.100", "gray.600");
   const botBubbleColor = useColorModeValue("black", "white");
@@ -163,13 +257,21 @@ export default function ChatWidget() {
     },
   ]);
 
-  const messagesEndRef = useRef(null);
-
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  // If hideOnLanding is true, don't render anything
+  if (hideOnLanding) {
+    return null;
+  }
+
+  // [ADDED] This function closes the widget when called
+  const closeChat = () => {
+    setIsOpen(false);
+  };
 
   // Enhanced typewriter effect for bot messages
   const typeBotMessage = (fullText) => {
@@ -209,14 +311,14 @@ export default function ChatWidget() {
   // Enhanced send message function
   const sendMessage = async () => {
     if (!inputVal.trim() || isLoading) return;
-    
+
     const userMsg = {
       id: Date.now(),
       role: "user",
       text: inputVal.trim(),
       time: new Date(),
     };
-    
+
     setMessages((prev) => [...prev, userMsg]);
     setInputVal("");
     setIsLoading(true);
@@ -226,11 +328,15 @@ export default function ChatWidget() {
       if (response && response.reply) {
         typeBotMessage(response.reply);
       } else {
-        typeBotMessage("I'm sorry, I couldn't process your request. Please try again.");
+        typeBotMessage(
+          "I'm sorry, I couldn't process your request. Please try again."
+        );
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      typeBotMessage("I'm sorry, there was an error processing your request. Please try again.");
+      console.error("Error sending message:", error);
+      typeBotMessage(
+        "I'm sorry, there was an error processing your request. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -341,7 +447,7 @@ export default function ChatWidget() {
             <Button
               colorScheme="blue"
               variant="solid"
-              bg='rgb(58, 144, 247)'
+              bg="rgb(58, 144, 247)"
               mb={4}
               onClick={startNewChat}
               width="100%"
@@ -424,13 +530,14 @@ export default function ChatWidget() {
               mt={2}
             >
               {messages.map((msg) => (
-                <MessageBubble 
-                  key={msg.id} 
+                <MessageBubble
+                  key={msg.id}
                   message={msg}
                   userBubbleBg={userBubbleBg}
                   userBubbleColor={userBubbleColor}
                   botBubbleBg={botBubbleBg}
                   botBubbleColor={botBubbleColor}
+                  closeChat={closeChat} // [ADDED] pass closeChat here
                 />
               ))}
               {isLoading && (
@@ -465,7 +572,7 @@ export default function ChatWidget() {
                 colorScheme="blue"
                 onClick={sendMessage}
                 borderRadius="full"
-                bg='rgb(58, 144, 247)'
+                bg="rgb(58, 144, 247)"
                 isLoading={isLoading}
                 isDisabled={isLoading || !inputVal.trim()}
               >

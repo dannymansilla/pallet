@@ -15,79 +15,153 @@ import {
   Input,
   Spinner,
   Image,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import cardboardbox from "../../images/cardboardbox.png"; // Import your default image
+import cardboardbox from "../../images/cardboardbox.png";
+import { useDataMode } from "../../context/DataModeContext";
+import { getListingDetails, getListingBids } from "../../services/api";
 
-// For the demo, pretend we fetch from these sample arrays.
+// Sample data for demo mode
 const sampleListings = [
   {
-    id: "L01",
-    monthYear: "2025-03",
-    brand: "Henkel",
-    shortDescription: "Persil Detergent",
-    msrpPerUnit: 3.5,
-    minSellingPricePerUnit: 2.0,
-    totalVolumeForSale: 10000,
+    id: 1,
+    month_year: "2025-05",
+    brand: "Henkelish",
+    short_description: "MaxClean Laundry Detergent",
+    msrp_per_unit: "11.99",
+    min_selling_price_per_unit: "8.39",
+    total_volume_for_sale: 10,
   },
-  // ...
+  {
+    id: 2,
+    month_year: "2025-05",
+    brand: "Henkelish",
+    short_description: "ProNourish Shampoo",
+    msrp_per_unit: "6.49",
+    min_selling_price_per_unit: "4.54",
+    total_volume_for_sale: 10,
+  },
+  {
+    id: 3,
+    month_year: "2025-05",
+    brand: "Henkelish",
+    short_description: "AquaShield Body Wash",
+    msrp_per_unit: "7.99",
+    min_selling_price_per_unit: "5.59",
+    total_volume_for_sale: 10,
+  },
+  {
+    id: 4,
+    month_year: "2025-05",
+    brand: "Henkelish",
+    short_description: "FreshGuard Hand Soap",
+    msrp_per_unit: "4.99",
+    min_selling_price_per_unit: "3.49",
+    total_volume_for_sale: 10,
+  },
+  {
+    id: 5,
+    month_year: "2025-05",
+    brand: "Henkelish",
+    short_description: "SparkClean Dish Soap",
+    msrp_per_unit: "3.99",
+    min_selling_price_per_unit: "2.79",
+    total_volume_for_sale: 10,
+  },
 ];
 
-// SAMPLE BIDS for a particular listing ID
-// In real life, you'd fetch from an API.
+
 const sampleBids = [
   {
     bidId: "B100",
-    listingId: "L01",
+    listingId: 1,
     buyerCompany: "Acme Retailer",
-    buyerPerson: "John Doe",
-    bidPricePerUnit: 2.5,
+    bidPricePerUnit: 9.5,
     bidVolume: 4000,
+    status: "active",
+    pallets: 20
   },
   {
     bidId: "B101",
-    listingId: "L01",
-    buyerCompany: "Global Market",
-    buyerPerson: "Jane Smith",
-    bidPricePerUnit: 1.9,
+    listingId: 1,
+    buyerCompany: "Mega Corp",
+    bidPricePerUnit: 9.2,
     bidVolume: 2000,
+    status: "active",
+    pallets: 10
   },
   {
-    bidId: "B105",
-    listingId: "L02",
-    buyerCompany: "Alpha Foods",
-    buyerPerson: "Chris Martin",
-    bidPricePerUnit: 2.6,
+    bidId: "B102",
+    listingId: 1,
+    buyerCompany: "Global Foods",
+    bidPricePerUnit: 9.8,
     bidVolume: 3000,
-  },
-  // etc...
+    status: "active",
+    pallets: 15
+  }
 ];
 
 const SellerProductPage = () => {
   const { listingId } = useParams();
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const { useSampleData } = useDataMode();
 
   // Local state for the listing info
   const [listing, setListing] = useState(null);
   const [bids, setBids] = useState([]);
   const [minSellingPrice, setMinSellingPrice] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Simulate data fetch
+  // Fetch listing data and bids
   useEffect(() => {
-    // In a real app, you'd fetch listing detail by ID.
-    const foundListing = sampleListings.find((l) => l.id === listingId);
-    setListing(foundListing);
-    setMinSellingPrice(foundListing?.minSellingPricePerUnit ?? "");
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
 
-    // Fetch relevant bids & sort from highest to lowest price
-    const relevantBids = sampleBids
-      .filter((b) => b.listingId === listingId)
-      .sort((a, b) => b.bidPricePerUnit - a.bidPricePerUnit);
+      try {
+        if (useSampleData) {
+          // Use sample data
+          const foundListing = sampleListings.find((l) => l.id === parseInt(listingId));
+          if (!foundListing) {
+            throw new Error("Listing not found");
+          }
+          setListing(foundListing);
+          setMinSellingPrice(foundListing.min_selling_price_per_unit);
 
-    setBids(relevantBids);
-  }, [listingId]);
+          // Get relevant bids
+          const relevantBids = sampleBids
+            .filter((b) => b.listingId === parseInt(listingId))
+            .sort((a, b) => b.bidPricePerUnit - a.bidPricePerUnit);
+          setBids(relevantBids);
+        } else {
+          // Fetch listing details
+          const listingResponse = await getListingDetails(listingId);
+          const listingData = listingResponse.data;
+          setListing(listingData);
+          setMinSellingPrice(listingData.min_selling_price_per_unit);
 
-  if (!listing) {
+          // Fetch bids for this listing
+          const bidsResponse = await getListingBids(listingId);
+          console.log('Bids response:', bidsResponse); // Debug log
+          const bidsData = bidsResponse.data;
+          console.log('Bids data:', bidsData); // Debug log
+          setBids(bidsData);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [listingId, useSampleData]);
+
+  if (loading) {
     return (
       <Box p={6}>
         <Spinner />
@@ -96,41 +170,89 @@ const SellerProductPage = () => {
     );
   }
 
-  const {
-    monthYear,
-    brand,
-    shortDescription,
-    msrpPerUnit,
-    totalVolumeForSale,
-  } = listing;
+  if (error) {
+    return (
+      <Box p={6}>
+        <Alert status="error">
+          <AlertIcon />
+          <Text>{error}</Text>
+        </Alert>
+      </Box>
+    );
+  }
 
-  // If you have real updating logic:
-  const handleSaveMinPrice = () => {
-    // In reality, you'd send a PATCH/PUT to the server
-    // For demo, just update local state
-    setListing((prev) => ({
-      ...prev,
-      minSellingPricePerUnit: parseFloat(minSellingPrice),
-    }));
+  if (!listing) {
+    return (
+      <Box p={6}>
+        <Alert status="warning">
+          <AlertIcon />
+          <Text>Listing not found</Text>
+        </Alert>
+      </Box>
+    );
+  }
+
+  const handleSaveMinPrice = async () => {
+    try {
+      if (!useSampleData) {
+        // Make API call to update min price
+        const response = await fetch(`/api/auctions/listings/${listingId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            min_selling_price_per_unit: parseFloat(minSellingPrice)
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update minimum price");
+        }
+      }
+
+      // Update local state
+      setListing((prev) => ({
+        ...prev,
+        min_selling_price_per_unit: minSellingPrice,
+      }));
+    } catch (err) {
+      console.error("Error updating minimum price:", err);
+      setError(err.message);
+    }
   };
 
-  // "in the money" logic on the fly:
-  // ITM means bidPricePerUnit >= listing.minSellingPricePerUnit
-  const displayBids = bids.map((bid) => {
-    const inTheMoney = bid.bidPricePerUnit >= (listing.minSellingPricePerUnit ?? 0);
-    const totalBidValue = bid.bidPricePerUnit * bid.bidVolume;
-    return {
-      ...bid,
-      inTheMoney,
-      totalBidValue,
-    };
-  });
+  // "in the money" logic with safety checks
+  const displayBids = bids
+    .filter(bid => {
+      // Handle both sample and real data structures
+      const bidListingId = bid.listingId || bid.listing;
+      const bidStatus = bid.status || 'active';
+      return bidStatus === 'active' && bidListingId === parseInt(listingId);
+    })
+    .map((bid) => {
+      // Add safety checks for bid data
+      const bidPrice = parseFloat(bid?.bid_price || bid?.bidPricePerUnit || 0);
+      const bidQuantity = parseInt(bid?.bid_quantity || bid?.bidVolume || 0, 10);
+      const minPrice = parseFloat(listing?.min_selling_price_per_unit || 0);
+      
+      const inTheMoney = bidPrice >= minPrice;
+      const totalBidValue = bidPrice * bidQuantity;
+      
+      return {
+        ...bid,
+        inTheMoney,
+        totalBidValue,
+        bidPrice,
+        bidQuantity
+      };
+    });
 
   return (
     <Box p={6} minH="85vh">
       <Heading mb={4}>Product Details</Heading>
 
-      {/* Basic product info (with default product image) */}
+      {/* Basic product info */}
       <Box
         border="1px solid"
         borderColor={borderColor}
@@ -139,38 +261,36 @@ const SellerProductPage = () => {
         mb={4}
       >
         <Flex align="center" gap={6}>
-          {/* Product Image */}
           <Image
             src={cardboardbox}
-            alt={shortDescription}
+            alt={listing.short_description}
             boxSize="100px"
             objectFit="cover"
             borderRadius="md"
           />
 
-          {/* Product Info Text */}
           <Box>
             <Text>
-              <strong>Month + Year:</strong> {monthYear}
+              <strong>Month + Year:</strong> {listing.month_year}
             </Text>
             <Text>
-              <strong>Brand:</strong> {brand}
+              <strong>Brand:</strong> {listing.brand}
             </Text>
             <Text>
-              <strong>Description:</strong> {shortDescription}
+              <strong>Description:</strong> {listing.short_description}
             </Text>
             <Text>
-              <strong>MSRP / Unit:</strong> ${msrpPerUnit.toFixed(2)}
+              <strong>MSRP / Unit:</strong> ${parseFloat(listing.msrp_per_unit).toFixed(2)}
             </Text>
             <Text>
               <strong>Total Volume For Sale:</strong>{" "}
-              {totalVolumeForSale.toLocaleString()}
+              {listing.total_volume_for_sale.toLocaleString()}
             </Text>
           </Box>
         </Flex>
       </Box>
 
-      {/* Seller-specific controls: min selling price */}
+      {/* Min selling price controls */}
       <Box
         border="1px solid"
         borderColor={borderColor}
@@ -195,7 +315,7 @@ const SellerProductPage = () => {
         </Flex>
       </Box>
 
-      {/* Table of open bids */}
+      {/* Bids table */}
       <Heading size="md" mb={2}>
         Open Bids
       </Heading>
@@ -210,15 +330,15 @@ const SellerProductPage = () => {
             <Tr>
               <Th>ITM</Th>
               <Th>Buyer Company</Th>
-              <Th>Buyer Person</Th>
               <Th isNumeric>Bid Price</Th>
-              <Th isNumeric>Bid Volume</Th>
+              <Th isNumeric>Units</Th>
+              <Th isNumeric>Pallets</Th>
               <Th isNumeric>Total Value</Th>
             </Tr>
           </Thead>
           <Tbody>
             {displayBids.map((bid) => (
-              <Tr key={bid.bidId}>
+              <Tr key={bid.id || bid.bidId}>
                 <Td>
                   {bid.inTheMoney ? (
                     <Text color="green.600" fontWeight="bold">
@@ -230,10 +350,10 @@ const SellerProductPage = () => {
                     </Text>
                   )}
                 </Td>
-                <Td>{bid.buyerCompany}</Td>
-                <Td>{bid.buyerPerson}</Td>
-                <Td isNumeric>${bid.bidPricePerUnit.toFixed(2)}</Td>
-                <Td isNumeric>{bid.bidVolume.toLocaleString()}</Td>
+                <Td>{bid.buyer_company || bid.buyerCompany || 'Unknown'}</Td>
+                <Td isNumeric>${bid.bidPrice.toFixed(2)}</Td>
+                <Td isNumeric>{bid.bidQuantity.toLocaleString()}</Td>
+                <Td isNumeric>{bid.pallets.toLocaleString()}</Td>
                 <Td isNumeric>${bid.totalBidValue.toLocaleString()}</Td>
               </Tr>
             ))}
