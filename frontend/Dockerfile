@@ -1,24 +1,26 @@
 # frontend/Dockerfile
-# Use the official Node.js image as a parent image
-FROM node:18-alpine
 
-# Set the working directory
+# Stage 1: Build React app
+FROM node:18-alpine as build
+
 WORKDIR /app
 
-# Copy package.json and package-lock.json files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the current directory contents into the container at /app
 COPY . .
-
-# Build the app for production
 RUN npm run build
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Stage 2: Serve with NGINX
+FROM nginx:alpine
 
-# Serve the React app
-CMD ["npm", "start"]
+# Copy build output to NGINX's public directory
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Optional: Remove default NGINX config (we'll mount our own)
+RUN rm /etc/nginx/conf.d/default.conf
+
+# NGINX will listen on 80 by default
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
