@@ -12,6 +12,8 @@ import {
   useColorModeValue,
   chakra,
 } from '@chakra-ui/react';
+import ReactMarkdown from 'react-markdown';
+
 import { Link as RouterLink } from 'react-router-dom';
 import posthog from 'posthog-js';
 import TimelineSection from '../components/TimelineSection';
@@ -30,25 +32,26 @@ const DynamicChatDemo = () => {
   const conversation = [
     {
       sender: 'Aiden',
-      text: "Hello! I'm Aiden, your AI assistant. Ready to get started?",
+      text: "Hi there — I’m Aiden, your AI buying assistant. Ready to find great deals?",
       timestamp: '03:24 PM',
     },
     {
       sender: 'User',
-      text: 'Absolutely! I want to list my excess inventory. Can you help me?',
+      text: "Yes, I’m restocking and need high-margin inventory.",
       timestamp: '03:25 PM',
     },
     {
       sender: 'Aiden',
-      text: "Of course. I'll guide you through the listing process so top buyers see it immediately.",
-      timestamp: '03:25 PM',
+      text: "Here are 2 trending products based on sales velocity and margin potential:\n\n• **MaxClean Detergent** — Moving fast in Midwest; 22% MoM growth  \n• **ProNourish Shampoo** — 18% below retail, strong POS in Northeast",
+      timestamp: '03:26 PM',
     },
     {
       sender: 'User',
-      text: 'That sounds perfect. Let’s do it!',
+      text: "Perfect. Let’s place a bid.",
       timestamp: '03:26 PM',
     },
   ];
+  
 
   const typingSpeed = 50;
   const pauseBetweenMessages = 800;
@@ -96,7 +99,7 @@ const DynamicChatDemo = () => {
   return (
     <Box
       w="100%"
-      maxW="450px"
+      maxW="550px"
       borderRadius="xl"
       border="1px solid"
       borderColor="gray.200"
@@ -124,9 +127,9 @@ const DynamicChatDemo = () => {
               <Text fontWeight="bold" fontSize="sm" mb={1}>
                 {msg.sender}
               </Text>
-              <Text whiteSpace="pre-wrap" mb="20px">
-                {msg.text}
-              </Text>
+              <Box mb="20px" className="markdown">
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              </Box>
               <chakra.span
                 position="absolute"
                 bottom="4px"
