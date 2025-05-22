@@ -3,12 +3,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import status, generics, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from .serializers import (
     RegisterSerializer, UserSerializer, ProfileSerializer,
     OrganizationSerializer, LoginSerializer, OrganizationApprovalSerializer
@@ -187,6 +188,7 @@ def accept_terms(request):
     return Response({'message': 'Terms accepted successfully'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@authentication_classes([])  # Disable authentication
 @permission_classes([permissions.AllowAny])
 def create_admin_user(request):
     """Create a new admin user (can only be done by existing admin or for first admin)"""
@@ -210,11 +212,10 @@ def create_admin_user(request):
     
     # If not the first admin, require admin authentication
     if not is_first_admin:
-        if not request.user or not request.user.is_authenticated or request.user.role != 'admin':
-            return Response(
-                {'error': 'Only existing admins can create new admin users'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        return Response(
+            {'error': 'Only existing admins can create new admin users'},
+            status=status.HTTP_403_FORBIDDEN
+        )
     
     try:
         user = User.objects.create_user(
