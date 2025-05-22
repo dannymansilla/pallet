@@ -128,6 +128,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # Your frontend running locally
+    "https://hiaiden.com/api/",
     'http://yourfrontenddomain.com',  # Your deployed frontend domain
 ]
 

@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "https://hiaiden.com";
 
 const endpoints = {
   login: `${BASE_URL}/accounts/login/`,
