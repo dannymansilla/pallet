@@ -1,4 +1,4 @@
-const BASE_URL = "https://hiaiden.com";
+const BASE_URL = "https://hiaiden.com/api";
 
 const endpoints = {
   login: `${BASE_URL}/accounts/login/`,
