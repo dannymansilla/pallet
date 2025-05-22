@@ -41,7 +41,7 @@ print(f"DB PORT: {config('POSTGRES_PORT', default='NOT_SET')}")
 SECRET_KEY = 'django-insecure-_ui9yh=3)e(@-yy6syz+atfs+pz@k@^dgd#!vh%4dw7y_eg+v5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -49,12 +49,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 PROMETHEUS_EXPORT_MIGRATIONS = False
 
 ALLOWED_HOSTS = [
-    'localhost',          # Allow requests from localhost
-    '127.0.0.1',          # Allow requests from the loopback IP
+    'localhost',
+    '127.0.0.1',
     'frontend',
-    'backend',            # The name of the service in Docker Compose
-    'backend:8000',       # If you need to include the port
-    '*',                  # Allow all hosts (use cautiously)
+    'backend',
+    'hiaiden.com',
+    'www.hiaiden.com',
 ]
 
 # Application definition
@@ -88,10 +88,11 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React app
+    "http://localhost:3000",
     "http://frontend:3000",
     "http://127.0.0.1:3000",
-    "https://hiaiden.com/api/",
+    "https://hiaiden.com",
+    "https://www.hiaiden.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -125,14 +126,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Your frontend running locally
-    "https://hiaiden.com/api/",
-    'http://yourfrontenddomain.com',  # Your deployed frontend domain
-]
-
-CORS_ALLOW_ALL_ORIGINS = True
 
 LOGIN_REDIRECT_URL = '/'   # Redirects users to the homepage after login
 LOGOUT_REDIRECT_URL = '/'  # Redirects users to the homepage after logout
@@ -204,7 +197,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'https://hiaiden.com',
+    'https://www.hiaiden.com'
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
