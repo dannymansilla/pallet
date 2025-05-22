@@ -187,9 +187,9 @@ def accept_terms(request):
     return Response({'message': 'Terms accepted successfully'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([permissions.AllowAny])
 def create_admin_user(request):
-    """Create a new admin user (can only be done by existing admin)"""
+    """Create a new admin user (can only be done by existing admin or for first admin)"""
     email = request.data.get('email')
     password = request.data.get('password')
     
@@ -204,6 +204,17 @@ def create_admin_user(request):
             {'error': 'Email already registered'},
             status=status.HTTP_400_BAD_REQUEST
         )
+    
+    # Check if this is the first admin user
+    is_first_admin = not User.objects.filter(role='admin').exists()
+    
+    # If not the first admin, require admin authentication
+    if not is_first_admin:
+        if not request.user.is_authenticated or request.user.role != 'admin':
+            return Response(
+                {'error': 'Only existing admins can create new admin users'},
+                status=status.HTTP_403_FORBIDDEN
+            )
     
     user = User.objects.create_user(
         email=email,
