@@ -6,7 +6,7 @@ let isLoggingOut = false;
 
 // Set default configuration for axios
 const API = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "https://hiaiden.com/api/",
   headers: {
     "Content-Type": "application/json",
   },
