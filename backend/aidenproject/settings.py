@@ -105,6 +105,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'UNAUTHENTICATED_USER': None,  # This ensures unauthenticated requests don't get a user
 }
 
 SIMPLE_JWT = {

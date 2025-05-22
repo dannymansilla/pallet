@@ -210,22 +210,28 @@ def create_admin_user(request):
     
     # If not the first admin, require admin authentication
     if not is_first_admin:
-        if not request.user.is_authenticated or request.user.role != 'admin':
+        if not request.user or not request.user.is_authenticated or request.user.role != 'admin':
             return Response(
                 {'error': 'Only existing admins can create new admin users'},
                 status=status.HTTP_403_FORBIDDEN
             )
     
-    user = User.objects.create_user(
-        email=email,
-        username=email,
-        password=password,
-        role='admin',
-        tos_accepted=True,
-        tos_accepted_at=timezone.now()
-    )
-    
-    return Response(
-        {'message': 'Admin user created successfully', 'user': UserSerializer(user).data},
-        status=status.HTTP_201_CREATED
-    )
+    try:
+        user = User.objects.create_user(
+            email=email,
+            username=email,
+            password=password,
+            role='admin',
+            tos_accepted=True,
+            tos_accepted_at=timezone.now()
+        )
+        
+        return Response(
+            {'message': 'Admin user created successfully', 'user': UserSerializer(user).data},
+            status=status.HTTP_201_CREATED
+        )
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to create admin user: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
