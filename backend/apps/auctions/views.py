@@ -86,7 +86,8 @@ class ListingViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        if self.request.user.role == 'seller':
+        # Use SellerListingSerializer only for GET (list/retrieve) requests by sellers
+        if self.request.user.role == 'seller' and self.action in ['list', 'retrieve']:
             return SellerListingSerializer
         return ListingSerializer
 
