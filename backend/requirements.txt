@@ -35,3 +35,4 @@ Pillow
 fuzzywuzzy
 python-Levenshtein
 openai>=1.0.0
+django-extensions
