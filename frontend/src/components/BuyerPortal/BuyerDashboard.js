@@ -119,11 +119,9 @@ const auctionItems = [
 const CATEGORIES = ["All Categories", "Henkelish", "ProPure", "DermaBeiers"];
 
 const getImageUrl = (image) => {
-  // In production, the image will be in the public folder
   if (process.env.NODE_ENV === 'production') {
-    return '/images/cardboardbox.png';
+    return '/static/media/cardboardbox.3a11b4e24ee4ded8288a.png';
   }
-  // In development, use the imported image
   return image;
 };
 
