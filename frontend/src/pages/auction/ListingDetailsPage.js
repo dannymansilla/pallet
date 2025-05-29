@@ -31,6 +31,13 @@ import { getListingDetails } from "../../services/api";
 import { placeBid, requestToJoinNetwork } from "../../services/api";
 import { FaDollarSign, FaBoxOpen } from "react-icons/fa";
 
+const getImageUrl = (image) => {
+  if (process.env.NODE_ENV === 'production') {
+    return '/static/media/cardboardbox.3a11b4e24ee4ded8288a.png';
+  }
+  return image;
+};
+
 const ListingDetailsPage = () => {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
@@ -182,7 +189,7 @@ const ListingDetailsPage = () => {
     >
       {product.image ? (
         <Image
-          src={product.image}
+          src={getImageUrl(product.image)}
           alt={product.name}
           objectFit="contain"
           width="100%" // Adjusts dynamically
