@@ -222,7 +222,7 @@ const recommendedProducts = [
 
 const getImageUrl = (image) => {
   if (process.env.NODE_ENV === 'production') {
-    return '/static/media/cardboardbox.3a11b4e24ee4ded8288a.png';
+    return '/static/media/cardboardbox.3a11b4e24ee4ded8288a.png?v=' + new Date().getTime();
   }
   return image;
 };
