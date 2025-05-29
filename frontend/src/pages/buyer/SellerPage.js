@@ -29,6 +29,13 @@ import cardboardbox from "../../images/cardboardbox.png";
 import OpenBidsTable from "../../components/BuyerPortal/OpenBidsTable";
 import OrderHistoryPage from "../../components/BuyerPortal/OrderHistoryPage";
 
+const getImageUrl = (image) => {
+  if (process.env.NODE_ENV === 'production') {
+    return '/images/cardboardbox.png';
+  }
+  return image;
+};
+
 const SellerPage = () => {
   const { sellerId } = useParams();
   const toast = useToast();
@@ -309,7 +316,7 @@ const SellerPage = () => {
           >
             <Flex>
               <Image
-                src={cardboardbox}
+                src={getImageUrl(cardboardbox)}
                 alt={prod.product_name}
                 boxSize="80px"
                 objectFit="cover"

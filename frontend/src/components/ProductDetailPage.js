@@ -220,6 +220,13 @@ const recommendedProducts = [
   },
 ];
 
+const getImageUrl = (image) => {
+  if (process.env.NODE_ENV === 'production') {
+    return '/images/cardboardbox.png';
+  }
+  return image;
+};
+
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -412,7 +419,7 @@ const ProductDetailPage = () => {
           >
             <Flex direction={{ base: "column", md: "row" }} mb={4} align="center">
               <Image
-                src={cardboardbox}
+                src={getImageUrl(cardboardbox)}
                 alt={product.name}
                 borderRadius="md"
                 w={{ base: "100%", md: "250px" }}

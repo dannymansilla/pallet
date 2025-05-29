@@ -96,6 +96,12 @@ const sampleMyBids = {
   "lost": []
 }
 
+const getImageUrl = (image) => {
+  if (process.env.NODE_ENV === 'production') {
+    return '/images/cardboardbox.png';
+  }
+  return image;
+};
 
 const MyBidsTable = ({ bids }) => {
   const navigate = useNavigate();
@@ -222,7 +228,7 @@ const MyBidsTable = ({ bids }) => {
             <Td>
               <Flex align="center" gap={3}>
                 <Image
-                  src={cardboardbox}
+                  src={getImageUrl(cardboardbox)}
                   alt={bid.productName}
                   boxSize="40px"
                   objectFit="cover"

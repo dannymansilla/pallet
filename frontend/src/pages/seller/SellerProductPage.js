@@ -103,6 +103,13 @@ const sampleBids = [
   }
 ];
 
+const getImageUrl = (image) => {
+  if (process.env.NODE_ENV === 'production') {
+    return '/images/cardboardbox.png';
+  }
+  return image;
+};
+
 const SellerProductPage = () => {
   const { listingId } = useParams();
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -262,7 +269,7 @@ const SellerProductPage = () => {
       >
         <Flex align="center" gap={6}>
           <Image
-            src={cardboardbox}
+            src={getImageUrl(cardboardbox)}
             alt={listing.short_description}
             boxSize="100px"
             objectFit="cover"

@@ -64,6 +64,13 @@ const sampleOpenBids = [
   }
 ];
 
+const getImageUrl = (image) => {
+  if (process.env.NODE_ENV === 'production') {
+    return '/images/cardboardbox.png';
+  }
+  return image;
+};
+
 /**
  * Subcomponent that renders a sortable, filterable table of bids
  */
@@ -192,7 +199,7 @@ const WarehouseBidsTable = ({ bids }) => {
             <Td width={columns[1].width}>
               <Flex align="center" gap={3}>
                 <Image
-                  src={cardboardbox}
+                  src={getImageUrl(cardboardbox)}
                   alt={bid.productName}
                   boxSize="40px"
                   objectFit="cover"

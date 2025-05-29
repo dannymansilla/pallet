@@ -118,6 +118,15 @@ const auctionItems = [
 
 const CATEGORIES = ["All Categories", "Henkelish", "ProPure", "DermaBeiers"];
 
+const getImageUrl = (image) => {
+  // In production, the image will be in the public folder
+  if (process.env.NODE_ENV === 'production') {
+    return '/images/cardboardbox.png';
+  }
+  // In development, use the imported image
+  return image;
+};
+
 const BuyerDashboard = () => {
   // Styling with color mode
   const pageBgGradient = 'white';
@@ -358,7 +367,7 @@ const BuyerDashboard = () => {
           >
             <VStack align="start" spacing={3}>
               <Image
-                src={cardboardbox}
+                src={getImageUrl(cardboardbox)}
                 alt={item.product_name}
                 borderRadius="md"
                 w="100%"
